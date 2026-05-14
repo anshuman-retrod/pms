@@ -9,8 +9,110 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as RevenueRouteImport } from './routes/revenue'
+import { Route as ReservationsRouteImport } from './routes/reservations'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as PropertyRouteImport } from './routes/property'
+import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as OtaRouteImport } from './routes/ota'
+import { Route as HousekeepingRouteImport } from './routes/housekeeping'
+import { Route as GuestsRouteImport } from './routes/guests'
+import { Route as FrontDeskRouteImport } from './routes/front-desk'
+import { Route as CommunicationsRouteImport } from './routes/communications'
+import { Route as CheckInRouteImport } from './routes/check-in'
+import { Route as BillingRouteImport } from './routes/billing'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as AiInsightsRouteImport } from './routes/ai-insights'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevenueRoute = RevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReservationsRoute = ReservationsRouteImport.update({
+  id: '/reservations',
+  path: '/reservations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyRoute = PropertyRouteImport.update({
+  id: '/property',
+  path: '/property',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsRoute = PaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OtaRoute = OtaRouteImport.update({
+  id: '/ota',
+  path: '/ota',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HousekeepingRoute = HousekeepingRouteImport.update({
+  id: '/housekeeping',
+  path: '/housekeeping',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestsRoute = GuestsRouteImport.update({
+  id: '/guests',
+  path: '/guests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrontDeskRoute = FrontDeskRouteImport.update({
+  id: '/front-desk',
+  path: '/front-desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunicationsRoute = CommunicationsRouteImport.update({
+  id: '/communications',
+  path: '/communications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckInRoute = CheckInRouteImport.update({
+  id: '/check-in',
+  path: '/check-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiInsightsRoute = AiInsightsRouteImport.update({
+  id: '/ai-insights',
+  path: '/ai-insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +121,270 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-insights': typeof AiInsightsRoute
+  '/audit': typeof AuditRoute
+  '/billing': typeof BillingRoute
+  '/check-in': typeof CheckInRoute
+  '/communications': typeof CommunicationsRoute
+  '/front-desk': typeof FrontDeskRoute
+  '/guests': typeof GuestsRoute
+  '/housekeeping': typeof HousekeepingRoute
+  '/ota': typeof OtaRoute
+  '/payments': typeof PaymentsRoute
+  '/property': typeof PropertyRoute
+  '/reports': typeof ReportsRoute
+  '/reservations': typeof ReservationsRoute
+  '/revenue': typeof RevenueRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
+  '/staff': typeof StaffRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-insights': typeof AiInsightsRoute
+  '/audit': typeof AuditRoute
+  '/billing': typeof BillingRoute
+  '/check-in': typeof CheckInRoute
+  '/communications': typeof CommunicationsRoute
+  '/front-desk': typeof FrontDeskRoute
+  '/guests': typeof GuestsRoute
+  '/housekeeping': typeof HousekeepingRoute
+  '/ota': typeof OtaRoute
+  '/payments': typeof PaymentsRoute
+  '/property': typeof PropertyRoute
+  '/reports': typeof ReportsRoute
+  '/reservations': typeof ReservationsRoute
+  '/revenue': typeof RevenueRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
+  '/staff': typeof StaffRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-insights': typeof AiInsightsRoute
+  '/audit': typeof AuditRoute
+  '/billing': typeof BillingRoute
+  '/check-in': typeof CheckInRoute
+  '/communications': typeof CommunicationsRoute
+  '/front-desk': typeof FrontDeskRoute
+  '/guests': typeof GuestsRoute
+  '/housekeeping': typeof HousekeepingRoute
+  '/ota': typeof OtaRoute
+  '/payments': typeof PaymentsRoute
+  '/property': typeof PropertyRoute
+  '/reports': typeof ReportsRoute
+  '/reservations': typeof ReservationsRoute
+  '/revenue': typeof RevenueRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
+  '/staff': typeof StaffRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ai-insights'
+    | '/audit'
+    | '/billing'
+    | '/check-in'
+    | '/communications'
+    | '/front-desk'
+    | '/guests'
+    | '/housekeeping'
+    | '/ota'
+    | '/payments'
+    | '/property'
+    | '/reports'
+    | '/reservations'
+    | '/revenue'
+    | '/rooms'
+    | '/settings'
+    | '/staff'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ai-insights'
+    | '/audit'
+    | '/billing'
+    | '/check-in'
+    | '/communications'
+    | '/front-desk'
+    | '/guests'
+    | '/housekeeping'
+    | '/ota'
+    | '/payments'
+    | '/property'
+    | '/reports'
+    | '/reservations'
+    | '/revenue'
+    | '/rooms'
+    | '/settings'
+    | '/staff'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-insights'
+    | '/audit'
+    | '/billing'
+    | '/check-in'
+    | '/communications'
+    | '/front-desk'
+    | '/guests'
+    | '/housekeeping'
+    | '/ota'
+    | '/payments'
+    | '/property'
+    | '/reports'
+    | '/reservations'
+    | '/revenue'
+    | '/rooms'
+    | '/settings'
+    | '/staff'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiInsightsRoute: typeof AiInsightsRoute
+  AuditRoute: typeof AuditRoute
+  BillingRoute: typeof BillingRoute
+  CheckInRoute: typeof CheckInRoute
+  CommunicationsRoute: typeof CommunicationsRoute
+  FrontDeskRoute: typeof FrontDeskRoute
+  GuestsRoute: typeof GuestsRoute
+  HousekeepingRoute: typeof HousekeepingRoute
+  OtaRoute: typeof OtaRoute
+  PaymentsRoute: typeof PaymentsRoute
+  PropertyRoute: typeof PropertyRoute
+  ReportsRoute: typeof ReportsRoute
+  ReservationsRoute: typeof ReservationsRoute
+  RevenueRoute: typeof RevenueRoute
+  RoomsRoute: typeof RoomsRoute
+  SettingsRoute: typeof SettingsRoute
+  StaffRoute: typeof StaffRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revenue': {
+      id: '/revenue'
+      path: '/revenue'
+      fullPath: '/revenue'
+      preLoaderRoute: typeof RevenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reservations': {
+      id: '/reservations'
+      path: '/reservations'
+      fullPath: '/reservations'
+      preLoaderRoute: typeof ReservationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property': {
+      id: '/property'
+      path: '/property'
+      fullPath: '/property'
+      preLoaderRoute: typeof PropertyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ota': {
+      id: '/ota'
+      path: '/ota'
+      fullPath: '/ota'
+      preLoaderRoute: typeof OtaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/housekeeping': {
+      id: '/housekeeping'
+      path: '/housekeeping'
+      fullPath: '/housekeeping'
+      preLoaderRoute: typeof HousekeepingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guests': {
+      id: '/guests'
+      path: '/guests'
+      fullPath: '/guests'
+      preLoaderRoute: typeof GuestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/front-desk': {
+      id: '/front-desk'
+      path: '/front-desk'
+      fullPath: '/front-desk'
+      preLoaderRoute: typeof FrontDeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/communications': {
+      id: '/communications'
+      path: '/communications'
+      fullPath: '/communications'
+      preLoaderRoute: typeof CommunicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/check-in': {
+      id: '/check-in'
+      path: '/check-in'
+      fullPath: '/check-in'
+      preLoaderRoute: typeof CheckInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-insights': {
+      id: '/ai-insights'
+      path: '/ai-insights'
+      fullPath: '/ai-insights'
+      preLoaderRoute: typeof AiInsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +397,24 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiInsightsRoute: AiInsightsRoute,
+  AuditRoute: AuditRoute,
+  BillingRoute: BillingRoute,
+  CheckInRoute: CheckInRoute,
+  CommunicationsRoute: CommunicationsRoute,
+  FrontDeskRoute: FrontDeskRoute,
+  GuestsRoute: GuestsRoute,
+  HousekeepingRoute: HousekeepingRoute,
+  OtaRoute: OtaRoute,
+  PaymentsRoute: PaymentsRoute,
+  PropertyRoute: PropertyRoute,
+  ReportsRoute: ReportsRoute,
+  ReservationsRoute: ReservationsRoute,
+  RevenueRoute: RevenueRoute,
+  RoomsRoute: RoomsRoute,
+  SettingsRoute: SettingsRoute,
+  StaffRoute: StaffRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

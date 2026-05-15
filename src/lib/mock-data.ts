@@ -70,6 +70,73 @@ export const activityFeed = [
   { time: "09:48", text: "OTA rate updated · Booking.com · Deluxe King +₹600", tone: "warning" as const },
 ];
 
+// ---- Dashboard additions ----
+export const occupancyByType = [
+  { type: "Deluxe King", total: 36, occupied: 31 },
+  { type: "Deluxe Twin", total: 28, occupied: 22 },
+  { type: "Premier Suite", total: 24, occupied: 19 },
+  { type: "Executive", total: 20, occupied: 8 },
+  { type: "Heritage Suite", total: 12, occupied: 4 },
+];
+
+export const revenueKpis = [
+  { label: "Rooms", today: 1842000, budget: 1700000, sty: 1610000 },
+  { label: "Food & Beverage", today: 624000, budget: 700000, sty: 580000 },
+  { label: "Spa & Wellness", today: 198000, budget: 150000, sty: 142000 },
+  { label: "Misc", today: 84000, budget: 80000, sty: 78000 },
+];
+
+export const dashboardAlerts = [
+  { id: "A1", tone: "brand" as const, title: "VIP arrival in 1h 42m", body: "Sophie Laurent · Heritage Suite 405 · Amenity setup pending", at: "13:18" },
+  { id: "A2", tone: "warning" as const, title: "Overdue checkout · Room 312", body: "Priya Sharma · ₹4,800 balance · 38 min over checkout time", at: "11:38" },
+  { id: "A3", tone: "error" as const, title: "Critical work order open 5h 12m", body: "Room 207 · HVAC failure · Engineering: Suresh", at: "08:46" },
+  { id: "A4", tone: "warning" as const, title: "Linen below par", body: "Bath towels 22% below par · auto PR raised to vendor", at: "07:55" },
+  { id: "A5", tone: "info" as const, title: "OTA rate parity drift", body: "Agoda showing -3% vs hotel website on Deluxe King", at: "07:12" },
+];
+
+export const forecast7d = Array.from({ length: 7 }, (_, i) => {
+  const labels = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+  const occ = [86, 91, 72, 68, 74, 82, 88][i];
+  const adr = [13200, 14400, 11800, 11400, 12100, 12900, 13600][i];
+  return { day: labels[i], date: 16 + i, occ, adr, revenue: Math.round((occ / 100) * 120 * adr) };
+});
+
+// ---- Reservations: calendars ----
+export const availabilityMatrix = (() => {
+  const types = ["Deluxe King", "Deluxe Twin", "Premier Suite", "Executive", "Heritage Suite"];
+  return types.map((t, ti) => ({
+    type: t,
+    days: Array.from({ length: 14 }, (_, di) => {
+      const seed = (ti * 7 + di * 3) % 11;
+      const total = [36, 28, 24, 20, 12][ti];
+      const sold = Math.min(total, Math.round(total * (0.55 + seed / 22)));
+      return { date: 15 + di, sold, total };
+    }),
+  }));
+})();
+
+export const rateCalendar = (() => {
+  const types = ["Deluxe King", "Premier Suite", "Heritage Suite"];
+  const base = [11000, 22000, 35000];
+  return types.map((t, ti) => ({
+    type: t,
+    days: Array.from({ length: 14 }, (_, di) => {
+      const isWknd = (di + 5) % 7 === 0 || (di + 6) % 7 === 0;
+      const isEvent = di === 6 || di === 7;
+      const factor = isEvent ? 1.32 : isWknd ? 1.18 : 1;
+      return { date: 15 + di, rate: Math.round(base[ti] * factor), tag: isEvent ? "Event" : isWknd ? "Weekend" : "BAR" as const };
+    }),
+  }));
+})();
+
+export const restrictions = [
+  { date: 16, type: "Heritage Suite", kind: "Min 2N" },
+  { date: 18, type: "All", kind: "CTA" },
+  { date: 21, type: "Premier Suite", kind: "Stop Sell" },
+  { date: 22, type: "All", kind: "CTD" },
+  { date: 24, type: "Deluxe King", kind: "Min 3N" },
+];
+
 export const guests = [
   { name: "Sophie Laurent", country: "France", visits: 4, ltv: 412000, tier: "Platinum" },
   { name: "John Mathews", country: "UK", visits: 2, ltv: 96000, tier: "Gold" },

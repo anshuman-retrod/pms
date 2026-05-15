@@ -27,6 +27,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AiInsightsRouteImport } from './routes/ai-insights'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -118,6 +119,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReservationsNewRoute = ReservationsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ReservationsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -133,11 +139,12 @@ export interface FileRoutesByFullPath {
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRoute
+  '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -153,11 +160,12 @@ export interface FileRoutesByTo {
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRoute
+  '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -174,11 +182,12 @@ export interface FileRoutesById {
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
-  '/reservations': typeof ReservationsRoute
+  '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/reservations/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/reservations/new'
   id:
     | '__root__'
     | '/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/reservations/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,7 +269,7 @@ export interface RootRouteChildren {
   PaymentsRoute: typeof PaymentsRoute
   PropertyRoute: typeof PropertyRoute
   ReportsRoute: typeof ReportsRoute
-  ReservationsRoute: typeof ReservationsRoute
+  ReservationsRoute: typeof ReservationsRouteWithChildren
   RevenueRoute: typeof RevenueRoute
   RoomsRoute: typeof RoomsRoute
   SettingsRoute: typeof SettingsRoute
@@ -392,8 +404,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reservations/new': {
+      id: '/reservations/new'
+      path: '/new'
+      fullPath: '/reservations/new'
+      preLoaderRoute: typeof ReservationsNewRouteImport
+      parentRoute: typeof ReservationsRoute
+    }
   }
 }
+
+interface ReservationsRouteChildren {
+  ReservationsNewRoute: typeof ReservationsNewRoute
+}
+
+const ReservationsRouteChildren: ReservationsRouteChildren = {
+  ReservationsNewRoute: ReservationsNewRoute,
+}
+
+const ReservationsRouteWithChildren = ReservationsRoute._addFileChildren(
+  ReservationsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -409,7 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentsRoute: PaymentsRoute,
   PropertyRoute: PropertyRoute,
   ReportsRoute: ReportsRoute,
-  ReservationsRoute: ReservationsRoute,
+  ReservationsRoute: ReservationsRouteWithChildren,
   RevenueRoute: RevenueRoute,
   RoomsRoute: RoomsRoute,
   SettingsRoute: SettingsRoute,
@@ -418,13 +449,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

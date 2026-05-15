@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { Filter, Plus, Search, Ban, Lock, AlertOctagon } from "lucide-react";
 import { PageHeader, Card, CardHeader, StatusBadge, Button } from "@/components/ui-kit/Primitives";
 import { reservations, availabilityMatrix, rateCalendar, restrictions } from "@/lib/mock-data";

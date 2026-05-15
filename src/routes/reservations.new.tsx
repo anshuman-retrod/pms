@@ -28,10 +28,14 @@ function NewReservation() {
   return (
     <div>
       <PageHeader
-        eyebrow={<Link to="/reservations" className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary"><ArrowLeft className="h-3 w-3" />Back to reservations</Link> as any}
+        eyebrow="Reservations · New"
         title="New reservation"
         description="Choose a booking type and complete the form. Auto-confirmation sent on submit."
-        actions={<><Button variant="outline" size="sm">Save draft</Button><Button size="sm">Confirm reservation</Button></>}
+        actions={<>
+          <Link to="/reservations"><Button variant="outline" size="sm"><ArrowLeft className="h-3.5 w-3.5" />Back</Button></Link>
+          <Button variant="outline" size="sm">Save draft</Button>
+          <Button size="sm">Confirm reservation</Button>
+        </>}
       />
 
       <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-[260px_1fr]">

@@ -67,7 +67,7 @@ const allOf = (...keys: Permission[]) => keys;
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   owner: [...ALL_PERMISSIONS],
-  general_manager: ALL_PERMISSIONS.filter(p => p !== "roles.manage" && p !== "onboarding.run").concat(["onboarding.run","roles.manage"]),
+  general_manager: [...ALL_PERMISSIONS],
   front_office_manager: allOf(
     "dashboard.view",
     "reservations.view","reservations.create","reservations.modify","reservations.cancel",

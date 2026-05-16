@@ -4,54 +4,60 @@ import {
   Users, MessageSquare, Receipt, CreditCard, TrendingUp, Globe2,
   BarChart3, Brain, BedDouble, UserCog, ScrollText, Building2, Settings,
   Bell, HelpCircle, ChevronDown, ChevronsLeft, ChevronsRight, Star, LogOut,
+  ShieldCheck, Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { ROLE_LABEL, type Permission } from "@/lib/rbac";
 
-type Item = { label: string; to: string; icon: React.ComponentType<{ className?: string }> };
+type Item = { label: string; to: string; icon: React.ComponentType<{ className?: string }>; perm: Permission };
 type Group = { title: string; items: Item[] };
 
 const groups: Group[] = [
   {
     title: "Operations",
     items: [
-      { label: "Dashboard", to: "/", icon: LayoutDashboard },
-      { label: "Front Desk", to: "/front-desk", icon: ConciergeBell },
-      { label: "Reservations", to: "/reservations", icon: CalendarRange },
-      { label: "Check-In / Out", to: "/check-in", icon: LogIn },
-      { label: "Housekeeping", to: "/housekeeping", icon: Sparkles },
+      { label: "Dashboard",      to: "/",             icon: LayoutDashboard, perm: "dashboard.view" },
+      { label: "Front Desk",     to: "/front-desk",   icon: ConciergeBell,   perm: "frontdesk.view" },
+      { label: "Reservations",   to: "/reservations", icon: CalendarRange,   perm: "reservations.view" },
+      { label: "Check-In / Out", to: "/check-in",     icon: LogIn,           perm: "frontdesk.checkin" },
+      { label: "Housekeeping",   to: "/housekeeping", icon: Sparkles,        perm: "housekeeping.view" },
     ],
   },
   {
     title: "Guests",
     items: [
-      { label: "Guest Profiles", to: "/guests", icon: Users },
-      { label: "Communications", to: "/communications", icon: MessageSquare },
+      { label: "Guest Profiles",  to: "/guests",         icon: Users,         perm: "guests.view" },
+      { label: "Communications",  to: "/communications", icon: MessageSquare, perm: "guests.communicate" },
     ],
   },
   {
     title: "Commercial",
     items: [
-      { label: "Billing & Invoicing", to: "/billing", icon: Receipt },
-      { label: "Payments", to: "/payments", icon: CreditCard },
-      { label: "Revenue Mgmt", to: "/revenue", icon: TrendingUp },
-      { label: "OTA & Channels", to: "/ota", icon: Globe2 },
+      { label: "Billing & Invoicing", to: "/billing",  icon: Receipt,    perm: "billing.view" },
+      { label: "Payments",            to: "/payments", icon: CreditCard, perm: "payments.process" },
+      { label: "Revenue Mgmt",        to: "/revenue",  icon: TrendingUp, perm: "revenue.view" },
+      { label: "OTA & Channels",      to: "/ota",      icon: Globe2,     perm: "ota.manage" },
     ],
   },
   {
     title: "Intelligence",
     items: [
-      { label: "Reports & Analytics", to: "/reports", icon: BarChart3 },
-      { label: "AI Insights", to: "/ai-insights", icon: Brain },
+      { label: "Reports & Analytics", to: "/reports",     icon: BarChart3, perm: "reports.view" },
+      { label: "AI Insights",         to: "/ai-insights", icon: Brain,     perm: "ai.view" },
     ],
   },
   {
     title: "Administration",
     items: [
-      { label: "Rooms & Inventory", to: "/rooms", icon: BedDouble },
-      { label: "Staff Management", to: "/staff", icon: UserCog },
-      { label: "Audit Logs", to: "/audit", icon: ScrollText },
-      { label: "Property Config", to: "/property", icon: Building2 },
-      { label: "System Settings", to: "/settings", icon: Settings },
+      { label: "Rooms & Inventory", to: "/rooms",       icon: BedDouble,    perm: "rooms.manage" },
+      { label: "Staff Management",  to: "/staff",       icon: UserCog,      perm: "staff.manage" },
+      { label: "Users & Access",    to: "/users",       icon: Users,        perm: "users.manage" },
+      { label: "Roles & Privileges",to: "/roles",       icon: ShieldCheck,  perm: "roles.manage" },
+      { label: "Property Onboarding", to: "/onboarding",icon: Rocket,       perm: "onboarding.run" },
+      { label: "Audit Logs",        to: "/audit",       icon: ScrollText,   perm: "audit.view" },
+      { label: "Property Config",   to: "/property",    icon: Building2,    perm: "property.configure" },
+      { label: "System Settings",   to: "/settings",    icon: Settings,     perm: "settings.manage" },
     ],
   },
 ];
@@ -59,6 +65,7 @@ const groups: Group[] = [
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+  const { user, logout, can } = useAuth();
 
   return (
     <aside
@@ -102,39 +109,43 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
       {/* Nav */}
       <nav className="scrollbar-thin mt-4 flex-1 overflow-y-auto px-2 pb-4">
-        {groups.map((group) => (
-          <div key={group.title} className="mb-4">
-            {!collapsed && (
-              <div className="px-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-sidebar-muted">
-                {group.title}
-              </div>
-            )}
-            <ul className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = isActive(item.to);
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className={cn(
-                        "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-normal text-sidebar-foreground/85 transition-colors",
-                        "hover:bg-sidebar-hover hover:text-sidebar-foreground",
-                        active && "bg-sidebar-hover text-sidebar-foreground font-medium",
-                        collapsed && "justify-center px-0",
-                      )}
-                    >
-                      {active && (
-                        <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-r bg-primary" />
-                      )}
-                      <item.icon className="h-[18px] w-[18px] shrink-0 stroke-[1.5]" />
-                      {!collapsed && <span className="truncate">{item.label}</span>}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+        {groups.map((group) => {
+          const visibleItems = group.items.filter(i => can(i.perm));
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={group.title} className="mb-4">
+              {!collapsed && (
+                <div className="px-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-sidebar-muted">
+                  {group.title}
+                </div>
+              )}
+              <ul className="space-y-0.5">
+                {visibleItems.map((item) => {
+                  const active = isActive(item.to);
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        className={cn(
+                          "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-normal text-sidebar-foreground/85 transition-colors",
+                          "hover:bg-sidebar-hover hover:text-sidebar-foreground",
+                          active && "bg-sidebar-hover text-sidebar-foreground font-medium",
+                          collapsed && "justify-center px-0",
+                        )}
+                      >
+                        {active && (
+                          <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-r bg-primary" />
+                        )}
+                        <item.icon className="h-[18px] w-[18px] shrink-0 stroke-[1.5]" />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </nav>
 
       {/* Bottom */}
@@ -150,18 +161,18 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
         {!collapsed ? (
           <div className="mt-2 flex items-center gap-2 rounded-md border border-sidebar-border bg-sidebar-hover/40 p-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">AM</div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{user?.initials ?? "—"}</div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[12px] font-medium">Aarav Malhotra</div>
-              <div className="truncate text-[10px] text-sidebar-muted">General Manager</div>
+              <div className="truncate text-[12px] font-medium">{user?.name ?? "Guest"}</div>
+              <div className="truncate text-[10px] text-sidebar-muted">{user ? ROLE_LABEL[user.role] : "Not signed in"}</div>
             </div>
-            <button className="rounded p-1 text-sidebar-muted hover:bg-sidebar-hover hover:text-sidebar-foreground" aria-label="Logout">
+            <button onClick={logout} className="rounded p-1 text-sidebar-muted hover:bg-sidebar-hover hover:text-sidebar-foreground" aria-label="Logout">
               <LogOut className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
           <div className="mt-2 flex justify-center">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">AM</div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{user?.initials ?? "—"}</div>
           </div>
         )}
 

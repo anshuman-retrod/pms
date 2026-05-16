@@ -4,12 +4,15 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
+  Navigate,
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/layout/AppShell";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -61,14 +64,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Retrod PMS — Hospitality Operating System" },
       { name: "description", content: "Enterprise-grade Property Management System for luxury hotels and hospitality groups." },
-      { property: "og:title", content: "Retrod PMS — Hospitality Operating System" },
-      { name: "twitter:title", content: "Retrod PMS — Hospitality Operating System" },
-      { property: "og:description", content: "Enterprise-grade Property Management System for luxury hotels and hospitality groups." },
-      { name: "twitter:description", content: "Enterprise-grade Property Management System for luxury hotels and hospitality groups." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bcae2450-a7bb-405d-a301-fb4e9c3b4ebb/id-preview-e1429a39--7738200b-4795-422d-8a99-7d1d1ada5810.lovable.app-1778787597184.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bcae2450-a7bb-405d-a301-fb4e9c3b4ebb/id-preview-e1429a39--7738200b-4795-422d-8a99-7d1d1ada5810.lovable.app-1778787597184.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:type", content: "website" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -87,13 +82,31 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AuthGate() {
+  const { isAuthenticated } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Login page renders standalone (no shell)
+  if (pathname === "/login") return <Outlet />;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AppShell>
-        <Outlet />
-      </AppShell>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

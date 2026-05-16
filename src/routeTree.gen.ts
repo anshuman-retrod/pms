@@ -9,15 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as RolesRouteImport } from './routes/roles'
 import { Route as RevenueRouteImport } from './routes/revenue'
 import { Route as ReservationsRouteImport } from './routes/reservations'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PropertyRouteImport } from './routes/property'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as OtaRouteImport } from './routes/ota'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HousekeepingRouteImport } from './routes/housekeeping'
 import { Route as GuestsRouteImport } from './routes/guests'
 import { Route as FrontDeskRouteImport } from './routes/front-desk'
@@ -29,6 +33,11 @@ import { Route as AiInsightsRouteImport } from './routes/ai-insights'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
 
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -42,6 +51,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const RoomsRoute = RoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RolesRoute = RolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RevenueRoute = RevenueRouteImport.update({
@@ -72,6 +86,16 @@ const PaymentsRoute = PaymentsRouteImport.update({
 const OtaRoute = OtaRouteImport.update({
   id: '/ota',
   path: '/ota',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HousekeepingRoute = HousekeepingRouteImport.update({
@@ -135,15 +159,19 @@ export interface FileRoutesByFullPath {
   '/front-desk': typeof FrontDeskRoute
   '/guests': typeof GuestsRoute
   '/housekeeping': typeof HousekeepingRoute
+  '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/ota': typeof OtaRoute
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
+  '/roles': typeof RolesRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/users': typeof UsersRoute
   '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRoutesByTo {
@@ -156,15 +184,19 @@ export interface FileRoutesByTo {
   '/front-desk': typeof FrontDeskRoute
   '/guests': typeof GuestsRoute
   '/housekeeping': typeof HousekeepingRoute
+  '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/ota': typeof OtaRoute
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
+  '/roles': typeof RolesRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/users': typeof UsersRoute
   '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRoutesById {
@@ -178,15 +210,19 @@ export interface FileRoutesById {
   '/front-desk': typeof FrontDeskRoute
   '/guests': typeof GuestsRoute
   '/housekeeping': typeof HousekeepingRoute
+  '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/ota': typeof OtaRoute
   '/payments': typeof PaymentsRoute
   '/property': typeof PropertyRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
   '/revenue': typeof RevenueRoute
+  '/roles': typeof RolesRoute
   '/rooms': typeof RoomsRoute
   '/settings': typeof SettingsRoute
   '/staff': typeof StaffRoute
+  '/users': typeof UsersRoute
   '/reservations/new': typeof ReservationsNewRoute
 }
 export interface FileRouteTypes {
@@ -201,15 +237,19 @@ export interface FileRouteTypes {
     | '/front-desk'
     | '/guests'
     | '/housekeeping'
+    | '/login'
+    | '/onboarding'
     | '/ota'
     | '/payments'
     | '/property'
     | '/reports'
     | '/reservations'
     | '/revenue'
+    | '/roles'
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/users'
     | '/reservations/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -222,15 +262,19 @@ export interface FileRouteTypes {
     | '/front-desk'
     | '/guests'
     | '/housekeeping'
+    | '/login'
+    | '/onboarding'
     | '/ota'
     | '/payments'
     | '/property'
     | '/reports'
     | '/reservations'
     | '/revenue'
+    | '/roles'
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/users'
     | '/reservations/new'
   id:
     | '__root__'
@@ -243,15 +287,19 @@ export interface FileRouteTypes {
     | '/front-desk'
     | '/guests'
     | '/housekeeping'
+    | '/login'
+    | '/onboarding'
     | '/ota'
     | '/payments'
     | '/property'
     | '/reports'
     | '/reservations'
     | '/revenue'
+    | '/roles'
     | '/rooms'
     | '/settings'
     | '/staff'
+    | '/users'
     | '/reservations/new'
   fileRoutesById: FileRoutesById
 }
@@ -265,19 +313,30 @@ export interface RootRouteChildren {
   FrontDeskRoute: typeof FrontDeskRoute
   GuestsRoute: typeof GuestsRoute
   HousekeepingRoute: typeof HousekeepingRoute
+  LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
   OtaRoute: typeof OtaRoute
   PaymentsRoute: typeof PaymentsRoute
   PropertyRoute: typeof PropertyRoute
   ReportsRoute: typeof ReportsRoute
   ReservationsRoute: typeof ReservationsRouteWithChildren
   RevenueRoute: typeof RevenueRoute
+  RolesRoute: typeof RolesRoute
   RoomsRoute: typeof RoomsRoute
   SettingsRoute: typeof SettingsRoute
   StaffRoute: typeof StaffRoute
+  UsersRoute: typeof UsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff': {
       id: '/staff'
       path: '/staff'
@@ -297,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/rooms'
       fullPath: '/rooms'
       preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roles': {
+      id: '/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof RolesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/revenue': {
@@ -339,6 +405,20 @@ declare module '@tanstack/react-router' {
       path: '/ota'
       fullPath: '/ota'
       preLoaderRoute: typeof OtaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/housekeeping': {
@@ -436,15 +516,19 @@ const rootRouteChildren: RootRouteChildren = {
   FrontDeskRoute: FrontDeskRoute,
   GuestsRoute: GuestsRoute,
   HousekeepingRoute: HousekeepingRoute,
+  LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
   OtaRoute: OtaRoute,
   PaymentsRoute: PaymentsRoute,
   PropertyRoute: PropertyRoute,
   ReportsRoute: ReportsRoute,
   ReservationsRoute: ReservationsRouteWithChildren,
   RevenueRoute: RevenueRoute,
+  RolesRoute: RolesRoute,
   RoomsRoute: RoomsRoute,
   SettingsRoute: SettingsRoute,
   StaffRoute: StaffRoute,
+  UsersRoute: UsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

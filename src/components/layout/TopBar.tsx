@@ -1,5 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Search, Bell, Plus, Calendar } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { ROLE_LABEL } from "@/lib/rbac";
 
 const labels: Record<string, string> = {
   "": "Dashboard",
@@ -35,6 +37,7 @@ export function TopBar() {
   const seg = pathname.replace(/^\//, "").split("/")[0];
   const page = labels[seg] ?? "Dashboard";
   const group = groupOf[seg] ?? "Operations";
+  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-border bg-surface px-6">
@@ -79,10 +82,10 @@ export function TopBar() {
         </button>
 
         <div className="flex items-center gap-2 border-l border-border pl-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">AM</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">{user?.initials ?? "—"}</div>
           <div className="hidden text-left lg:block">
-            <div className="text-[12px] font-medium leading-tight text-text-primary">Aarav Malhotra</div>
-            <div className="text-[10px] text-text-secondary">GM · Admin</div>
+            <div className="text-[12px] font-medium leading-tight text-text-primary">{user?.name ?? "Guest"}</div>
+            <div className="text-[10px] text-text-secondary">{user ? ROLE_LABEL[user.role] : "Not signed in"}</div>
           </div>
         </div>
       </div>

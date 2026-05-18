@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { ROLE_LABEL } from "@/lib/rbac";
 import {
   Lock, User, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight,
-  Sun, Sparkles, Zap, BarChart3, Heart, Quote,
+  Sun, Plane, Sparkles, Zap, BarChart3, Heart, Quote,
 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -75,32 +75,10 @@ function LoginPage() {
             </ul>
           </div>
 
-          {/* Calendar + KPIs + testimonial */}
+          {/* Calendar + testimonial */}
           <div className="flex flex-col gap-5">
             <CalendarCard />
-            <TodayCard />
             <TestimonialCard />
-          </div>
-        </div>
-
-        {/* Trusted by */}
-        <div className="px-12 pb-10">
-          <div className="mb-5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
-            Trusted by leading hotels
-          </div>
-          <div className="grid grid-cols-5 items-center gap-6 opacity-70">
-            {[
-              { name: "The Grand",     sub: "Palace" },
-              { name: "Majestic",      sub: "Suites" },
-              { name: "Ocean Breeze",  sub: "Resort & Spa" },
-              { name: "The Capital",   sub: "Hotel" },
-              { name: "Royal Orchid",  sub: "Hotels" },
-            ].map((b) => (
-              <div key={b.name} className="text-center">
-                <div className="font-display text-[14px] tracking-[0.18em] text-white/85">{b.name.toUpperCase()}</div>
-                <div className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.22em] text-white/40">{b.sub}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -111,7 +89,7 @@ function LoginPage() {
           <Sun className="h-4 w-4" />
         </button>
 
-        <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center px-6 py-16">
+        <div className="mx-auto flex w-full max-w-[340px] flex-1 flex-col justify-center px-5 py-12">
           <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-primary">Welcome back</div>
           <h2 className="mt-2 font-display text-[34px] font-semibold leading-tight text-text-primary">Sign in to Retrod</h2>
           <p className="mt-2 text-[13.5px] text-text-secondary">Use your assigned credentials to access the property.</p>

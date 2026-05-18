@@ -179,10 +179,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function CalendarCard() {
   const today = 14;
   const days = useMemo(() => {
-    // May 2026 starts on Friday. Show preceding Mon-Thu from April (27,28,29,30).
-    const prev = [27, 28, 29, 30];
+    // May 2026 starts on Friday. Empty cells for Mon-Thu, then May 1-31.
+    const empty = Array.from({ length: 4 }, () => null);
     const cur = Array.from({ length: 31 }, (_, i) => i + 1);
-    return [...prev, ...cur];
+    return [...empty, ...cur];
   }, []);
 
   return (
@@ -201,14 +201,17 @@ function CalendarCard() {
           <div key={d} className="text-[10px] font-medium tracking-wider text-white/35">{d}</div>
         ))}
         {days.map((d, idx) => {
-          const isPrev = idx < 4;
-          const isToday = !isPrev && d === today;
+          const isToday = d === today;
           return (
             <div key={idx} className="flex items-center justify-center">
-              <div className={[
-                "flex h-8 w-8 items-center justify-center rounded-full text-[12.5px]",
-                isToday ? "bg-primary font-semibold text-primary-foreground" : isPrev ? "text-white/25" : "text-white/75 hover:bg-white/5",
-              ].join(" ")}>{d}</div>
+              {d !== null ? (
+                <div className={[
+                  "flex h-8 w-8 items-center justify-center rounded-full text-[12.5px]",
+                  isToday ? "bg-primary font-semibold text-primary-foreground" : "text-white/75 hover:bg-white/5",
+                ].join(" ")}>{d}</div>
+              ) : (
+                <div className="h-8 w-8" />
+              )}
             </div>
           );
         })}

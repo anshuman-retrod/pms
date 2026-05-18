@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { ROLE_LABEL } from "@/lib/rbac";
 import {
   Lock, User, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight,
-  Sun, Plane, PlaneLanding, Gauge, TrendingUp, Sparkles, Zap, BarChart3, Heart, Quote,
+  Sun, Plane, Sparkles, Zap, BarChart3, Heart, Quote,
 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -75,32 +75,10 @@ function LoginPage() {
             </ul>
           </div>
 
-          {/* Calendar + KPIs + testimonial */}
+          {/* Calendar + testimonial */}
           <div className="flex flex-col gap-5">
             <CalendarCard />
-            <TodayCard />
             <TestimonialCard />
-          </div>
-        </div>
-
-        {/* Trusted by */}
-        <div className="px-12 pb-10">
-          <div className="mb-5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
-            Trusted by leading hotels
-          </div>
-          <div className="grid grid-cols-5 items-center gap-6 opacity-70">
-            {[
-              { name: "The Grand",     sub: "Palace" },
-              { name: "Majestic",      sub: "Suites" },
-              { name: "Ocean Breeze",  sub: "Resort & Spa" },
-              { name: "The Capital",   sub: "Hotel" },
-              { name: "Royal Orchid",  sub: "Hotels" },
-            ].map((b) => (
-              <div key={b.name} className="text-center">
-                <div className="font-display text-[14px] tracking-[0.18em] text-white/85">{b.name.toUpperCase()}</div>
-                <div className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.22em] text-white/40">{b.sub}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -111,7 +89,7 @@ function LoginPage() {
           <Sun className="h-4 w-4" />
         </button>
 
-        <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center px-6 py-16">
+        <div className="mx-auto flex w-full max-w-[340px] flex-1 flex-col justify-center px-5 py-12">
           <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-primary">Welcome back</div>
           <h2 className="mt-2 font-display text-[34px] font-semibold leading-tight text-text-primary">Sign in to Retrod</h2>
           <p className="mt-2 text-[13.5px] text-text-secondary">Use your assigned credentials to access the property.</p>
@@ -201,10 +179,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function CalendarCard() {
   const today = 14;
   const days = useMemo(() => {
-    // May 2026 starts on Friday. Show preceding Mon-Thu from April (27,28,29,30).
-    const prev = [27, 28, 29, 30];
+    // May 2026 starts on Friday. Empty cells for Mon-Thu, then May 1-31.
+    const empty = Array.from({ length: 4 }, () => null);
     const cur = Array.from({ length: 31 }, (_, i) => i + 1);
-    return [...prev, ...cur];
+    return [...empty, ...cur];
   }, []);
 
   return (
@@ -223,14 +201,17 @@ function CalendarCard() {
           <div key={d} className="text-[10px] font-medium tracking-wider text-white/35">{d}</div>
         ))}
         {days.map((d, idx) => {
-          const isPrev = idx < 4;
-          const isToday = !isPrev && d === today;
+          const isToday = d === today;
           return (
             <div key={idx} className="flex items-center justify-center">
-              <div className={[
-                "flex h-8 w-8 items-center justify-center rounded-full text-[12.5px]",
-                isToday ? "bg-primary font-semibold text-primary-foreground" : isPrev ? "text-white/25" : "text-white/75 hover:bg-white/5",
-              ].join(" ")}>{d}</div>
+              {d !== null ? (
+                <div className={[
+                  "flex h-8 w-8 items-center justify-center rounded-full text-[12.5px]",
+                  isToday ? "bg-primary font-semibold text-primary-foreground" : "text-white/75 hover:bg-white/5",
+                ].join(" ")}>{d}</div>
+              ) : (
+                <div className="h-8 w-8" />
+              )}
             </div>
           );
         })}
@@ -239,33 +220,6 @@ function CalendarCard() {
   );
 }
 
-function TodayCard() {
-  const items = [
-    { label: "Arrivals",   value: "12",      icon: Plane,        tone: "text-[oklch(0.78_0.16_300)]" },
-    { label: "Departures", value: "08",      icon: PlaneLanding, tone: "text-[oklch(0.78_0.13_150)]" },
-    { label: "Occupancy",  value: "72%",     icon: Gauge,        tone: "text-[oklch(0.82_0.14_85)]" },
-    { label: "RevPAR",     value: "₹ 8,540", icon: TrendingUp,   tone: "text-[oklch(0.78_0.13_220)]" },
-  ];
-  return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-[13px] font-medium text-white/85">Today at a glance</div>
-        <div className="text-[11px] text-white/40">May 14, 2026</div>
-      </div>
-      <div className="grid grid-cols-4 gap-2.5">
-        {items.map((it) => (
-          <div key={it.label} className="rounded-lg border border-white/8 bg-white/[0.02] p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-[10px] uppercase tracking-wider text-white/45">{it.label}</div>
-              <it.icon className={`h-3.5 w-3.5 ${it.tone}`} />
-            </div>
-            <div className="mt-2 font-display text-[18px] font-semibold text-white">{it.value}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function TestimonialCard() {
   return (

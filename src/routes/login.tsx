@@ -217,33 +217,6 @@ function CalendarCard() {
   );
 }
 
-function TodayCard() {
-  const items = [
-    { label: "Arrivals",   value: "12",      icon: Plane,        tone: "text-[oklch(0.78_0.16_300)]" },
-    { label: "Departures", value: "08",      icon: PlaneLanding, tone: "text-[oklch(0.78_0.13_150)]" },
-    { label: "Occupancy",  value: "72%",     icon: Gauge,        tone: "text-[oklch(0.82_0.14_85)]" },
-    { label: "RevPAR",     value: "₹ 8,540", icon: TrendingUp,   tone: "text-[oklch(0.78_0.13_220)]" },
-  ];
-  return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-[13px] font-medium text-white/85">Today at a glance</div>
-        <div className="text-[11px] text-white/40">May 14, 2026</div>
-      </div>
-      <div className="grid grid-cols-4 gap-2.5">
-        {items.map((it) => (
-          <div key={it.label} className="rounded-lg border border-white/8 bg-white/[0.02] p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-[10px] uppercase tracking-wider text-white/45">{it.label}</div>
-              <it.icon className={`h-3.5 w-3.5 ${it.tone}`} />
-            </div>
-            <div className="mt-2 font-display text-[18px] font-semibold text-white">{it.value}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function TestimonialCard() {
   return (

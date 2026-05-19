@@ -15,22 +15,70 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+type Mode = "otp" | "password";
+type ErrorKind = null | "credentials" | "otp_expired" | "network";
+
 function LoginPage() {
   const { users, login, isAuthenticated } = useAuth();
   const nav = useNavigate();
+  const [mode, setMode] = useState<Mode>("password");
   const [selected, setSelected] = useState<string>(users[0]?.id ?? "");
-  const [email, setEmail] = useState("you@hotel.com");
+
+  // OTP state
+  const [contact, setContact] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  // Password state
+  const [username, setUsername] = useState("aarav_admin");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [remember, setRemember] = useState(false);
 
+  // Async UI state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<ErrorKind>(null);
+
   useEffect(() => { if (isAuthenticated) nav({ to: "/" }); }, [isAuthenticated, nav]);
 
-  const submit = (e: React.FormEvent) => {
+  const errorMsg = useMemo(() => {
+    switch (error) {
+      case "credentials": return "Invalid credentials. Please check your username and password.";
+      case "otp_expired": return "OTP expired. Please request a new code.";
+      case "network":     return "Network issue. Check your connection and try again.";
+      default: return null;
+    }
+  }, [error]);
+
+  const fakeDelay = () => new Promise<void>(r => setTimeout(r, 700));
+
+  const submitPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); setLoading(true);
+    await fakeDelay();
     const match =
-      users.find(u => u.email.toLowerCase() === email.toLowerCase()) ??
+      users.find(u => u.email.toLowerCase().startsWith(username.toLowerCase())) ??
       users.find(u => u.id === selected);
+    setLoading(false);
+    if (!match || !password) { setError("credentials"); return; }
+    login(match.id); nav({ to: "/" });
+  };
+
+  const sendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contact.trim()) { setError("credentials"); return; }
+    setError(null); setLoading(true);
+    await fakeDelay();
+    setLoading(false); setOtpSent(true);
+  };
+
+  const verifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null); setLoading(true);
+    await fakeDelay();
+    setLoading(false);
+    if (otp.length < 4) { setError("otp_expired"); return; }
+    const match = users.find(u => u.id === selected) ?? users[0];
     if (match) { login(match.id); nav({ to: "/" }); }
   };
 

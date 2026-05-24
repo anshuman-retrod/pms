@@ -107,3 +107,6 @@ export interface GuestProfile {
   ltv: number;
   tier: "Platinum" | "Gold" | "Silver" | "Bronze" | "Standard";
 }
+
+export type Guest = GuestProfile;
+

@@ -1,4 +1,6 @@
 import { Role, Permission } from "@/types/rbac";
+export type { Role, Permission };
+
 
 export const ALL_PERMISSIONS: Permission[] = [
   "dashboard.view",

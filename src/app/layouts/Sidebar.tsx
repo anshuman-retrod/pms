@@ -127,14 +127,14 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                       <Link
                         to={item.to}
                         className={cn(
-                          "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-normal text-sidebar-foreground/85 transition-colors",
+                          "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-normal text-sidebar-foreground/75 transition-colors",
                           "hover:bg-sidebar-hover hover:text-sidebar-foreground",
-                          active && "bg-sidebar-hover text-sidebar-foreground font-medium",
+                          active && "bg-primary text-primary-foreground font-medium hover:bg-primary",
                           collapsed && "justify-center px-0",
                         )}
                       >
                         {active && (
-                          <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-r bg-primary" />
+                          <span className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r bg-white" />
                         )}
                         <item.icon className="h-[18px] w-[18px] shrink-0 stroke-[1.5]" />
                         {!collapsed && <span className="truncate">{item.label}</span>}

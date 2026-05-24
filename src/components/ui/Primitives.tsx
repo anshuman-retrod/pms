@@ -37,8 +37,8 @@ export function CardHeader({ title, action, hint }: { title: string; action?: Re
 
 type Tone = "success" | "warning" | "error" | "info" | "neutral" | "brand" | "dark";
 const toneClasses: Record<Tone, string> = {
-  success: "bg-[oklch(0.95_0.05_152)] text-[var(--color-success)]",
-  warning: "bg-[oklch(0.96_0.06_70)] text-[var(--color-warning)]",
+  success: "bg-primary-tint text-primary-pressed",
+  warning: "bg-[oklch(0.965_0.05_70)] text-[oklch(0.55_0.13_60)]",
   error: "bg-[oklch(0.96_0.06_27)] text-[var(--color-error)]",
   info: "bg-[oklch(0.95_0.04_263)] text-[var(--color-info)]",
   neutral: "bg-surface-2 text-text-secondary",
@@ -56,7 +56,7 @@ export function StatusBadge({ tone = "neutral", children }: { tone?: Tone; child
 }
 
 export function KpiCard({
-  label, value, delta, deltaTone = "success", accent = "info", suffix,
+  label, value, delta, deltaTone = "success", accent = "brand", suffix,
 }: {
   label: string;
   value: string;
@@ -74,11 +74,11 @@ export function KpiCard({
   }[accent];
   const deltaCls = deltaTone === "success" ? "text-[var(--color-success)]" : deltaTone === "error" ? "text-[var(--color-error)]" : "text-text-secondary";
   return (
-    <div className="relative rounded-lg border border-border bg-surface px-5 py-4 shadow-e1">
+    <div className="relative rounded-lg border border-border bg-surface px-5 py-4 shadow-e1 transition hover:shadow-e2">
       <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-r" style={{ background: accentColor }} />
       <div className="label-uppercase">{label}</div>
       <div className="mt-1.5 flex items-baseline gap-1">
-        <span className="text-[24px] font-semibold leading-none tracking-tight text-text-primary">{value}</span>
+        <span className="font-mono text-[26px] font-semibold leading-none tracking-tight text-text-primary">{value}</span>
         {suffix && <span className="text-[12px] text-text-secondary">{suffix}</span>}
       </div>
       {delta && <div className={cn("mt-2 text-[11px] font-medium", deltaCls)}>{delta}</div>}
@@ -92,16 +92,17 @@ export function SectionDivider({ children }: { children: React.ReactNode }) {
 
 export function Button({
   variant = "primary", size = "md", className, children, ...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "outline"; size?: "sm" | "md" }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "outline" | "danger"; size?: "sm" | "md" }) {
   const sz = size === "sm" ? "h-8 px-3 text-[12px]" : "h-9 px-3.5 text-[13px]";
   const styles = {
-    primary: "bg-primary text-primary-foreground hover:bg-primary-pressed",
-    secondary: "bg-foreground text-background hover:bg-foreground/90",
-    outline: "border border-border bg-surface text-text-primary hover:bg-surface-2",
+    primary: "bg-primary text-primary-foreground hover:bg-primary-pressed shadow-e1",
+    secondary: "bg-accent text-accent-foreground hover:bg-primary-tint",
+    outline: "border border-border bg-surface text-primary hover:bg-surface-2",
     ghost: "text-text-secondary hover:bg-surface-2 hover:text-text-primary",
+    danger: "bg-[oklch(0.96_0.06_27)] text-[var(--color-error)] hover:bg-[oklch(0.93_0.09_27)]",
   }[variant];
   return (
-    <button {...rest} className={cn("inline-flex items-center gap-1.5 rounded-md font-medium transition active:scale-[0.98]", sz, styles, className)}>
+    <button {...rest} className={cn("inline-flex items-center gap-1.5 rounded-md font-medium transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30", sz, styles, className)}>
       {children}
     </button>
   );

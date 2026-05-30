@@ -1,0 +1,65 @@
+---
+description: Retrod PMS color theme, typography, and folder conventions
+alwaysApply: true
+---
+
+# Retrod PMS — Design system & structure
+
+## Color theme (source: `src/styles.css`)
+
+**Brand:** Rose primary `#C7346A` — use `bg-primary`, `text-primary`, `hover:bg-primary-pressed`, `bg-primary-tint` for highlights.
+
+**Surfaces:** `bg-background` (#F5F7FA), `bg-surface` / `bg-card` (white), `bg-surface-2` (#EEF2F6).
+
+**Text:** `text-text-primary` (#111827), `text-text-secondary` / `text-muted-foreground` (#6B7280), `text-text-disabled`.
+
+**Sidebar (dark navy):** `bg-sidebar` (#071A2F), `text-sidebar-foreground`, `hover:bg-sidebar-hover`, `border-sidebar-border`.
+
+**Semantic:** `text-success` / `warning` / `error` / `info` / `text-gold` — prefer these over raw hex.
+
+**Borders:** `border-border`, `border-border-subtle`, `border-border-strong`.
+
+**Shadows:** `shadow-e1`, `shadow-e2`, `shadow-e3`.
+
+Do **not** hardcode brand hex in new UI. Use theme tokens. Status tints may use oklch only when matching `StatusBadge` tones in `Primitives.tsx`.
+
+## Typography
+
+- Body/UI: **DM Sans** (`font-sans`, 14px base)
+- Headings/display: **Playfair Display** (`font-display`)
+- Data/code: **JetBrains Mono** (`font-mono`)
+- Section labels: `.label-uppercase` utility
+
+## Tailwind / shadcn
+
+- shadcn **new-york** style; primitives in `@/components/ui/*`
+- App-specific layout primitives: `@/components/ui/Primitives` (`PageHeader`, `Card`, `StatusBadge`, `KpiCard`, `Button`)
+- Prefer `@/components/ui/Primitives` over `@/components/ui-kit/Primitives` (re-export only)
+
+## Folder structure
+
+```
+src/
+  routes/          # TanStack Router file routes (thin; import features)
+  features/        # Domain UI by area (dashboard, reservations, billing, …)
+  app/layouts/     # AppShell, Sidebar, TopBar (canonical)
+  components/
+    layout/        # Re-exports app/layouts (use these imports in routes)
+    ui/            # shadcn + Primitives
+  lib/             # auth, utils, mock stores
+  services/mock/   # Mock DB
+  types/           # pms, auth, rbac
+```
+
+New screens: add `src/routes/<name>.tsx` + `src/features/<domain>/components/*Feature.tsx`. Wrap authenticated pages via `AppShell` in `__root.tsx` (login/onboarding exceptions).
+
+## Auth / layout
+
+- Unauthenticated users → `/login` (no shell)
+- Authenticated → `AppShell` with dark sidebar + light main content
+- RBAC: `useAuth().can(permission)` and `features/auth/lib/rbac.ts`
+
+## Known gaps
+
+- No `.dark` theme variables defined (light-only product theme today)
+- Some marketing/login gradients use inline oklch — keep login special-case, use tokens elsewhere

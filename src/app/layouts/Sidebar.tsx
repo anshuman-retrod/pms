@@ -1,14 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, CalendarRange, ConciergeBell, LogIn, Sparkles,
+  LayoutDashboard, CalendarRange, ConciergeBell, LogIn, Sparkles, Wrench,
   Users, MessageSquare, Receipt, CreditCard, TrendingUp, Globe2,
-  BarChart3, Brain, BedDouble, UserCog, ScrollText, Building2, Settings,
+  BarChart3, Brain, LineChart, BedDouble, UserCog, ScrollText, Building2, Settings,
+  UsersRound, Building, ListTodo, Smartphone, Search, MessageCircle,
+  Award, FileSignature, Gift, Puzzle, Globe, Car, MapPin, Layers, BellRing,
   Bell, HelpCircle, ChevronDown, ChevronsLeft, ChevronsRight, Star, LogOut,
   ShieldCheck, Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { ROLE_LABEL, type Permission } from "@/features/auth/lib/rbac";
+import { ROLE_LABEL } from "@/features/auth/lib/rbac";
+import { type Permission } from "@/types/rbac";
 
 type Item = { label: string; to: string; icon: React.ComponentType<{ className?: string }>; perm: Permission };
 type Group = { title: string; items: Item[] };
@@ -18,33 +21,52 @@ const groups: Group[] = [
     title: "Operations",
     items: [
       { label: "Dashboard",      to: "/",             icon: LayoutDashboard, perm: "dashboard.view" },
+      { label: "Multi-Property", to: "/dashboard/multi-property", icon: Layers, perm: "portfolio.view" },
       { label: "Front Desk",     to: "/front-desk",   icon: ConciergeBell,   perm: "frontdesk.view" },
       { label: "Reservations",   to: "/reservations", icon: CalendarRange,   perm: "reservations.view" },
       { label: "Check-In / Out", to: "/check-in",     icon: LogIn,           perm: "frontdesk.checkin" },
       { label: "Housekeeping",   to: "/housekeeping", icon: Sparkles,        perm: "housekeeping.view" },
+      { label: "HK Mobile",      to: "/housekeeping/mobile", icon: Smartphone, perm: "housekeeping.view" },
+      { label: "Maintenance",    to: "/maintenance",  icon: Wrench,          perm: "maintenance.view" },
+      { label: "Tasks",          to: "/tasks",        icon: ListTodo,        perm: "tasks.view" },
+      { label: "Lost & Found",   to: "/lost-found",   icon: Search,          perm: "lostfound.view" },
     ],
   },
   {
     title: "Guests",
     items: [
-      { label: "Guest Profiles",  to: "/guests",         icon: Users,         perm: "guests.view" },
-      { label: "Communications",  to: "/communications", icon: MessageSquare, perm: "guests.communicate" },
+      { label: "Guest Profiles",  to: "/guests",              icon: Users,           perm: "guests.view" },
+      { label: "Loyalty Program", to: "/loyalty",             icon: Award,           perm: "loyalty.view" },
+      { label: "Communications",  to: "/communications",    icon: MessageSquare,   perm: "guests.communicate" },
+      { label: "Guest Requests",  to: "/guest-requests",      icon: Smartphone,      perm: "guestrequests.view" },
+      { label: "Guest Feedback",  to: "/feedback",          icon: MessageCircle,   perm: "feedback.view" },
+      { label: "Registration Cards", to: "/registration-cards", icon: FileSignature, perm: "registration.view" },
     ],
   },
   {
     title: "Commercial",
     items: [
-      { label: "Billing & Invoicing", to: "/billing",  icon: Receipt,    perm: "billing.view" },
-      { label: "Payments",            to: "/payments", icon: CreditCard, perm: "payments.process" },
-      { label: "Revenue Mgmt",        to: "/revenue",  icon: TrendingUp, perm: "revenue.view" },
-      { label: "OTA & Channels",      to: "/ota",      icon: Globe2,     perm: "ota.manage" },
+      { label: "Billing & Invoicing", to: "/billing",        icon: Receipt,    perm: "billing.view" },
+      { label: "Payments",            to: "/payments",       icon: CreditCard, perm: "payments.process" },
+      { label: "Revenue Mgmt",        to: "/revenue",        icon: TrendingUp, perm: "revenue.view" },
+      { label: "Dynamic Pricing",     to: "/pricing",        icon: TrendingUp, perm: "pricing.view" },
+      { label: "Channel Manager",     to: "/channel-manager", icon: Globe2,     perm: "ota.manage" },
+      { label: "Booking Engine",      to: "/booking-engine", icon: Globe,      perm: "bookingengine.view" },
+      { label: "Group Bookings",      to: "/groups",         icon: UsersRound, perm: "groups.view" },
+      { label: "Corporate Accounts",  to: "/corporate",      icon: Building,   perm: "corporate.view" },
+      { label: "Packages",            to: "/packages",       icon: Gift,       perm: "packages.view" },
+      { label: "Add-On Services",     to: "/add-ons",        icon: Puzzle,     perm: "addons.view" },
+      { label: "Concierge",           to: "/concierge",      icon: BellRing,   perm: "concierge.view" },
+      { label: "Transportation",      to: "/transport",      icon: Car,        perm: "transport.view" },
+      { label: "Activities",          to: "/activities",     icon: MapPin,     perm: "activities.view" },
     ],
   },
   {
     title: "Intelligence",
     items: [
-      { label: "Reports & Analytics", to: "/reports",     icon: BarChart3, perm: "reports.view" },
-      { label: "AI Insights",         to: "/ai-insights", icon: Brain,     perm: "ai.view" },
+      { label: "Reports & Analytics", to: "/reports",              icon: BarChart3, perm: "reports.view" },
+      { label: "Executive Analytics", to: "/analytics/executive",  icon: LineChart, perm: "analytics.executive" },
+      { label: "AI Insights",         to: "/ai-insights",          icon: Brain,     perm: "ai.view" },
     ],
   },
   {

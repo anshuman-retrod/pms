@@ -3,13 +3,14 @@ import {
   Search, ArrowRight, ArrowLeft, IdCard, KeyRound, CreditCard, CheckCircle2,
   Camera, AlertCircle, Crown, Clock,
 } from "lucide-react";
-import { PageHeader, Card, CardHeader, Button, StatusBadge } from "@/components/ui/Primitives";
-import { arrivalsToday, departuresToday } from "@/services/mock/db";
+import { PageHeader, Card, CardHeader, Button, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import { arrivalsToday, departuresToday, onlineCheckIns } from "@/services/mock/db";
 
 const STEPS = ["Find guest", "Verify ID", "Assign room", "Payment", "Issue key"] as const;
 
 export function CheckInFeature() {
-  const [tab, setTab] = useState<"checkin" | "checkout">("checkin");
+  const [tab, setTab] = useState<"checkin" | "online" | "checkout">("checkin");
+  const pendingOnline = onlineCheckIns.filter((o) => o.status === "Pending review").length;
   const [step, setStep] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState<string>("204");
 
@@ -22,16 +23,27 @@ export function CheckInFeature() {
       />
 
       <div className="space-y-6 p-6">
-        <div className="flex rounded-md border border-border bg-surface p-0.5 text-[13px] w-fit">
+        <div className="flex flex-wrap rounded-md border border-border bg-surface p-0.5 text-[13px] w-fit">
           <button
+            type="button"
             onClick={() => setTab("checkin")}
             className={`rounded px-4 py-1.5 transition ${
               tab === "checkin" ? "bg-foreground text-background" : "text-text-secondary"
             }`}
           >
-            Check-In · 24
+            Walk-in check-in
           </button>
           <button
+            type="button"
+            onClick={() => setTab("online")}
+            className={`rounded px-4 py-1.5 transition ${
+              tab === "online" ? "bg-foreground text-background" : "text-text-secondary"
+            }`}
+          >
+            Online pre-check-in · {onlineCheckIns.length}
+          </button>
+          <button
+            type="button"
             onClick={() => setTab("checkout")}
             className={`rounded px-4 py-1.5 transition ${
               tab === "checkout" ? "bg-foreground text-background" : "text-text-secondary"
@@ -40,6 +52,70 @@ export function CheckInFeature() {
             Check-Out · 18
           </button>
         </div>
+
+        {tab === "online" && (
+          <>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <KpiCard label="Pre-check-ins today" value={String(onlineCheckIns.length)} accent="brand" />
+              <KpiCard label="Pending review" value={String(pendingOnline)} accent="warning" />
+              <KpiCard label="Completed" value="1" accent="success" />
+              <KpiCard label="Avg completion" value="4.2 min" accent="info" />
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
+              <Card>
+                <CardHeader title="Online queue" hint="Sorted by ETA" />
+                <ul className="divide-y divide-border-subtle">
+                  {onlineCheckIns.map((o, i) => (
+                    <li
+                      key={o.resId}
+                      className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition ${
+                        i === 0 ? "bg-primary-tint/40" : "hover:bg-surface-2/60"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[13px] font-medium text-text-primary">{o.guest}</div>
+                        <div className="text-[11px] text-text-secondary">
+                          {o.resId} · {o.roomType}
+                        </div>
+                      </div>
+                      <StatusBadge
+                        tone={
+                          o.status === "Approved"
+                            ? "success"
+                            : o.status === "Needs info"
+                              ? "error"
+                              : "warning"
+                        }
+                      >
+                        {o.status}
+                      </StatusBadge>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+              <Card>
+                <CardHeader
+                  title="Verify · Elena Rodriguez"
+                  hint={`${onlineCheckIns[0].resId} · ETA ${onlineCheckIns[0].eta}`}
+                />
+                <div className="space-y-4 p-5 text-[13px]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <VerifyRow label="ID verified" ok={onlineCheckIns[0].idVerified} />
+                    <VerifyRow label="Payment" value={onlineCheckIns[0].paymentStatus} />
+                    <VerifyRow label="Room type" value={onlineCheckIns[0].roomType} />
+                    <VerifyRow label="ETA" value={onlineCheckIns[0].eta} />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button size="sm">Approve & assign room</Button>
+                    <Button size="sm" variant="outline">
+                      Request more info
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </>
+        )}
 
         {tab === "checkin" && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
@@ -407,6 +483,17 @@ function StepKey({ room }: { room: string }) {
           <KeyRound className="h-3.5 w-3.5" />
           Encode keys (×2)
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function VerifyRow({ label, ok, value }: { label: string; ok?: boolean; value?: string }) {
+  return (
+    <div className="rounded-md border border-border-subtle bg-surface-2/40 p-2.5">
+      <div className="label-uppercase text-[9px]">{label}</div>
+      <div className="mt-0.5 font-medium text-text-primary">
+        {value ?? (ok ? "Yes" : "Pending")}
       </div>
     </div>
   );

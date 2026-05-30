@@ -9,22 +9,20 @@ export type Role =
   | "revenue_manager";
 
 export type Permission =
-  // Dashboard
   | "dashboard.view"
-  // Reservations
   | "reservations.view" | "reservations.create" | "reservations.modify" | "reservations.cancel"
-  // Front office
   | "frontdesk.view" | "frontdesk.checkin" | "frontdesk.checkout" | "frontdesk.roommove"
-  // Housekeeping
   | "housekeeping.view" | "housekeeping.assign" | "housekeeping.status"
-  // Guests / CRM
+  | "maintenance.view" | "maintenance.manage"
   | "guests.view" | "guests.edit" | "guests.communicate"
-  // Billing & payments
   | "billing.view" | "billing.post" | "billing.refund" | "billing.void" | "payments.process"
-  // Revenue / OTA
-  | "revenue.view" | "revenue.editrates" | "ota.manage"
-  // Reports & AI
+  | "revenue.view" | "revenue.editrates" | "pricing.view" | "pricing.manage" | "ota.manage"
+  | "groups.view" | "groups.manage" | "corporate.view" | "corporate.manage"
+  | "analytics.executive" | "portfolio.view"
+  | "loyalty.view" | "registration.view" | "guestrequests.view"
+  | "tasks.view" | "tasks.manage" | "lostfound.view" | "feedback.view"
+  | "bookingengine.view" | "packages.view" | "addons.view"
+  | "concierge.view" | "transport.view" | "activities.view"
   | "reports.view" | "reports.export" | "ai.view"
-  // Admin
   | "rooms.manage" | "staff.manage" | "users.manage" | "roles.manage"
   | "audit.view" | "property.configure" | "settings.manage" | "onboarding.run";

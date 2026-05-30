@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { OtaFeature } from "@/features/settings/components/OtaFeature";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/ota")({
-  head: () => ({ meta: [{ title: "OTA & Channels — Retrod PMS" }] }),
-  component: OtaFeature,
+  beforeLoad: () => {
+    throw redirect({ to: "/channel-manager" });
+  },
 });

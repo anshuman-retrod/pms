@@ -4,10 +4,11 @@ import { type Guest } from "@/types/pms";
 
 interface GuestsListProps {
   guests: Guest[];
+  selectedName?: string;
   onSelectGuest: (g: Guest) => void;
 }
 
-export function GuestsList({ guests, onSelectGuest }: GuestsListProps) {
+export function GuestsList({ guests, selectedName, onSelectGuest }: GuestsListProps) {
   return (
     <Card>
       <CardHeader
@@ -36,7 +37,10 @@ export function GuestsList({ guests, onSelectGuest }: GuestsListProps) {
           </thead>
           <tbody>
             {guests.map((g) => (
-              <tr key={g.name} className="border-b border-border-subtle hover:bg-surface-2/50">
+              <tr
+                key={g.name}
+                className={`border-b border-border-subtle hover:bg-surface-2/50 ${selectedName === g.name ? "bg-primary-tint/30" : ""}`}
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">

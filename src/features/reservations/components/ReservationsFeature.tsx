@@ -7,7 +7,15 @@ import {
   availabilityMatrix,
   rateCalendar,
   restrictions,
+  waitlist,
+  groupBlocks,
+  arrivalsToday,
+  departuresToday,
+  occupancyByType,
 } from "@/services/mock/db";
+import { KpiCard } from "@/components/ui/Primitives";
+import { WaitlistView } from "./WaitlistView";
+import { BlocksView } from "./BlocksView";
 import { TimelineView } from "./TimelineView";
 import { TableView } from "./TableView";
 import { AvailabilityView } from "./AvailabilityView";
@@ -46,13 +54,17 @@ const sourceColor: Record<string, string> = {
 const statusTone = (s: string) =>
   (({ Confirmed: "success", "Checked-In": "info", "Checked-Out": "neutral", Pending: "warning", Cancelled: "error", "No-Show": "dark" }[s] as any) || "neutral");
 
-type View = "timeline" | "table" | "availability" | "rate" | "restrictions";
+type View = "timeline" | "table" | "availability" | "rate" | "restrictions" | "waitlist" | "blocks";
 
 export function ReservationsFeature() {
   const [view, setView] = useState<View>("timeline");
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
   const filtered = statusFilter === "All" ? reservations : reservations.filter((r) => r.status === statusFilter);
+  const totalRooms = occupancyByType.reduce((a, b) => a + b.total, 0);
+  const occupied = occupancyByType.reduce((a, b) => a + b.occupied, 0);
+  const occPct = Math.round((occupied / totalRooms) * 1000) / 10;
+  const cancellationsToday = reservations.filter((r) => r.status === "Cancelled").length;
 
   return (
     <div>
@@ -77,6 +89,14 @@ export function ReservationsFeature() {
       />
 
       <div className="space-y-6 p-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <KpiCard label="Total reservations" value={String(reservations.length)} accent="brand" />
+          <KpiCard label="Check-ins today" value={String(arrivalsToday.length)} accent="success" />
+          <KpiCard label="Check-outs today" value={String(departuresToday.length)} accent="warning" />
+          <KpiCard label="Occupancy" value={`${occPct}%`} accent="info" />
+          <KpiCard label="Cancellations" value={String(cancellationsToday)} deltaTone="error" accent="error" />
+        </div>
+
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative w-72">
@@ -87,7 +107,7 @@ export function ReservationsFeature() {
             />
           </div>
           <div className="flex rounded-md border border-border bg-surface p-0.5 text-[12px]">
-            {(["timeline", "table", "availability", "rate", "restrictions"] as View[]).map((v) => (
+            {(["timeline", "table", "availability", "rate", "restrictions", "waitlist", "blocks"] as View[]).map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
@@ -103,7 +123,11 @@ export function ReservationsFeature() {
                     ? "Restrictions"
                     : v === "availability"
                       ? "Availability"
-                      : v}
+                      : v === "waitlist"
+                        ? "Waitlist"
+                        : v === "blocks"
+                          ? "Blocks"
+                          : v}
               </button>
             ))}
           </div>
@@ -141,6 +165,10 @@ export function ReservationsFeature() {
         {view === "rate" && <RateView rateCalendar={rateCalendar} />}
 
         {view === "restrictions" && <RestrictionsView restrictions={restrictions} />}
+
+        {view === "waitlist" && <WaitlistView entries={waitlist} />}
+
+        {view === "blocks" && <BlocksView blocks={groupBlocks} />}
       </div>
     </div>
   );

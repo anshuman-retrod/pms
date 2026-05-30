@@ -9,6 +9,7 @@ import { HousekeepingOverview } from "./HousekeepingOverview";
 import { RevenueForecast } from "./RevenueForecast";
 import { RevenueOccupancyTrend } from "./RevenueOccupancyTrend";
 import { ActivityFeed } from "./ActivityFeed";
+import { OpsSummaryRow } from "./OpsSummaryRow";
 
 const tooltipStyle = {
   background: "var(--color-surface)",
@@ -70,6 +71,9 @@ export function DashboardFeature() {
           <ArrivalsDepartures />
           <AlertNotifications />
         </div>
+
+        {/* === Ops command center (P0) === */}
+        <OpsSummaryRow />
 
         {/* === Row 3: HK Status overview + Forecast === */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

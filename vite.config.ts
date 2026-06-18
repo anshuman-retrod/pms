@@ -22,7 +22,7 @@ export default defineConfig(async ({ command }) => {
     viteReact(),
   ];
 
-  if (command === "build") {
+  if (command === "build" && !process.env.VERCEL) {
     try {
       const { cloudflare } = await import("@cloudflare/vite-plugin");
       plugins.push(

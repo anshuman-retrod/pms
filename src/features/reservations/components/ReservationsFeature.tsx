@@ -150,11 +150,7 @@ export function ReservationsFeature() {
             value={String(hotelPackages.filter((p) => p.status === "Active").length)}
             accent="warning"
           />
-          <KpiCard
-            label="Add-on services"
-            value={String(addOnProducts.length)}
-            accent="brand"
-          />
+          <KpiCard label="Add-on services" value={String(addOnProducts.length)} accent="brand" />
         </div>
 
         {/* Toolbar */}
@@ -168,39 +164,39 @@ export function ReservationsFeature() {
           </div>
           <div className="w-full overflow-x-auto sm:w-auto">
             <div className="flex min-w-max rounded-md border border-border bg-surface p-0.5 text-[12px]">
-            {(
-              [
-                "timeline",
-                "table",
-                "availability",
-                "rate",
-                "restrictions",
-                "waitlist",
-                "blocks",
-              ] as View[]
-            ).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`rounded px-3 py-1 capitalize transition ${
-                  view === v
-                    ? "bg-foreground text-background"
-                    : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                {v === "rate"
-                  ? "Rate Cal"
-                  : v === "restrictions"
-                    ? "Restrictions"
-                    : v === "availability"
-                      ? "Availability"
-                      : v === "waitlist"
-                        ? "Waitlist"
-                        : v === "blocks"
-                          ? "Blocks"
-                          : v}
-              </button>
-            ))}
+              {(
+                [
+                  "timeline",
+                  "table",
+                  "availability",
+                  "rate",
+                  "restrictions",
+                  "waitlist",
+                  "blocks",
+                ] as View[]
+              ).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`rounded px-3 py-1 capitalize transition ${
+                    view === v
+                      ? "bg-foreground text-background"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  {v === "rate"
+                    ? "Rate Cal"
+                    : v === "restrictions"
+                      ? "Restrictions"
+                      : v === "availability"
+                        ? "Availability"
+                        : v === "waitlist"
+                          ? "Waitlist"
+                          : v === "blocks"
+                            ? "Blocks"
+                            : v}
+                </button>
+              ))}
             </div>
           </div>
           {view === "table" && (

@@ -16,7 +16,14 @@ import {
   Clock3,
   RotateCcw,
 } from "lucide-react";
-import { PageHeader, Card, CardHeader, Button, KpiCard, StatusBadge } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Card,
+  CardHeader,
+  Button,
+  KpiCard,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 import {
   useWebsiteBuilderWorkspaceQuery,
   useWebsiteBuilderApprovalsQuery,
@@ -233,13 +240,16 @@ export function WebsiteBuilderFeature() {
 
   const moveSection = (index: number, dir: -1 | 1) => {
     const nextIndex = index + dir;
-    updateSections((current) => {
-      if (nextIndex < 0 || nextIndex >= current.length) return current;
-      const cloned = [...current];
-      const [picked] = cloned.splice(index, 1);
-      cloned.splice(nextIndex, 0, picked);
-      return cloned;
-    }, `Moved "${sections[index]?.name ?? "section"}" ${dir === -1 ? "up" : "down"}`);
+    updateSections(
+      (current) => {
+        if (nextIndex < 0 || nextIndex >= current.length) return current;
+        const cloned = [...current];
+        const [picked] = cloned.splice(index, 1);
+        cloned.splice(nextIndex, 0, picked);
+        return cloned;
+      },
+      `Moved "${sections[index]?.name ?? "section"}" ${dir === -1 ? "up" : "down"}`,
+    );
   };
 
   const duplicateSection = (index: number) => {
@@ -268,7 +278,9 @@ export function WebsiteBuilderFeature() {
     if (!target) return;
     updateSections(
       (current) =>
-        current.map((section, i) => (i === index ? { ...section, visible: !section.visible } : section)),
+        current.map((section, i) =>
+          i === index ? { ...section, visible: !section.visible } : section,
+        ),
       `${target.visible ? "Hidden" : "Shown"} "${target.name}"`,
     );
   };
@@ -373,13 +385,22 @@ export function WebsiteBuilderFeature() {
 
   const schedulePagePublish = () => {
     if (!selectedPage) return;
-    const scheduled = new Date(Date.now() + 1000 * 60 * 60 * 12).toISOString().slice(0, 16).replace("T", " ");
+    const scheduled = new Date(Date.now() + 1000 * 60 * 60 * 12)
+      .toISOString()
+      .slice(0, 16)
+      .replace("T", " ");
     const nextPages = workspace.pages.map((page) =>
-      page.id === selectedPage.id ? { ...page, scheduledPublishAt: scheduled, status: "Ready" as const } : page,
+      page.id === selectedPage.id
+        ? { ...page, scheduledPublishAt: scheduled, status: "Ready" as const }
+        : page,
     );
-    persistWorkspace({ ...workspace, pages: nextPages }, `Scheduled publish for "${selectedPage.name}"`, {
-      saveVersion: true,
-    });
+    persistWorkspace(
+      { ...workspace, pages: nextPages },
+      `Scheduled publish for "${selectedPage.name}"`,
+      {
+        saveVersion: true,
+      },
+    );
   };
 
   const publish = () => {
@@ -468,20 +489,20 @@ export function WebsiteBuilderFeature() {
               </div>
               <div className="space-y-1">
                 {scheduledPages.map((page) => (
-                    <div
-                      key={`sched-${page.id}`}
-                      className="rounded border border-border-subtle px-2 py-1 text-[11px] text-text-secondary"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span>
-                          {page.name} at {page.scheduledPublishAt}
-                        </span>
-                        <StatusBadge tone={page.due ? "warning" : "info"}>
-                          {page.due ? "Publishing..." : page.countdown}
-                        </StatusBadge>
-                      </div>
+                  <div
+                    key={`sched-${page.id}`}
+                    className="rounded border border-border-subtle px-2 py-1 text-[11px] text-text-secondary"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span>
+                        {page.name} at {page.scheduledPublishAt}
+                      </span>
+                      <StatusBadge tone={page.due ? "warning" : "info"}>
+                        {page.due ? "Publishing..." : page.countdown}
+                      </StatusBadge>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
               <Button variant="outline" size="sm" className="w-full" onClick={createPage}>
                 <Plus className="h-3.5 w-3.5" />
@@ -532,7 +553,9 @@ export function WebsiteBuilderFeature() {
                 <div key={section.id} className="rounded-md border border-border p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[13px] font-medium text-text-primary">{section.name}</div>
+                      <div className="text-[13px] font-medium text-text-primary">
+                        {section.name}
+                      </div>
                       <div className="mt-0.5 text-[11px] text-text-secondary">
                         {section.type.toUpperCase()}
                         {section.scheduledAt ? ` · Scheduled ${section.scheduledAt}` : ""}
@@ -747,7 +770,10 @@ export function WebsiteBuilderFeature() {
                   <div className="mb-1 font-medium text-text-primary">Approval audit timeline</div>
                   <div className="space-y-2 text-[11px] text-text-secondary">
                     {approvalsData.slice(0, 6).map((item) => (
-                      <div key={`audit-${item.id}`} className="rounded border border-border-subtle p-2">
+                      <div
+                        key={`audit-${item.id}`}
+                        className="rounded border border-border-subtle p-2"
+                      >
                         <div className="font-medium text-text-primary">{item.pageName}</div>
                         <div>
                           Request by {item.requestedBy} at {item.requestedAt}

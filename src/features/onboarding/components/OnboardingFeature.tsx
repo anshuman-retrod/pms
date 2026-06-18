@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Building2,
   BedDouble,
@@ -24,6 +26,10 @@ import {
 } from "@/lib/onboarding-store";
 import { type Role } from "@/types/rbac";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { publishOnboardingToRatePlans } from "@/features/rate-plans/lib/onboarding-publish";
+import { publishOnboardingToAvailability } from "@/features/availability/lib/onboarding-publish";
+import { publishOnboardingToTaxes } from "@/features/taxes-fees/lib/onboarding-publish";
+import { dataKeys } from "@/services/mock/data-layer";
 import type { FeatureFlags } from "@/types/entitlements";
 
 import { ProfileStep } from "./ProfileStep";
@@ -34,26 +40,62 @@ import { IntegrationsStep } from "./IntegrationsStep";
 import { PoliciesStep } from "./PoliciesStep";
 import { ReviewStep } from "./ReviewStep";
 
-const STEPS: Array<{ key: OnboardingStepKey; label: string; icon: typeof Building2; desc: string }> = [
-  { key: "dashboard", label: "Onboarding Dashboard", icon: Building2, desc: "Progress and next action" },
-  { key: "property", label: "Property Information", icon: Building2, desc: "Identity and contacts" },
+const STEPS: Array<{
+  key: OnboardingStepKey;
+  label: string;
+  icon: typeof Building2;
+  desc: string;
+}> = [
+  {
+    key: "dashboard",
+    label: "Onboarding Dashboard",
+    icon: Building2,
+    desc: "Progress and next action",
+  },
+  {
+    key: "property",
+    label: "Property Information",
+    icon: Building2,
+    desc: "Identity and contacts",
+  },
   {
     key: "rooms",
     label: "Room Types & Inventory",
     icon: BedDouble,
     desc: "Categories & inventory",
   },
-  { key: "meal-plans", label: "Meal Plans, Rates & Tax", icon: Receipt, desc: "Meal plans, rates and taxes" },
+  {
+    key: "meal-plans",
+    label: "Meal Plans, Rates & Tax",
+    icon: Receipt,
+    desc: "Meal plans, rates and taxes",
+  },
   { key: "packages", label: "Packages", icon: Receipt, desc: "Hospitality package setup" },
   { key: "users", label: "User Setup", icon: UsersIcon, desc: "Roles and invitations" },
-  { key: "payments", label: "Payments & Channels", icon: Plug, desc: "Payment + OTA + website + CRM" },
-  { key: "reservation-settings", label: "Policies", icon: ScrollText, desc: "Reservation and cancellation policies" },
-  { key: "go-live", label: "Go Live Validation", icon: CheckCircle2, desc: "Validation and launch" },
+  {
+    key: "payments",
+    label: "Payments & Channels",
+    icon: Plug,
+    desc: "Payment + OTA + website + CRM",
+  },
+  {
+    key: "reservation-settings",
+    label: "Policies",
+    icon: ScrollText,
+    desc: "Reservation and cancellation policies",
+  },
+  {
+    key: "go-live",
+    label: "Go Live Validation",
+    icon: CheckCircle2,
+    desc: "Validation and launch",
+  },
 ] as const;
 
 export function OnboardingFeature() {
   const nav = useNavigate();
-  const { can, inviteUser, setTenantFeature, setPropertyFeatures } = useAuth();
+  const { can, inviteUser, setTenantFeature, setPropertyFeatures, logAuditEvent } = useAuth();
+  const queryClient = useQueryClient();
   const [state, setState] = useState<OnboardingState>(DEFAULT_ONBOARDING);
   const [hydrated, setHydrated] = useState(false);
 
@@ -75,7 +117,7 @@ export function OnboardingFeature() {
   const canRun = can("onboarding.run");
   const progress = computeOnboardingProgress(withDerivedOnboarding(state));
 
-  const finish = () => {
+  const finish = async () => {
     state.users.forEach((s) => {
       inviteUser({
         name: s.name,
@@ -85,10 +127,31 @@ export function OnboardingFeature() {
       });
     });
     const finalState = withDerivedOnboarding({ ...state, completed: true });
+
+    try {
+      const [mergedPlans, mergedAvailability, taxPublish] = await Promise.all([
+        publishOnboardingToRatePlans(finalState),
+        publishOnboardingToAvailability(finalState),
+        publishOnboardingToTaxes(finalState),
+      ]);
+      queryClient.setQueryData(dataKeys.ratePlans, mergedPlans);
+      queryClient.setQueryData(dataKeys.availabilityCells, mergedAvailability);
+      queryClient.setQueryData(dataKeys.taxComponents, taxPublish.components);
+      queryClient.setQueryData(dataKeys.taxGroups, taxPublish.groups);
+      logAuditEvent(
+        "Onboarding steady-state publish",
+        state.profile.propertyCode || "PROP-1",
+        `Rate plans, availability (${mergedAvailability.filter((c) => c.id.startsWith("onb-")).length} cells), and taxes published.`,
+      );
+      toast.success("Rate plans, availability, and taxes published to steady-state modules.");
+    } catch {
+      toast.error("Go-live saved, but steady-state publish failed for one or more modules.");
+    }
+
     setState(finalState);
     saveOnboarding(finalState);
     applyOnboardingEntitlements(finalState, setTenantFeature, setPropertyFeatures);
-    nav({ to: "/" });
+    nav({ to: "/rate-plans" });
   };
 
   return (
@@ -172,7 +235,9 @@ export function OnboardingFeature() {
                 <div className="space-y-4">
                   <div className="rounded-md border border-border bg-surface-2/30 p-4">
                     <div className="label-uppercase mb-2">Property Setup Progress</div>
-                    <div className="text-[28px] font-display text-text-primary">{progress.percentage}%</div>
+                    <div className="text-[28px] font-display text-text-primary">
+                      {progress.percentage}%
+                    </div>
                     <div className="text-[12px] text-text-secondary">
                       {progress.completed} / {progress.total} onboarding stages completed
                     </div>
@@ -184,7 +249,9 @@ export function OnboardingFeature() {
                         <button
                           key={stepItem.key}
                           type="button"
-                          onClick={() => setStep(STEPS.findIndex((entry) => entry.key === stepItem.key))}
+                          onClick={() =>
+                            setStep(STEPS.findIndex((entry) => entry.key === stepItem.key))
+                          }
                           className="flex items-center justify-between rounded-md border border-border-subtle bg-surface px-3 py-2 text-left hover:bg-surface-2"
                         >
                           <span className="text-[12px] text-text-primary">{stepItem.label}</span>
@@ -272,9 +339,7 @@ export function OnboardingFeature() {
                               setState((prev) => ({
                                 ...prev,
                                 packages: prev.packages.map((item) =>
-                                  item.id === pkg.id
-                                    ? { ...item, active: e.target.checked }
-                                    : item,
+                                  item.id === pkg.id ? { ...item, active: e.target.checked } : item,
                                 ),
                               }))
                             }
@@ -338,8 +403,10 @@ function applyOnboardingEntitlements(
     masterData: true,
   };
 
-  (Object.entries(features) as Array<[keyof FeatureFlags, boolean]>).forEach(([feature, enabled]) => {
-    setTenantFeature(feature, enabled);
-  });
+  (Object.entries(features) as Array<[keyof FeatureFlags, boolean]>).forEach(
+    ([feature, enabled]) => {
+      setTenantFeature(feature, enabled);
+    },
+  );
   setPropertyFeatures(propertyName, features);
 }

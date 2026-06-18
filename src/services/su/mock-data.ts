@@ -90,6 +90,7 @@ export const suRoomMappings: SuRoomMapping[] = [
 export const suRatePlanMappings: SuRatePlanMapping[] = [
   {
     pmsRatePlan: "BAR Flexible",
+    pmsRatePlanCode: "BAR-FLEX",
     mealPlan: "Room only",
     channels: channelRecord((c) => ({
       otaRatePlanId: `${c.slice(0, 2)}-BAR`,
@@ -98,6 +99,7 @@ export const suRatePlanMappings: SuRatePlanMapping[] = [
   },
   {
     pmsRatePlan: "Corporate Neg",
+    pmsRatePlanCode: "CORP-NEG",
     mealPlan: "Breakfast incl.",
     channels: channelRecord((c) => ({
       otaRatePlanId: c === "MakeMyTrip" || c === "Goibibo" ? "CORP-IN" : `${c.slice(0, 2)}-CORP`,
@@ -106,10 +108,20 @@ export const suRatePlanMappings: SuRatePlanMapping[] = [
   },
   {
     pmsRatePlan: "Non-refundable",
+    pmsRatePlanCode: "NRF-STD",
     mealPlan: "Room only",
     channels: channelRecord((c) => ({
       otaRatePlanId: `${c.slice(0, 2)}-NRF`,
       status: c === "Trip.com" ? "Pending" : "Mapped",
+    })),
+  },
+  {
+    pmsRatePlan: "Summer Seasonal Promo",
+    pmsRatePlanCode: "SUMMER-26",
+    mealPlan: "Half board",
+    channels: channelRecord((c) => ({
+      otaRatePlanId: `${c.slice(0, 2)}-SUM`,
+      status: c === "HotelBeds" ? "Pending" : "Mapped",
     })),
   },
 ];

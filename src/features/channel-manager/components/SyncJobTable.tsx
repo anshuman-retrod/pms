@@ -58,8 +58,7 @@ export function SyncJobTable({
               "Actions",
             ]
               .filter(Boolean)
-              .map(
-              (h) => (
+              .map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
@@ -74,8 +73,7 @@ export function SyncJobTable({
                     h
                   )}
                 </th>
-              ),
-            )}
+              ))}
           </tr>
         </thead>
         <tbody>
@@ -106,13 +104,18 @@ export function SyncJobTable({
               </td>
               <td className="px-4 py-2.5">
                 <div className="flex flex-wrap gap-2">
-                  {onAction && (log.status === "Error" || log.status === "Failed" || log.status === "Warning") ? (
+                  {onAction &&
+                  (log.status === "Error" ||
+                    log.status === "Failed" ||
+                    log.status === "Warning") ? (
                     <Button variant="outline" size="sm" onClick={() => onAction(log)}>
                       {actionLabel}
                     </Button>
                   ) : null}
                   {renderActions?.(log)}
-                  {!onAction && !renderActions ? <span className="text-text-disabled">—</span> : null}
+                  {!onAction && !renderActions ? (
+                    <span className="text-text-disabled">—</span>
+                  ) : null}
                 </div>
               </td>
             </tr>

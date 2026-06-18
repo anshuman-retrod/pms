@@ -43,7 +43,8 @@ export function TopBar({
   const [theme, setTheme] = useState<AppTheme>(() => readSavedTheme());
   const [searchQuery, setSearchQuery] = useState("");
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const selectedTheme = APP_THEMES.find((themeOption) => themeOption.value === theme) ?? APP_THEMES[0];
+  const selectedTheme =
+    APP_THEMES.find((themeOption) => themeOption.value === theme) ?? APP_THEMES[0];
 
   const selectTheme = (next: AppTheme) => {
     setTheme(next);
@@ -61,6 +62,9 @@ export function TopBar({
     { label: "Open Notification Center", to: "/notifications" },
     { label: "Open Activity Timeline", to: "/activity-timeline" },
     { label: "Open PMS Integrations", to: "/pms-integrations" },
+    { label: "Open Rate Plans", to: "/rate-plans" },
+    { label: "Open Availability", to: "/availability" },
+    { label: "Open Taxes & Fees", to: "/taxes-fees" },
     { label: "Open Revenue Drilldown", to: "/revenue-drilldown" },
     { label: "Open Booking Readiness", to: "/booking-readiness" },
     { label: "Open AI Anomaly Monitor", to: "/anomaly-monitor" },
@@ -85,137 +89,141 @@ export function TopBar({
   return (
     <>
       <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-surface px-3 sm:gap-3 sm:px-4 lg:gap-4 lg:px-6">
-      {mobileNavButton}
-      <nav className="flex min-w-0 items-center gap-1.5 text-[12px] sm:text-[13px]">
-        <span className="text-text-secondary">{group}</span>
-        <span className="text-text-disabled">/</span>
-        {trail.length <= 1 ? (
-          <Link to={linkTo} className="truncate font-medium text-text-primary">
-            {page}
-          </Link>
-        ) : (
-          <>
-            {trail.slice(0, 3).map((entry, idx) => (
-              <span key={entry.id} className="flex min-w-0 items-center gap-1.5">
-                {idx > 0 ? <span className="text-text-disabled">/</span> : null}
-                {entry.to ? (
-                  <Link
-                    to={entry.to}
-                    className={idx === trail.length - 1 ? "truncate font-medium text-text-primary" : "truncate text-text-secondary hover:text-text-primary"}
-                  >
-                    {entry.label}
-                  </Link>
-                ) : (
-                  <span className="truncate text-text-secondary">{entry.label}</span>
-                )}
-              </span>
-            ))}
-          </>
-        )}
-      </nav>
+        {mobileNavButton}
+        <nav className="flex min-w-0 items-center gap-1.5 text-[12px] sm:text-[13px]">
+          <span className="text-text-secondary">{group}</span>
+          <span className="text-text-disabled">/</span>
+          {trail.length <= 1 ? (
+            <Link to={linkTo} className="truncate font-medium text-text-primary">
+              {page}
+            </Link>
+          ) : (
+            <>
+              {trail.slice(0, 3).map((entry, idx) => (
+                <span key={entry.id} className="flex min-w-0 items-center gap-1.5">
+                  {idx > 0 ? <span className="text-text-disabled">/</span> : null}
+                  {entry.to ? (
+                    <Link
+                      to={entry.to}
+                      className={
+                        idx === trail.length - 1
+                          ? "truncate font-medium text-text-primary"
+                          : "truncate text-text-secondary hover:text-text-primary"
+                      }
+                    >
+                      {entry.label}
+                    </Link>
+                  ) : (
+                    <span className="truncate text-text-secondary">{entry.label}</span>
+                  )}
+                </span>
+              ))}
+            </>
+          )}
+        </nav>
 
-      <div className="ml-2 hidden max-w-xl flex-1 md:ml-4 md:block">
-        <div className="group relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-disabled" />
-          <input
-            type="text"
-            placeholder="Search guests, rooms, reservations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-                e.preventDefault();
-                setPaletteOpen(true);
-                return;
-              }
-              if (e.key !== "Enter") return;
-              const q = searchQuery.trim();
-              navigate({ to: "/search" });
-              if (q) window.location.assign(`/search?q=${encodeURIComponent(q)}`);
-            }}
-            className="h-9 w-full rounded-md border border-border bg-surface-2/50 pl-9 pr-16 text-[13px] text-text-primary placeholder:text-text-disabled focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/15"
-          />
-          <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
-            ⌘K
-          </kbd>
-        </div>
-      </div>
-
-      <div className="ml-auto flex items-center gap-1.5 sm:gap-2 lg:gap-3">
-        <Link
-          to="/reservations/new"
-          className="hidden items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-[12px] font-medium text-primary-foreground shadow-e1 transition hover:bg-primary-pressed lg:flex lg:px-3 lg:text-[13px]"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          New Reservation
-        </Link>
-
-        <div className="hidden xl:flex items-center gap-1.5 rounded-md border border-border bg-surface-2/60 px-2.5 py-1.5 text-[12px] text-text-secondary">
-          <Calendar className="h-3.5 w-3.5" />
-          Today · {formatToday()}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/notifications" })}
-          className="relative rounded-md p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary sm:p-2"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-        </button>
-
-        <div className="relative">
-          <Palette className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
-          <select
-            value={theme}
-            onChange={(e) => selectTheme(e.target.value as AppTheme)}
-            className="h-8 max-w-[140px] rounded-md border border-border bg-surface pl-7 pr-7 text-[12px] text-text-primary sm:max-w-none"
-            aria-label="Select theme"
-          >
-            {(Object.keys(groupedThemes) as Array<keyof typeof APP_THEME_GROUP_LABELS>).map((groupKey) => (
-              <optgroup key={groupKey} label={APP_THEME_GROUP_LABELS[groupKey]}>
-                {groupedThemes[groupKey].map((themeOption) => (
-                  <option key={themeOption.value} value={themeOption.value}>
-                    {themeOption.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-        <div className="hidden items-center gap-1 rounded-md border border-border bg-surface px-2 py-1 xl:flex">
-          {selectedTheme.swatches.map((swatch, idx) => (
-            <span
-              key={`${selectedTheme.value}-${idx}`}
-              className="h-2.5 w-2.5 rounded-full border border-border-subtle"
-              style={{ backgroundColor: swatch }}
-              title={selectedTheme.label}
+        <div className="ml-2 hidden max-w-xl flex-1 md:ml-4 md:block">
+          <div className="group relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-disabled" />
+            <input
+              type="text"
+              placeholder="Search guests, rooms, reservations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+                  e.preventDefault();
+                  setPaletteOpen(true);
+                  return;
+                }
+                if (e.key !== "Enter") return;
+                const q = searchQuery.trim();
+                navigate({ to: "/search" });
+                if (q) window.location.assign(`/search?q=${encodeURIComponent(q)}`);
+              }}
+              className="h-9 w-full rounded-md border border-border bg-surface-2/50 pl-9 pr-16 text-[13px] text-text-primary placeholder:text-text-disabled focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/15"
             />
-          ))}
+            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
+              ⌘K
+            </kbd>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 border-l border-border pl-2 sm:pl-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
-            {user?.initials ?? "—"}
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2 lg:gap-3">
+          <Link
+            to="/reservations/new"
+            className="hidden items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-[12px] font-medium text-primary-foreground shadow-e1 transition hover:bg-primary-pressed lg:flex lg:px-3 lg:text-[13px]"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            New Reservation
+          </Link>
+
+          <div className="hidden xl:flex items-center gap-1.5 rounded-md border border-border bg-surface-2/60 px-2.5 py-1.5 text-[12px] text-text-secondary">
+            <Calendar className="h-3.5 w-3.5" />
+            Today · {formatToday()}
           </div>
-          <div className="hidden text-left lg:block">
-            <div className="text-[12px] font-medium leading-tight text-text-primary">
-              {user?.name ?? "Guest"}
+
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/notifications" })}
+            className="relative rounded-md p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary sm:p-2"
+          >
+            <Bell className="h-4 w-4" />
+            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+          </button>
+
+          <div className="relative">
+            <Palette className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+            <select
+              value={theme}
+              onChange={(e) => selectTheme(e.target.value as AppTheme)}
+              className="h-8 max-w-[140px] rounded-md border border-border bg-surface pl-7 pr-7 text-[12px] text-text-primary sm:max-w-none"
+              aria-label="Select theme"
+            >
+              {(Object.keys(groupedThemes) as Array<keyof typeof APP_THEME_GROUP_LABELS>).map(
+                (groupKey) => (
+                  <optgroup key={groupKey} label={APP_THEME_GROUP_LABELS[groupKey]}>
+                    {groupedThemes[groupKey].map((themeOption) => (
+                      <option key={themeOption.value} value={themeOption.value}>
+                        {themeOption.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ),
+              )}
+            </select>
+          </div>
+          <div className="hidden items-center gap-1 rounded-md border border-border bg-surface px-2 py-1 xl:flex">
+            {selectedTheme.swatches.map((swatch, idx) => (
+              <span
+                key={`${selectedTheme.value}-${idx}`}
+                className="h-2.5 w-2.5 rounded-full border border-border-subtle"
+                style={{ backgroundColor: swatch }}
+                title={selectedTheme.label}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 border-l border-border pl-2 sm:pl-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
+              {user?.initials ?? "—"}
             </div>
-            <div className="text-[10px] text-text-secondary">
-              {user ? ROLE_LABEL[user.role] : "Not signed in"}
+            <div className="hidden text-left lg:block">
+              <div className="text-[12px] font-medium leading-tight text-text-primary">
+                {user?.name ?? "Guest"}
+              </div>
+              <div className="text-[10px] text-text-secondary">
+                {user ? ROLE_LABEL[user.role] : "Not signed in"}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </header>
       <Dialog open={paletteOpen} onOpenChange={setPaletteOpen}>
         <DialogContent className="max-w-xl border-border bg-surface">
           <DialogHeader>
             <DialogTitle>Command Palette</DialogTitle>
-            <DialogDescription>
-              Jump to high-value workflows quickly.
-            </DialogDescription>
+            <DialogDescription>Jump to high-value workflows quickly.</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <input

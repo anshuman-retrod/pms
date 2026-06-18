@@ -47,12 +47,15 @@ export function TimelineView({ days, rooms, bars, sourceColor }: TimelineViewPro
                       >
                         <div className="truncate">{b.label}</div>
                         <div className="text-[10px] opacity-80">
-                          {days[b.start]} to {days[Math.min(days.length - 1, b.start + b.span - 1)]} · {b.source}
+                          {days[b.start]} to {days[Math.min(days.length - 1, b.start + b.span - 1)]}{" "}
+                          · {b.source}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-[11px] text-text-disabled">No reservations in this range</div>
+                    <div className="text-[11px] text-text-disabled">
+                      No reservations in this range
+                    </div>
                   )}
                 </div>
               </div>
@@ -71,7 +74,9 @@ export function TimelineView({ days, rooms, bars, sourceColor }: TimelineViewPro
                   <div className="text-[10px] uppercase tracking-wider text-text-disabled">
                     {d.split(" ")[1]}
                   </div>
-                  <div className="text-[12px] font-semibold text-text-primary">{d.split(" ")[0]}</div>
+                  <div className="text-[12px] font-semibold text-text-primary">
+                    {d.split(" ")[0]}
+                  </div>
                 </div>
               ))}
             </div>

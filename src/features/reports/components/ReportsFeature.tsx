@@ -110,11 +110,15 @@ export function ReportsFeature() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-secondary">Package revenue tracking</span>
-                  <span className="font-mono text-text-primary">{hotelPackages.length} templates</span>
+                  <span className="font-mono text-text-primary">
+                    {hotelPackages.length} templates
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-secondary">Add-on revenue tracking</span>
-                  <span className="font-mono text-text-primary">{addOnProducts.length} services</span>
+                  <span className="font-mono text-text-primary">
+                    {addOnProducts.length} services
+                  </span>
                 </div>
               </div>
             </div>

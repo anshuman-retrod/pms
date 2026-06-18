@@ -69,7 +69,7 @@ export function DashboardScreen() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader title="Quick actions" hint="Common channel manager workflows" />
-            <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
                   { label: "OTA Connections", to: "/channel-manager/connections", icon: Link2 },
                   { label: "Room mapping", to: "/channel-manager/room-mapping", icon: Link2 },

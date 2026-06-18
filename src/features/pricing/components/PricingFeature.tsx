@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Filter } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   PageHeader,
   KpiCard,
@@ -8,7 +9,11 @@ import {
   CardHeader,
   StatusBadge,
 } from "@/components/ui/Primitives";
-import { usePricingRulesQuery, useMealPlansQuery, useRatePlansQuery } from "@/services/mock/queries";
+import {
+  usePricingRulesQuery,
+  useMealPlansQuery,
+  useRatePlansQuery,
+} from "@/services/mock/queries";
 import { AIPricingRecs } from "@/features/revenue/components/AIPricingRecs";
 
 export function PricingFeature() {
@@ -123,7 +128,9 @@ export function PricingFeature() {
                         {meal.code} · {meal.name}
                       </div>
                       <div className="text-[11px] text-text-secondary">
-                        {meal.includedMeals.length > 0 ? meal.includedMeals.join(", ") : "Room only"}
+                        {meal.includedMeals.length > 0
+                          ? meal.includedMeals.join(", ")
+                          : "Room only"}
                       </div>
                     </div>
                     <div className="text-right">
@@ -139,22 +146,20 @@ export function PricingFeature() {
               </div>
             </Card>
             <Card>
-              <CardHeader title="Rate plan management" hint={`${ratePlans.length} configured plans`} />
-              <div className="space-y-2 p-4">
-                {ratePlans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="rounded-md border border-border-subtle bg-surface-2/30 px-3 py-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-[12px] font-semibold text-text-primary">{plan.name}</div>
-                      <div className="font-mono text-[11px] text-success">
-                        {plan.discountPercent > 0 ? `-${plan.discountPercent}%` : "0%"}
-                      </div>
-                    </div>
-                    <div className="text-[11px] text-text-secondary">{plan.description}</div>
-                  </div>
-                ))}
+              <CardHeader
+                title="Rate plan management"
+                hint={`${ratePlans.length} configured plans`}
+              />
+              <div className="space-y-3 p-4">
+                <p className="text-[12px] text-text-secondary">
+                  Rate plan definitions live in the dedicated Rate Plans module.
+                </p>
+                <Link
+                  to="/rate-plans"
+                  className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+                >
+                  View all rate plans
+                </Link>
               </div>
             </Card>
             <Card className="border border-primary/20 bg-primary-tint/30 p-4">

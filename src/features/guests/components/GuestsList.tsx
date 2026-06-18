@@ -45,9 +45,18 @@ export function GuestsList({ guests, selectedName, onSelectGuest }: GuestsListPr
               </StatusBadge>
             </div>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div><div className="text-text-disabled">Country</div><div className="text-text-secondary">{g.country}</div></div>
-              <div><div className="text-text-disabled">Visits</div><div className="font-mono text-text-primary">{g.visits}</div></div>
-              <div className="col-span-2"><div className="text-text-disabled">Lifetime value</div><div className="font-mono text-text-primary">₹{g.ltv.toLocaleString()}</div></div>
+              <div>
+                <div className="text-text-disabled">Country</div>
+                <div className="text-text-secondary">{g.country}</div>
+              </div>
+              <div>
+                <div className="text-text-disabled">Visits</div>
+                <div className="font-mono text-text-primary">{g.visits}</div>
+              </div>
+              <div className="col-span-2">
+                <div className="text-text-disabled">Lifetime value</div>
+                <div className="font-mono text-text-primary">₹{g.ltv.toLocaleString()}</div>
+              </div>
             </div>
             <button
               onClick={() => onSelectGuest(g)}

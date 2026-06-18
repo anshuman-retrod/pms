@@ -21,8 +21,18 @@ import {
   useHotelPackagesQuery,
   useAddOnProductsQuery,
   useOccupancyPricingRulesQuery,
+  useAvailabilityCellsQuery,
 } from "@/services/mock/queries";
-import type { ReservationPricingBreakdown } from "@/types/pms";
+import {
+  eligibilityHint,
+  filterEligibleRatePlans,
+  type ReservationTypeForRates,
+} from "@/features/rate-plans/lib/eligibility";
+import {
+  availabilityBlockReason,
+  listBookableRoomTypes,
+} from "@/features/availability/lib/eligibility";
+import type { ReservationPricingBreakdown, RatePlan } from "@/types/pms";
 
 const types = [
   { id: "individual", label: "Individual", icon: User, hint: "Single guest or family" },
@@ -185,7 +195,10 @@ function calculatePricingBreakdown(input: {
   ratePlans: Array<{ id: string; discountPercent: number }>;
   hotelPackages: Array<{ id: string; basePrice: number }>;
   addOnProducts: Array<{ id: string; price: number }>;
-  occupancyRules: Array<{ occupancyType: ReservationFormData["occupancyType"]; multiplier: number }>;
+  occupancyRules: Array<{
+    occupancyType: ReservationFormData["occupancyType"];
+    multiplier: number;
+  }>;
 }): ReservationPricingBreakdown {
   const roomRates: Record<string, number> = {
     "Deluxe King": 11000,
@@ -197,7 +210,8 @@ function calculatePricingBreakdown(input: {
   const baseNightly = input.type === "event" ? 2800 : (roomRates[input.roomType] ?? 11000);
   const stayUnits = Math.max(1, input.nights);
   const occupancyMultiplier =
-    input.occupancyRules.find((rule) => rule.occupancyType === input.occupancyType)?.multiplier ?? 1;
+    input.occupancyRules.find((rule) => rule.occupancyType === input.occupancyType)?.multiplier ??
+    1;
   const roomRate = Math.round(baseNightly * stayUnits * occupancyMultiplier);
 
   const mealPlan = input.mealPlans.find((item) => item.id === input.mealPlanId);
@@ -215,8 +229,10 @@ function calculatePricingBreakdown(input: {
   const extraChildren = Math.max(0, input.children);
   const extraGuestCharges = extraAdults * 1800 * stayUnits + extraChildren * 900 * stayUnits;
 
-  const subtotalBeforeRatePlan = roomRate + mealPlanCharges + packageCharges + addOnCharges + extraGuestCharges;
-  const ratePlanDiscountPct = input.ratePlans.find((item) => item.id === input.ratePlanId)?.discountPercent ?? 0;
+  const subtotalBeforeRatePlan =
+    roomRate + mealPlanCharges + packageCharges + addOnCharges + extraGuestCharges;
+  const ratePlanDiscountPct =
+    input.ratePlans.find((item) => item.id === input.ratePlanId)?.discountPercent ?? 0;
   const ratePlanDiscountAmount = Math.round((subtotalBeforeRatePlan * ratePlanDiscountPct) / 100);
 
   const subtotalAfterRatePlan = subtotalBeforeRatePlan - ratePlanDiscountAmount;
@@ -290,7 +306,11 @@ function validate(
   if (type === "corporate" && !data.corporateBilling.trim()) {
     errors.corporateBilling = "Billing mode is required for corporate booking.";
   }
-  if (type === "corporate" && data.corporateBilling.includes("Direct bill") && !data.corporatePoRef.trim()) {
+  if (
+    type === "corporate" &&
+    data.corporateBilling.includes("Direct bill") &&
+    !data.corporatePoRef.trim()
+  ) {
     errors.corporatePoRef = "PO / Reference is required for direct billing.";
   }
   if (type === "package" && !data.packageName) errors.packageName = "Select a package.";
@@ -313,6 +333,7 @@ export function NewReservationFeature() {
   const { data: hotelPackages = [] } = useHotelPackagesQuery();
   const { data: addOnProducts = [] } = useAddOnProductsQuery();
   const { data: occupancyRules = [] } = useOccupancyPricingRulesQuery();
+  const { data: availabilityCells = [] } = useAvailabilityCellsQuery();
   const [type, setType] = useState<T>("individual");
   const [form, setForm] = useState<ReservationFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -337,6 +358,48 @@ export function NewReservationFeature() {
     () => nightsBetween(form.checkIn, form.checkOut),
     [form.checkIn, form.checkOut],
   );
+
+  const eligibleRatePlans = useMemo(
+    () =>
+      filterEligibleRatePlans(ratePlans, {
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        roomTypeName: form.roomType,
+        reservationType: type as ReservationTypeForRates,
+        corporateCompany: form.corporateCompany,
+      }),
+    [ratePlans, form.checkIn, form.checkOut, form.roomType, type, form.corporateCompany],
+  );
+
+  const bookableRoomTypes = useMemo(
+    () => listBookableRoomTypes(availabilityCells, form.checkIn, form.checkOut),
+    [availabilityCells, form.checkIn, form.checkOut],
+  );
+
+  const availabilityError = useMemo(() => {
+    if (!form.roomType || !form.checkIn || !form.checkOut || type === "event") return null;
+    return availabilityBlockReason(availabilityCells, form.roomType, form.checkIn, form.checkOut);
+  }, [availabilityCells, form.roomType, form.checkIn, form.checkOut, type]);
+
+  useEffect(() => {
+    if (form.ratePlan && !eligibleRatePlans.some((plan) => plan.id === form.ratePlan)) {
+      setForm((prev) => ({ ...prev, ratePlan: "" }));
+    }
+  }, [eligibleRatePlans, form.ratePlan]);
+
+  useEffect(() => {
+    setForm((prev) => {
+      if (!prev.roomType || !prev.checkIn || !prev.checkOut || type === "event") return prev;
+      const block = availabilityBlockReason(
+        availabilityCells,
+        prev.roomType,
+        prev.checkIn,
+        prev.checkOut,
+      );
+      return block ? { ...prev, roomType: "" } : prev;
+    });
+  }, [form.checkIn, form.checkOut, availabilityCells, type]);
+
   const total = useMemo(() => estimateTotal(type, form, nights), [type, form, nights]);
   const pricingBreakdown = useMemo(
     () =>
@@ -383,6 +446,7 @@ export function NewReservationFeature() {
 
   const handleSaveDraft = () => {
     const draftErrors = validate(form, type, "draft");
+    if (availabilityError) draftErrors.roomType = availabilityError;
     setErrors(draftErrors);
     if (Object.keys(draftErrors).length > 0) {
       toast.error("Please fill minimum required fields before saving draft.");
@@ -400,6 +464,7 @@ export function NewReservationFeature() {
 
   const handleSubmit = async () => {
     const nextErrors = validate(form, type, "confirm");
+    if (availabilityError) nextErrors.roomType = availabilityError;
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       toast.error("Please fix the highlighted fields.");
@@ -493,7 +558,9 @@ export function NewReservationFeature() {
             setField={setField}
             nights={nights}
             mealPlans={mealPlans}
-            ratePlans={ratePlans}
+            ratePlans={eligibleRatePlans}
+            allRatePlansCount={ratePlans.filter((plan) => plan.status === "Active").length}
+            bookableRoomTypes={bookableRoomTypes}
             hotelPackages={hotelPackages}
             addOnProducts={addOnProducts}
           />
@@ -551,6 +618,8 @@ function GuestStayForm({
   nights,
   mealPlans,
   ratePlans,
+  allRatePlansCount,
+  bookableRoomTypes,
   hotelPackages,
   addOnProducts,
 }: FormProps & {
@@ -563,13 +632,14 @@ function GuestStayForm({
     priceAdjustment: number;
     status: string;
   }>;
-  ratePlans: Array<{
+  ratePlans: RatePlan[];
+  allRatePlansCount: number;
+  bookableRoomTypes: Array<{
     id: string;
     name: string;
-    description: string;
-    benefits: string[];
-    discountPercent: number;
-    status: string;
+    freeMin: number;
+    blocked: boolean;
+    blockReason?: string;
   }>;
   hotelPackages: Array<{
     id: string;
@@ -677,10 +747,19 @@ function GuestStayForm({
               onChange={(e) => setField("roomType", e.target.value)}
             >
               <option value="">Select room type</option>
-              <option value="Deluxe King">Deluxe King · 12 left · ₹11,000</option>
-              <option value="Premier Suite">Premier Suite · 5 left · ₹22,000</option>
-              <option value="Heritage Suite">Heritage Suite · 2 left · ₹35,000</option>
+              {bookableRoomTypes.map((room) => (
+                <option key={room.id} value={room.name} disabled={room.blocked}>
+                  {room.name}
+                  {room.blocked ? ` · blocked` : room.freeMin > 0 ? ` · ${room.freeMin} left` : ""}
+                </option>
+              ))}
             </select>
+            {bookableRoomTypes.some((room) => room.blocked) ? (
+              <div className="mt-1 text-[11px] text-text-secondary">
+                Blocked room types reflect closed, stop sell, or CTA/CTD rules from Availability
+                Management.
+              </div>
+            ) : null}
           </Field>
           <Field label="Rate plan" error={errors.ratePlan}>
             <select
@@ -689,14 +768,18 @@ function GuestStayForm({
               onChange={(e) => setField("ratePlan", e.target.value)}
             >
               <option value="">Select rate plan</option>
-              {ratePlans
-                .filter((plan) => plan.status === "Active")
-                .map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.name} · {plan.discountPercent > 0 ? `-${plan.discountPercent}%` : "No discount"}
-                  </option>
-                ))}
+              {ratePlans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {eligibilityHint(plan)} · {plan.name}
+                </option>
+              ))}
             </select>
+            {ratePlans.length === 0 && allRatePlansCount > 0 ? (
+              <div className="mt-1 text-[11px] text-text-secondary">
+                No plans match dates, room type, or booking type. Adjust stay details or use Rate
+                Plans.
+              </div>
+            ) : null}
           </Field>
           <Field label="Meal plan" error={errors.mealPlan}>
             <select
@@ -719,10 +802,7 @@ function GuestStayForm({
               className={inputCls}
               value={form.occupancyType}
               onChange={(e) =>
-                setField(
-                  "occupancyType",
-                  e.target.value as ReservationFormData["occupancyType"],
-                )
+                setField("occupancyType", e.target.value as ReservationFormData["occupancyType"])
               }
             >
               <option value="single">Single occupancy</option>
@@ -757,7 +837,10 @@ function GuestStayForm({
       </Card>
 
       <Card>
-        <CardHeader title="Packages & add-ons (Step 6-7)" hint="Attach package and reservation add-on services" />
+        <CardHeader
+          title="Packages & add-ons (Step 6-7)"
+          hint="Attach package and reservation add-on services"
+        />
         <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
           <Field label="Package selection">
             <select
@@ -1042,11 +1125,7 @@ function PackageForm({ form, errors, setField }: FormProps) {
   );
 }
 
-function WalkinForm({
-  form,
-  errors,
-  setField,
-}: FormProps) {
+function WalkinForm({ form, errors, setField }: FormProps) {
   return (
     <Card>
       <CardHeader title="Quick walk-in" hint="Minimum fields · ready in 60 seconds" />
@@ -1220,7 +1299,10 @@ function Summary({
   const formErrorConfirmation = errors.confirmation;
   return (
     <Card>
-      <CardHeader title="Pricing review, payment & confirmation (Step 8-10)" hint="Auto-send on submit" />
+      <CardHeader
+        title="Pricing review, payment & confirmation (Step 8-10)"
+        hint="Auto-send on submit"
+      />
       <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-[1fr_240px]">
         <div className="space-y-3 text-[12px]">
           <div className="rounded-md border border-border-subtle bg-surface-2/30 p-3">
@@ -1229,7 +1311,10 @@ function Summary({
             </div>
             <div className="space-y-1.5 text-[12px]">
               {pricingBreakdown.lines.map((line) => (
-                <div key={line.label} className="flex items-center justify-between text-text-secondary">
+                <div
+                  key={line.label}
+                  className="flex items-center justify-between text-text-secondary"
+                >
                   <span>{line.label}</span>
                   <span className="font-mono text-text-primary">
                     {line.amount < 0 ? "-" : ""}₹{Math.abs(line.amount).toLocaleString()}

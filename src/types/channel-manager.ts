@@ -42,8 +42,50 @@ export interface SuRoomMapping {
 
 export interface SuRatePlanMapping {
   pmsRatePlan: string;
+  pmsRatePlanCode: string;
   mealPlan: string;
   channels: Record<SuChannel, { otaRatePlanId: string; status: MappingStatus }>;
+}
+
+export interface SuRatePlanDefinition {
+  externalRatePlanCode: string;
+  name: string;
+  category: string;
+  status: "active" | "inactive" | "draft";
+  currency: string;
+  pricingMode: string;
+  baseRate?: number;
+  discountPercent?: number;
+  minLos: number;
+  maxLos: number;
+  cancelPolicyCode: string;
+  defaultMealPlanCode: string;
+  roomTypeCodes: string[];
+  effectiveFrom?: string;
+  effectiveTo?: string;
+  propertyId: string;
+}
+
+export type SuRatePlanSyncJobStatus = "queued" | "in_progress" | "success" | "error";
+
+export interface SuRatePlanSyncJob {
+  id: string;
+  ratePlanCodes: string[];
+  status: SuRatePlanSyncJobStatus;
+  queuedAt: string;
+  completedAt?: string;
+  recordsPushed: number;
+  message?: string;
+}
+
+export interface SuAvailabilitySyncJob {
+  id: string;
+  cellIds: string[];
+  status: SuRatePlanSyncJobStatus;
+  queuedAt: string;
+  completedAt?: string;
+  recordsPushed: number;
+  message?: string;
 }
 
 export interface SuInventoryRow {

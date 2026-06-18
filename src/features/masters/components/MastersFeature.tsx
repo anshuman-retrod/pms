@@ -1,6 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
-import { Download, Filter, Plus, Search, CheckCircle2, AlertTriangle, XCircle, PencilLine, FileUp, FileDown, Clock3 } from "lucide-react";
-import { PageHeader, Button, Card, CardHeader, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import { Link } from "@tanstack/react-router";
+import {
+  Download,
+  Filter,
+  Plus,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  PencilLine,
+  FileUp,
+  FileDown,
+  Clock3,
+} from "lucide-react";
+import {
+  PageHeader,
+  Button,
+  Card,
+  CardHeader,
+  StatusBadge,
+  KpiCard,
+} from "@/components/ui/Primitives";
+import { RATE_PLAN_CATEGORY_LABEL } from "@/features/rate-plans/lib/constants";
+import { TAX_COMPONENT_TYPE_LABEL } from "@/features/taxes-fees/lib/constants";
+import { useRatePlansQuery, useTaxComponentsQuery } from "@/services/mock/queries";
 
 type MasterScope = "Global" | "Tenant" | "Property";
 type MasterPriority = "P1" | "P2" | "P3";
@@ -103,12 +126,42 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: true,
     },
     fields: [
-      { name: "Room Type Code", type: "Text", required: true, description: "Unique room category code." },
-      { name: "Room Type Name", type: "Text", required: true, description: "Display name in PMS and channels." },
-      { name: "Max Occupancy", type: "Number", required: true, description: "Maximum adults/children occupancy." },
-      { name: "Base Rate", type: "Currency", required: true, description: "Default base nightly rate." },
-      { name: "Amenities", type: "Tags", required: false, description: "Amenity list for rooms and website." },
-      { name: "Status", type: "Status", required: true, description: "Active/Inactive lifecycle status." },
+      {
+        name: "Room Type Code",
+        type: "Text",
+        required: true,
+        description: "Unique room category code.",
+      },
+      {
+        name: "Room Type Name",
+        type: "Text",
+        required: true,
+        description: "Display name in PMS and channels.",
+      },
+      {
+        name: "Max Occupancy",
+        type: "Number",
+        required: true,
+        description: "Maximum adults/children occupancy.",
+      },
+      {
+        name: "Base Rate",
+        type: "Currency",
+        required: true,
+        description: "Default base nightly rate.",
+      },
+      {
+        name: "Amenities",
+        type: "Tags",
+        required: false,
+        description: "Amenity list for rooms and website.",
+      },
+      {
+        name: "Status",
+        type: "Status",
+        required: true,
+        description: "Active/Inactive lifecycle status.",
+      },
     ],
     dependencies: [
       { module: "Reservation", screen: "New Reservation", field: "Room Type" },
@@ -165,9 +218,24 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     },
     fields: [
       { name: "Meal Plan Code", type: "Code", required: true, description: "EP/CP/MAP/AP/AI/UAI." },
-      { name: "Meal Plan Name", type: "Text", required: true, description: "Display label for rates." },
-      { name: "Included Meals", type: "Text", required: true, description: "Breakfast/Lunch/Dinner inclusions." },
-      { name: "Price Adjustment", type: "Currency", required: true, description: "Additional nightly cost." },
+      {
+        name: "Meal Plan Name",
+        type: "Text",
+        required: true,
+        description: "Display label for rates.",
+      },
+      {
+        name: "Included Meals",
+        type: "Text",
+        required: true,
+        description: "Breakfast/Lunch/Dinner inclusions.",
+      },
+      {
+        name: "Price Adjustment",
+        type: "Currency",
+        required: true,
+        description: "Additional nightly cost.",
+      },
       { name: "Tax Group", type: "Lookup", required: true, description: "Mapped tax profile." },
       { name: "Status", type: "Status", required: true, description: "Publish state." },
     ],
@@ -210,7 +278,8 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     id: "rate-plan",
     module: "Revenue Management",
     name: "Rate Plan Master",
-    purpose: "Defines commercial selling plans and booking rules.",
+    purpose:
+      "Schema reference only — operational rate plan records are managed in the Rate Plans module.",
     scope: "Property",
     priority: "P1",
     operations: {
@@ -225,9 +294,24 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     },
     fields: [
       { name: "Rate Plan Code", type: "Code", required: true, description: "Unique plan code." },
-      { name: "Rate Plan Name", type: "Text", required: true, description: "Flexible/Corporate/NRF etc." },
-      { name: "Discount %", type: "Percentage", required: true, description: "Plan-level discount or uplift." },
-      { name: "Policy", type: "Lookup", required: true, description: "Cancellation/refund policy." },
+      {
+        name: "Rate Plan Name",
+        type: "Text",
+        required: true,
+        description: "Flexible/Corporate/NRF etc.",
+      },
+      {
+        name: "Discount %",
+        type: "Percentage",
+        required: true,
+        description: "Plan-level discount or uplift.",
+      },
+      {
+        name: "Policy",
+        type: "Lookup",
+        required: true,
+        description: "Cancellation/refund policy.",
+      },
       { name: "Min Stay", type: "Number", required: true, description: "Minimum nights rule." },
       { name: "Max Stay", type: "Number", required: true, description: "Maximum nights rule." },
       { name: "Status", type: "Status", required: true, description: "Rate plan availability." },
@@ -287,9 +371,24 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     fields: [
       { name: "Method Code", type: "Code", required: true, description: "Short tender code." },
       { name: "Method Name", type: "Text", required: true, description: "Cash/Card/UPI/etc." },
-      { name: "Gateway", type: "Lookup", required: false, description: "Optional payment gateway mapping." },
-      { name: "Online Enabled", type: "Boolean", required: true, description: "Available in online flow." },
-      { name: "Refund Rule", type: "Text", required: false, description: "Default refund behavior." },
+      {
+        name: "Gateway",
+        type: "Lookup",
+        required: false,
+        description: "Optional payment gateway mapping.",
+      },
+      {
+        name: "Online Enabled",
+        type: "Boolean",
+        required: true,
+        description: "Available in online flow.",
+      },
+      {
+        name: "Refund Rule",
+        type: "Text",
+        required: false,
+        description: "Default refund behavior.",
+      },
       { name: "Status", type: "Status", required: true, description: "Tender availability." },
     ],
     dependencies: [
@@ -345,10 +444,25 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: true,
     },
     fields: [
-      { name: "Source Code", type: "Code", required: true, description: "Unique source identifier." },
+      {
+        name: "Source Code",
+        type: "Code",
+        required: true,
+        description: "Unique source identifier.",
+      },
       { name: "Source Name", type: "Text", required: true, description: "Booking.com/Direct/etc." },
-      { name: "Channel Type", type: "Lookup", required: true, description: "OTA, Direct, Corporate, GDS." },
-      { name: "Commission %", type: "Percentage", required: false, description: "Default commission hint." },
+      {
+        name: "Channel Type",
+        type: "Lookup",
+        required: true,
+        description: "OTA, Direct, Corporate, GDS.",
+      },
+      {
+        name: "Commission %",
+        type: "Percentage",
+        required: false,
+        description: "Default commission hint.",
+      },
       { name: "Status", type: "Status", required: true, description: "Source availability." },
     ],
     dependencies: [
@@ -406,10 +520,30 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     },
     fields: [
       { name: "Account Code", type: "Code", required: true, description: "Corporate account ID." },
-      { name: "Company Name", type: "Text", required: true, description: "Company legal/display name." },
-      { name: "Rate Plan", type: "Lookup", required: true, description: "Default negotiated rate plan." },
-      { name: "Credit Terms", type: "Text", required: false, description: "Billing and settlement terms." },
-      { name: "Contact Person", type: "Text", required: false, description: "Primary coordinator." },
+      {
+        name: "Company Name",
+        type: "Text",
+        required: true,
+        description: "Company legal/display name.",
+      },
+      {
+        name: "Rate Plan",
+        type: "Lookup",
+        required: true,
+        description: "Default negotiated rate plan.",
+      },
+      {
+        name: "Credit Terms",
+        type: "Text",
+        required: false,
+        description: "Billing and settlement terms.",
+      },
+      {
+        name: "Contact Person",
+        type: "Text",
+        required: false,
+        description: "Primary coordinator.",
+      },
       { name: "Status", type: "Status", required: true, description: "Account active/inactive." },
     ],
     dependencies: [
@@ -466,10 +600,30 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     },
     fields: [
       { name: "Package Code", type: "Code", required: true, description: "Unique package code." },
-      { name: "Package Name", type: "Text", required: true, description: "Display package name for booking." },
-      { name: "Included Components", type: "Tags", required: true, description: "Room/meal/service inclusions." },
-      { name: "Pricing Model", type: "Lookup", required: true, description: "Fixed / Per Day / Per Guest." },
-      { name: "Price", type: "Currency", required: true, description: "Package price or uplift amount." },
+      {
+        name: "Package Name",
+        type: "Text",
+        required: true,
+        description: "Display package name for booking.",
+      },
+      {
+        name: "Included Components",
+        type: "Tags",
+        required: true,
+        description: "Room/meal/service inclusions.",
+      },
+      {
+        name: "Pricing Model",
+        type: "Lookup",
+        required: true,
+        description: "Fixed / Per Day / Per Guest.",
+      },
+      {
+        name: "Price",
+        type: "Currency",
+        required: true,
+        description: "Package price or uplift amount.",
+      },
       { name: "Status", type: "Status", required: true, description: "Sellability state." },
     ],
     dependencies: [
@@ -518,9 +672,24 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     fields: [
       { name: "Service Code", type: "Code", required: true, description: "Unique add-on code." },
       { name: "Service Name", type: "Text", required: true, description: "Display service name." },
-      { name: "Charge Type", type: "Lookup", required: true, description: "Fixed / Percentage / Per Day / Per Guest." },
-      { name: "Base Charge", type: "Currency", required: true, description: "Default charge amount." },
-      { name: "Tax Group", type: "Lookup", required: true, description: "Mapped tax profile for service." },
+      {
+        name: "Charge Type",
+        type: "Lookup",
+        required: true,
+        description: "Fixed / Percentage / Per Day / Per Guest.",
+      },
+      {
+        name: "Base Charge",
+        type: "Currency",
+        required: true,
+        description: "Default charge amount.",
+      },
+      {
+        name: "Tax Group",
+        type: "Lookup",
+        required: true,
+        description: "Mapped tax profile for service.",
+      },
       { name: "Status", type: "Status", required: true, description: "Service availability." },
     ],
     dependencies: [
@@ -567,11 +736,36 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: false,
     },
     fields: [
-      { name: "Tax Group Code", type: "Code", required: true, description: "Unique tax profile code." },
-      { name: "Tax Group Name", type: "Text", required: true, description: "Display tax profile name." },
-      { name: "Tax Type", type: "Lookup", required: true, description: "GST / VAT / City Tax / Service Charge." },
-      { name: "Rate %", type: "Percentage", required: true, description: "Applicable tax percentage." },
-      { name: "Inclusive", type: "Boolean", required: true, description: "Tax inclusive or exclusive." },
+      {
+        name: "Tax Group Code",
+        type: "Code",
+        required: true,
+        description: "Unique tax profile code.",
+      },
+      {
+        name: "Tax Group Name",
+        type: "Text",
+        required: true,
+        description: "Display tax profile name.",
+      },
+      {
+        name: "Tax Type",
+        type: "Lookup",
+        required: true,
+        description: "GST / VAT / City Tax / Service Charge.",
+      },
+      {
+        name: "Rate %",
+        type: "Percentage",
+        required: true,
+        description: "Applicable tax percentage.",
+      },
+      {
+        name: "Inclusive",
+        type: "Boolean",
+        required: true,
+        description: "Tax inclusive or exclusive.",
+      },
       { name: "Status", type: "Status", required: true, description: "Tax applicability state." },
     ],
     dependencies: [
@@ -618,10 +812,30 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: true,
     },
     fields: [
-      { name: "Segment Code", type: "Code", required: true, description: "Unique market segment code." },
-      { name: "Segment Name", type: "Text", required: true, description: "Corporate / Leisure / Group etc." },
-      { name: "Channel Type", type: "Lookup", required: false, description: "Linked dominant booking channel." },
-      { name: "Description", type: "Text", required: false, description: "Business note and usage intent." },
+      {
+        name: "Segment Code",
+        type: "Code",
+        required: true,
+        description: "Unique market segment code.",
+      },
+      {
+        name: "Segment Name",
+        type: "Text",
+        required: true,
+        description: "Corporate / Leisure / Group etc.",
+      },
+      {
+        name: "Channel Type",
+        type: "Lookup",
+        required: false,
+        description: "Linked dominant booking channel.",
+      },
+      {
+        name: "Description",
+        type: "Text",
+        required: false,
+        description: "Business note and usage intent.",
+      },
       { name: "Status", type: "Status", required: true, description: "Availability state." },
     ],
     dependencies: [
@@ -668,10 +882,30 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: false,
     },
     fields: [
-      { name: "Reason Code", type: "Code", required: true, description: "Unique cancellation reason code." },
-      { name: "Reason Name", type: "Text", required: true, description: "Display cancellation reason." },
-      { name: "Category", type: "Lookup", required: false, description: "Price / Guest / Operational / Other." },
-      { name: "Refund Eligible", type: "Boolean", required: true, description: "Default refund handling guidance." },
+      {
+        name: "Reason Code",
+        type: "Code",
+        required: true,
+        description: "Unique cancellation reason code.",
+      },
+      {
+        name: "Reason Name",
+        type: "Text",
+        required: true,
+        description: "Display cancellation reason.",
+      },
+      {
+        name: "Category",
+        type: "Lookup",
+        required: false,
+        description: "Price / Guest / Operational / Other.",
+      },
+      {
+        name: "Refund Eligible",
+        type: "Boolean",
+        required: true,
+        description: "Default refund handling guidance.",
+      },
       { name: "Status", type: "Status", required: true, description: "Reason usability." },
     ],
     dependencies: [
@@ -717,10 +951,30 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: true,
     },
     fields: [
-      { name: "Category Code", type: "Code", required: true, description: "Unique guest category code." },
-      { name: "Category Name", type: "Text", required: true, description: "VIP / Loyalty / Corporate / Regular." },
-      { name: "Benefit Profile", type: "Lookup", required: false, description: "Mapped benefit entitlements." },
-      { name: "Priority Level", type: "Number", required: false, description: "Service escalation rank." },
+      {
+        name: "Category Code",
+        type: "Code",
+        required: true,
+        description: "Unique guest category code.",
+      },
+      {
+        name: "Category Name",
+        type: "Text",
+        required: true,
+        description: "VIP / Loyalty / Corporate / Regular.",
+      },
+      {
+        name: "Benefit Profile",
+        type: "Lookup",
+        required: false,
+        description: "Mapped benefit entitlements.",
+      },
+      {
+        name: "Priority Level",
+        type: "Number",
+        required: false,
+        description: "Service escalation rank.",
+      },
       { name: "Status", type: "Status", required: true, description: "Category availability." },
     ],
     dependencies: [
@@ -769,8 +1023,18 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     fields: [
       { name: "Reason Code", type: "Code", required: true, description: "Unique reason code." },
       { name: "Reason Name", type: "Text", required: true, description: "Display reason label." },
-      { name: "Status Type", type: "Lookup", required: true, description: "OOO / OOS / Maintenance." },
-      { name: "Default ETA (hrs)", type: "Number", required: false, description: "Expected return-to-service duration." },
+      {
+        name: "Status Type",
+        type: "Lookup",
+        required: true,
+        description: "OOO / OOS / Maintenance.",
+      },
+      {
+        name: "Default ETA (hrs)",
+        type: "Number",
+        required: false,
+        description: "Expected return-to-service duration.",
+      },
       { name: "Status", type: "Status", required: true, description: "Reason usability." },
     ],
     dependencies: [
@@ -803,7 +1067,8 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     id: "department-master",
     module: "Administration",
     name: "Department Master",
-    purpose: "Central department list used for tasks, approvals, staffing, and reporting ownership.",
+    purpose:
+      "Central department list used for tasks, approvals, staffing, and reporting ownership.",
     scope: "Tenant",
     priority: "P2",
     operations: {
@@ -817,11 +1082,31 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
       bulkUpload: true,
     },
     fields: [
-      { name: "Department Code", type: "Code", required: true, description: "Unique department code." },
-      { name: "Department Name", type: "Text", required: true, description: "Display department name." },
-      { name: "Cost Center", type: "Text", required: false, description: "Finance cost center mapping." },
+      {
+        name: "Department Code",
+        type: "Code",
+        required: true,
+        description: "Unique department code.",
+      },
+      {
+        name: "Department Name",
+        type: "Text",
+        required: true,
+        description: "Display department name.",
+      },
+      {
+        name: "Cost Center",
+        type: "Text",
+        required: false,
+        description: "Finance cost center mapping.",
+      },
       { name: "Head of Department", type: "Lookup", required: false, description: "Current HoD." },
-      { name: "Status", type: "Status", required: true, description: "Department active/inactive state." },
+      {
+        name: "Status",
+        type: "Status",
+        required: true,
+        description: "Department active/inactive state.",
+      },
     ],
     dependencies: [
       { module: "Tasks", screen: "Task Management", field: "Department" },
@@ -873,6 +1158,8 @@ const statusTone: Record<MasterStatus, "success" | "neutral" | "warning"> = {
 };
 
 export function MastersFeature() {
+  const { data: steadyRatePlans = [] } = useRatePlansQuery();
+  const { data: steadyTaxComponents = [] } = useTaxComponentsQuery();
   const [masters, setMasters] = useState<MasterDefinition[]>(MASTER_DEFINITIONS);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([
     {
@@ -934,7 +1221,11 @@ export function MastersFeature() {
       if (catalogueTab === "tenant" && master.scope !== "Tenant") return false;
       if (!includeNoDependencyMasters && master.dependencies.length === 0) return false;
       if (moduleFilter !== "All" && master.module !== moduleFilter) return false;
-      if (statusFilter !== "All" && !master.records.some((record) => record.status === statusFilter)) return false;
+      if (
+        statusFilter !== "All" &&
+        !master.records.some((record) => record.status === statusFilter)
+      )
+        return false;
       if (!q) return true;
       const haystack = `${master.module} ${master.name} ${master.purpose}`.toLowerCase();
       return haystack.includes(q);
@@ -943,9 +1234,13 @@ export function MastersFeature() {
 
   const selectedMaster =
     filteredMasters.find((master) => master.id === selectedMasterId) ?? filteredMasters[0] ?? null;
+  const isRatePlanDelegated = selectedMaster?.id === "rate-plan";
+  const isTaxGroupDelegated = selectedMaster?.id === "tax-group";
 
   const selectedRecord =
-    selectedMaster?.records.find((record) => record.id === selectedRecordId) ?? selectedMaster?.records[0] ?? null;
+    selectedMaster?.records.find((record) => record.id === selectedRecordId) ??
+    selectedMaster?.records[0] ??
+    null;
 
   useEffect(() => {
     if (!selectedMaster) return;
@@ -972,14 +1267,19 @@ export function MastersFeature() {
   const selectedMasterAudit = useMemo(
     () =>
       selectedMaster
-        ? auditEvents.filter((event) => selectedMaster.records.some((record) => record.code === event.recordCode))
+        ? auditEvents.filter((event) =>
+            selectedMaster.records.some((record) => record.code === event.recordCode),
+          )
         : [],
     [auditEvents, selectedMaster],
   );
 
   const updatedByOptions = useMemo(() => {
     if (!selectedMaster) return ["All"];
-    return ["All", ...Array.from(new Set(selectedMaster.records.map((record) => record.updatedBy)))];
+    return [
+      "All",
+      ...Array.from(new Set(selectedMaster.records.map((record) => record.updatedBy))),
+    ];
   }, [selectedMaster]);
 
   const filteredAndSortedRecords = useMemo(() => {
@@ -991,7 +1291,8 @@ export function MastersFeature() {
 
     const records = selectedMaster.records.filter((record) => {
       if (q) {
-        const haystack = `${record.code} ${record.name} ${record.status} ${record.updatedBy}`.toLowerCase();
+        const haystack =
+          `${record.code} ${record.name} ${record.status} ${record.updatedBy}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       if (updatedByFilter !== "All" && record.updatedBy !== updatedByFilter) return false;
@@ -1006,7 +1307,15 @@ export function MastersFeature() {
       const cmp = aa.localeCompare(bb);
       return sortDirection === "asc" ? cmp : -cmp;
     });
-  }, [recordSearch, selectedMaster, sortDirection, sortField, updatedByFilter, updatedDateFrom, updatedDateTo]);
+  }, [
+    recordSearch,
+    selectedMaster,
+    sortDirection,
+    sortField,
+    updatedByFilter,
+    updatedDateFrom,
+    updatedDateTo,
+  ]);
 
   const pageCount = Math.max(1, Math.ceil(filteredAndSortedRecords.length / pageSize));
   const pageRecords = useMemo(() => {
@@ -1107,7 +1416,10 @@ export function MastersFeature() {
         by: "Current User",
         action: modal.type === "record-form" && modal.mode === "edit" ? "Updated" : "Created",
         recordCode: trimmedCode,
-        detail: modal.type === "record-form" && modal.mode === "edit" ? "Record details modified." : "New master record created.",
+        detail:
+          modal.type === "record-form" && modal.mode === "edit"
+            ? "Record details modified."
+            : "New master record created.",
       },
       ...prev,
     ]);
@@ -1158,7 +1470,12 @@ export function MastersFeature() {
                 ...master,
                 records: master.records.map((record) =>
                   record.id === selectedRecord.id
-                    ? { ...record, status: "Inactive", updatedAt: nowStamp(), updatedBy: "Current User" }
+                    ? {
+                        ...record,
+                        status: "Inactive",
+                        updatedAt: nowStamp(),
+                        updatedBy: "Current User",
+                      }
                     : record,
                 ),
               }
@@ -1180,7 +1497,10 @@ export function MastersFeature() {
       setMasters((prev) =>
         prev.map((master) =>
           master.id === selectedMaster.id
-            ? { ...master, records: master.records.filter((record) => record.id !== selectedRecord.id) }
+            ? {
+                ...master,
+                records: master.records.filter((record) => record.id !== selectedRecord.id),
+              }
             : master,
         ),
       );
@@ -1212,7 +1532,9 @@ export function MastersFeature() {
 
   function selectRecordWithGuard(recordId: string) {
     if (inlineDirty) {
-      const shouldDiscard = window.confirm("You have unsaved inline changes. Switch record and discard?");
+      const shouldDiscard = window.confirm(
+        "You have unsaved inline changes. Switch record and discard?",
+      );
       if (!shouldDiscard) return;
       setInlineDirty(false);
     }
@@ -1228,7 +1550,9 @@ export function MastersFeature() {
     setSortDirection("asc");
   }
 
-  function applyQuickCreatePreset(presetId: "active-standard" | "draft-future" | "inactive-legacy") {
+  function applyQuickCreatePreset(
+    presetId: "active-standard" | "draft-future" | "inactive-legacy",
+  ) {
     if (!selectedMaster) return;
     const nameBase = selectedMaster.name.replace(" Master", "");
     const presetMap = {
@@ -1283,7 +1607,11 @@ export function MastersFeature() {
               <FileDown className="h-3.5 w-3.5" />
               Export
             </Button>
-            <Button size="sm" onClick={() => openRecordForm("create")}>
+            <Button
+              size="sm"
+              onClick={() => openRecordForm("create")}
+              disabled={isRatePlanDelegated || isTaxGroupDelegated}
+            >
               <Plus className="h-3.5 w-3.5" />
               Create master record
             </Button>
@@ -1300,7 +1628,10 @@ export function MastersFeature() {
         </div>
 
         <Card>
-          <CardHeader title="Master Catalogue" hint="Search, filter and select a master to manage records and attributes." />
+          <CardHeader
+            title="Master Catalogue"
+            hint="Search, filter and select a master to manage records and attributes."
+          />
           <div className="space-y-5 p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2.5">
               {(
@@ -1354,7 +1685,11 @@ export function MastersFeature() {
                   <option key={status}>{status}</option>
                 ))}
               </select>
-              <Button variant="outline" size="sm" onClick={() => setModal({ type: "advanced-filters" })}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setModal({ type: "advanced-filters" })}
+              >
                 <Filter className="h-3.5 w-3.5" />
                 Advanced filters
               </Button>
@@ -1378,8 +1713,12 @@ export function MastersFeature() {
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <div className="text-[12px] font-semibold text-text-primary">{master.name}</div>
-                      <StatusBadge tone={priorityTone[master.priority]}>{master.priority}</StatusBadge>
+                      <div className="text-[12px] font-semibold text-text-primary">
+                        {master.name}
+                      </div>
+                      <StatusBadge tone={priorityTone[master.priority]}>
+                        {master.priority}
+                      </StatusBadge>
                     </div>
                     <div className="mt-1 text-[11px] text-text-secondary">{master.module}</div>
                     <div className="mt-1 text-[11px] text-text-secondary">{master.scope} scope</div>
@@ -1395,7 +1734,9 @@ export function MastersFeature() {
                       hint={`${selectedMaster.module} · ${selectedMaster.scope} · ${selectedMaster.priority}`}
                     />
                     <div className="space-y-4 p-4 sm:p-5">
-                      <div className="text-[12px] text-text-secondary">{selectedMaster.purpose}</div>
+                      <div className="text-[12px] text-text-secondary">
+                        {selectedMaster.purpose}
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {(
                           [
@@ -1413,7 +1754,9 @@ export function MastersFeature() {
                             {label}
                           </StatusBadge>
                         ))}
-                        {inlineDirty ? <StatusBadge tone="warning">Unsaved inline edits</StatusBadge> : null}
+                        {inlineDirty ? (
+                          <StatusBadge tone="warning">Unsaved inline edits</StatusBadge>
+                        ) : null}
                       </div>
                     </div>
                   </Card>
@@ -1444,30 +1787,38 @@ export function MastersFeature() {
 
                   {workspaceTab === "attributes" ? (
                     <Card className="border-border-subtle">
-                      <CardHeader title="Attributes" hint="Fields and validation surfaces for create/edit forms." />
+                      <CardHeader
+                        title="Attributes"
+                        hint="Fields and validation surfaces for create/edit forms."
+                      />
                       <div className="table-scroll-shadow overflow-x-auto">
                         <table className="w-full min-w-[520px] text-[12px]">
-                        <thead>
-                          <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
-                            {["Field", "Type", "Required"].map((header) => (
-                              <th key={header} className="px-3 py-2 font-medium text-text-secondary">
-                                {header}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedMaster.fields.map((field) => (
-                            <tr key={field.name} className="border-b border-border-subtle">
-                              <td className="px-3 py-2">
-                                <div className="font-medium text-text-primary">{field.name}</div>
-                                <div className="text-[10px] text-text-secondary">{field.description}</div>
-                              </td>
-                              <td className="px-3 py-2">{field.type}</td>
-                              <td className="px-3 py-2">{field.required ? "Y" : "N"}</td>
+                          <thead>
+                            <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                              {["Field", "Type", "Required"].map((header) => (
+                                <th
+                                  key={header}
+                                  className="px-3 py-2 font-medium text-text-secondary"
+                                >
+                                  {header}
+                                </th>
+                              ))}
                             </tr>
-                          ))}
-                        </tbody>
+                          </thead>
+                          <tbody>
+                            {selectedMaster.fields.map((field) => (
+                              <tr key={field.name} className="border-b border-border-subtle">
+                                <td className="px-3 py-2">
+                                  <div className="font-medium text-text-primary">{field.name}</div>
+                                  <div className="text-[10px] text-text-secondary">
+                                    {field.description}
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2">{field.type}</td>
+                                <td className="px-3 py-2">{field.required ? "Y" : "N"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
                         </table>
                       </div>
                     </Card>
@@ -1475,27 +1826,36 @@ export function MastersFeature() {
 
                   {workspaceTab === "dependencies" ? (
                     <Card className="border-border-subtle">
-                      <CardHeader title="Dependencies" hint="Impact matrix used for warning dialogs before status/archive actions." />
+                      <CardHeader
+                        title="Dependencies"
+                        hint="Impact matrix used for warning dialogs before status/archive actions."
+                      />
                       <div className="table-scroll-shadow overflow-x-auto">
                         <table className="w-full min-w-[520px] text-[12px]">
-                        <thead>
-                          <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
-                            {["Module", "Screen", "Field"].map((header) => (
-                              <th key={header} className="px-3 py-2 font-medium text-text-secondary">
-                                {header}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedMaster.dependencies.map((dependency) => (
-                            <tr key={`${dependency.module}-${dependency.screen}-${dependency.field}`} className="border-b border-border-subtle">
-                              <td className="px-3 py-2">{dependency.module}</td>
-                              <td className="px-3 py-2">{dependency.screen}</td>
-                              <td className="px-3 py-2">{dependency.field}</td>
+                          <thead>
+                            <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                              {["Module", "Screen", "Field"].map((header) => (
+                                <th
+                                  key={header}
+                                  className="px-3 py-2 font-medium text-text-secondary"
+                                >
+                                  {header}
+                                </th>
+                              ))}
                             </tr>
-                          ))}
-                        </tbody>
+                          </thead>
+                          <tbody>
+                            {selectedMaster.dependencies.map((dependency) => (
+                              <tr
+                                key={`${dependency.module}-${dependency.screen}-${dependency.field}`}
+                                className="border-b border-border-subtle"
+                              >
+                                <td className="px-3 py-2">{dependency.module}</td>
+                                <td className="px-3 py-2">{dependency.screen}</td>
+                                <td className="px-3 py-2">{dependency.field}</td>
+                              </tr>
+                            ))}
+                          </tbody>
                         </table>
                       </div>
                     </Card>
@@ -1503,240 +1863,461 @@ export function MastersFeature() {
 
                   {workspaceTab === "audit" ? (
                     <Card className="border-border-subtle">
-                      <CardHeader title="Audit Trail" hint="UI-level history preview for create/edit/status/archive actions." />
+                      <CardHeader
+                        title="Audit Trail"
+                        hint="UI-level history preview for create/edit/status/archive actions."
+                      />
                       <div className="space-y-2 p-4 sm:p-5">
                         {selectedMasterAudit.length ? (
                           selectedMasterAudit.map((event) => (
-                            <div key={event.id} className="rounded-lg border border-border-subtle bg-surface p-3">
+                            <div
+                              key={event.id}
+                              className="rounded-lg border border-border-subtle bg-surface p-3"
+                            >
                               <div className="flex flex-wrap items-center gap-2 text-[12px]">
                                 <StatusBadge tone="info">{event.action}</StatusBadge>
-                                <span className="font-medium text-text-primary">{event.recordCode}</span>
+                                <span className="font-medium text-text-primary">
+                                  {event.recordCode}
+                                </span>
                                 <span className="text-text-secondary">by {event.by}</span>
                                 <span className="ml-auto flex items-center gap-1 text-text-secondary">
                                   <Clock3 className="h-3.5 w-3.5" />
                                   {event.at}
                                 </span>
                               </div>
-                              <div className="mt-1 text-[11px] text-text-secondary">{event.detail}</div>
+                              <div className="mt-1 text-[11px] text-text-secondary">
+                                {event.detail}
+                              </div>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[12px] text-text-secondary">No audit events yet for this master.</div>
+                          <div className="text-[12px] text-text-secondary">
+                            No audit events yet for this master.
+                          </div>
                         )}
                       </div>
                     </Card>
                   ) : null}
 
                   {workspaceTab === "records" ? (
-                    <Card className="border-border-subtle">
-                      <CardHeader
-                        title="Master Records"
-                        hint="Record-level management with sorting, pagination, and save guards."
-                        action={
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => openRecordForm("edit")} disabled={!selectedRecord}>
-                              <PencilLine className="h-3.5 w-3.5" />
-                              Edit
-                            </Button>
-                            <Button size="sm" onClick={() => openRecordForm("create")}>
-                              <Plus className="h-3.5 w-3.5" />
-                              Add record
-                            </Button>
-                          </div>
-                        }
-                      />
-                      <div className="grid grid-cols-1 gap-2 px-4 pt-4 md:grid-cols-2 xl:grid-cols-4">
-                        <input
-                          className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                          value={recordSearch}
-                          onChange={(event) => setRecordSearch(event.target.value)}
-                          placeholder="Search records"
+                    isRatePlanDelegated ? (
+                      <Card className="border-border-subtle">
+                        <CardHeader
+                          title="Delegated to Rate Plans module"
+                          hint="Create, edit, publish, and sync rate plans in steady-state operations."
                         />
-                        <select
-                          className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                          value={sortField}
-                          onChange={(event) => changeSort(event.target.value as RecordSortField)}
-                        >
-                          <option value="updatedAt">Sort by Updated</option>
-                          <option value="code">Sort by Code</option>
-                          <option value="name">Sort by Name</option>
-                          <option value="status">Sort by Status</option>
-                        </select>
-                        <select
-                          className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                          value={sortDirection}
-                          onChange={(event) => setSortDirection(event.target.value as "asc" | "desc")}
-                        >
-                          <option value="asc">Ascending</option>
-                          <option value="desc">Descending</option>
-                        </select>
-                        <select
-                          className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                          value={pageSize}
-                          onChange={(event) => setPageSize(Number(event.target.value))}
-                        >
-                          {[5, 10, 20].map((size) => (
-                            <option key={size} value={size}>
-                              {size} / page
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[360px_1fr]">
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-[80px_1fr_84px] items-center rounded-md border border-border-subtle bg-surface-2/30 px-2 py-1 text-[11px] font-medium text-text-secondary md:grid-cols-[88px_1fr_84px_84px]">
-                            <button type="button" onClick={() => changeSort("code")} className="text-left">
-                              Code
-                            </button>
-                            <button type="button" onClick={() => changeSort("name")} className="text-left">
-                              Name
-                            </button>
-                            <button type="button" onClick={() => changeSort("status")} className="text-left">
-                              Status
-                            </button>
-                            <button type="button" onClick={() => changeSort("updatedAt")} className="hidden text-left md:inline">
-                              Updated
-                            </button>
+                        <div className="space-y-4 p-4 sm:p-5">
+                          <p className="text-[13px] text-text-secondary">
+                            This master page keeps the attribute schema and dependency map. Live
+                            rate plan records are maintained in{" "}
+                            <Link
+                              to="/rate-plans"
+                              className="font-medium text-primary hover:underline"
+                            >
+                              Commercial → Rate Plans
+                            </Link>
+                            , including SU sync and versioning.
+                          </p>
+                          <Link
+                            to="/rate-plans"
+                            className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+                          >
+                            Open Rate Plans module
+                          </Link>
+                          <div className="table-scroll-shadow overflow-x-auto">
+                            <table className="w-full min-w-[520px] text-[12px]">
+                              <thead>
+                                <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                                  {["Code", "Name", "Category", "Status", "Sync"].map((header) => (
+                                    <th
+                                      key={header}
+                                      className="px-3 py-2 font-medium text-text-secondary"
+                                    >
+                                      {header}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {steadyRatePlans.map((plan) => (
+                                  <tr key={plan.id} className="border-b border-border-subtle">
+                                    <td className="px-3 py-2 font-mono">
+                                      {plan.externalRatePlanCode}
+                                    </td>
+                                    <td className="px-3 py-2">{plan.name}</td>
+                                    <td className="px-3 py-2">
+                                      {RATE_PLAN_CATEGORY_LABEL[plan.category]}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <StatusBadge
+                                        tone={plan.status === "Active" ? "success" : "warning"}
+                                      >
+                                        {plan.status}
+                                      </StatusBadge>
+                                    </td>
+                                    <td className="px-3 py-2 capitalize">
+                                      {plan.syncStatus.replace("_", " ")}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
-                          {pageRecords.length ? (
-                            pageRecords.map((record) => (
-                              <button
-                                key={record.id}
-                                type="button"
-                                onClick={() => selectRecordWithGuard(record.id)}
-                                className={`w-full rounded-md border p-2 text-left transition ${
-                                  selectedRecord?.id === record.id
-                                    ? "border-primary bg-primary-tint/40"
-                                    : "border-border-subtle bg-surface hover:bg-surface-2/60"
-                                }`}
-                              >
-                                <div className="grid grid-cols-[80px_1fr_84px] items-center gap-1 md:grid-cols-[88px_1fr_84px_84px]">
-                                  <div className="truncate text-[12px] font-medium text-text-primary">{record.code}</div>
-                                  <div className="truncate text-[11px] text-text-secondary">{record.name}</div>
-                                  <div className="text-left">
-                                    <StatusBadge tone={statusTone[record.status]}>{record.status}</StatusBadge>
-                                  </div>
-                                  <div className="hidden truncate text-[10px] text-text-disabled md:inline">{record.updatedAt.slice(5)}</div>
-                                </div>
-                              </button>
-                            ))
-                          ) : (
-                            <div className="rounded-md border border-dashed border-border p-3 text-[12px] text-text-secondary">
-                              No records match this view.
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm" onClick={() => applyQuickCreatePreset("active-standard")}>
-                                  Quick Add Active
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => applyQuickCreatePreset("draft-future")}>
-                                  Quick Add Draft
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between pt-1 text-[11px] text-text-secondary">
-                            <span>
-                              Page {Math.min(pageIndex + 1, pageCount)} of {pageCount}
-                            </span>
-                            <div className="flex gap-1">
-                              <Button variant="outline" size="sm" disabled={pageIndex === 0} onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}>
-                                Prev
-                              </Button>
+                        </div>
+                      </Card>
+                    ) : isTaxGroupDelegated ? (
+                      <Card className="border-border-subtle">
+                        <CardHeader
+                          title="Delegated to Taxes & Fees module"
+                          hint="GST, city tax, service charge, and tourism tax rules for folios and rates."
+                        />
+                        <div className="space-y-4 p-4 sm:p-5">
+                          <p className="text-[13px] text-text-secondary">
+                            This master page keeps the attribute schema and dependency map. Live tax
+                            components and groups are maintained in{" "}
+                            <Link
+                              to="/taxes-fees"
+                              className="font-medium text-primary hover:underline"
+                            >
+                              Commercial → Taxes & Fees
+                            </Link>
+                            , including folio calculation profiles.
+                          </p>
+                          <Link
+                            to="/taxes-fees"
+                            className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+                          >
+                            Open Taxes & Fees module
+                          </Link>
+                          <div className="table-scroll-shadow overflow-x-auto">
+                            <table className="w-full min-w-[520px] text-[12px]">
+                              <thead>
+                                <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                                  {["Code", "Name", "Type", "Rate", "Status"].map((header) => (
+                                    <th
+                                      key={header}
+                                      className="px-3 py-2 font-medium text-text-secondary"
+                                    >
+                                      {header}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {steadyTaxComponents.map((component) => (
+                                  <tr key={component.id} className="border-b border-border-subtle">
+                                    <td className="px-3 py-2 font-mono">{component.code}</td>
+                                    <td className="px-3 py-2">{component.name}</td>
+                                    <td className="px-3 py-2">
+                                      {TAX_COMPONENT_TYPE_LABEL[component.type]}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono">
+                                      {component.flatAmount != null &&
+                                      component.calculationBase === "per_night"
+                                        ? `₹${component.flatAmount}/night`
+                                        : `${component.ratePercent}%`}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <StatusBadge
+                                        tone={component.status === "Active" ? "success" : "neutral"}
+                                      >
+                                        {component.status}
+                                      </StatusBadge>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : (
+                      <Card className="border-border-subtle">
+                        <CardHeader
+                          title="Master Records"
+                          hint="Record-level management with sorting, pagination, and save guards."
+                          action={
+                            <div className="flex gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                disabled={pageIndex >= pageCount - 1}
-                                onClick={() => setPageIndex((prev) => Math.min(pageCount - 1, prev + 1))}
+                                onClick={() => openRecordForm("edit")}
+                                disabled={!selectedRecord}
                               >
-                                Next
+                                <PencilLine className="h-3.5 w-3.5" />
+                                Edit
+                              </Button>
+                              <Button size="sm" onClick={() => openRecordForm("create")}>
+                                <Plus className="h-3.5 w-3.5" />
+                                Add record
                               </Button>
                             </div>
-                          </div>
+                          }
+                        />
+                        <div className="grid grid-cols-1 gap-2 px-4 pt-4 md:grid-cols-2 xl:grid-cols-4">
+                          <input
+                            className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                            value={recordSearch}
+                            onChange={(event) => setRecordSearch(event.target.value)}
+                            placeholder="Search records"
+                          />
+                          <select
+                            className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                            value={sortField}
+                            onChange={(event) => changeSort(event.target.value as RecordSortField)}
+                          >
+                            <option value="updatedAt">Sort by Updated</option>
+                            <option value="code">Sort by Code</option>
+                            <option value="name">Sort by Name</option>
+                            <option value="status">Sort by Status</option>
+                          </select>
+                          <select
+                            className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                            value={sortDirection}
+                            onChange={(event) =>
+                              setSortDirection(event.target.value as "asc" | "desc")
+                            }
+                          >
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                          </select>
+                          <select
+                            className="h-9 rounded-md border border-border bg-surface px-3 text-[12px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                            value={pageSize}
+                            onChange={(event) => setPageSize(Number(event.target.value))}
+                          >
+                            {[5, 10, 20].map((size) => (
+                              <option key={size} value={size}>
+                                {size} / page
+                              </option>
+                            ))}
+                          </select>
                         </div>
-                        {draftRecord ? (
-                          <div className="space-y-3 rounded-lg border border-border-subtle bg-surface-2/30 p-3 sm:p-4">
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                              <EditableField
-                                label="Code"
-                                value={draftRecord.code}
-                                onChange={(value) => {
-                                  setDraftRecord({ ...draftRecord, code: value });
-                                  setInlineDirty(true);
-                                }}
-                              />
-                              <EditableField
-                                label="Name"
-                                value={draftRecord.name}
-                                onChange={(value) => {
-                                  setDraftRecord({ ...draftRecord, name: value });
-                                  setInlineDirty(true);
-                                }}
-                              />
-                              <EditableSelect
-                                label="Status"
-                                value={draftRecord.status}
-                                options={["Active", "Inactive", "Draft"]}
-                                onChange={(value) => {
-                                  setDraftRecord({ ...draftRecord, status: value as MasterStatus });
-                                  setInlineDirty(true);
-                                }}
-                              />
-                              <EditableField
-                                label="Effective From"
-                                value={draftRecord.effectiveFrom}
-                                onChange={(value) => {
-                                  setDraftRecord({ ...draftRecord, effectiveFrom: value });
-                                  setInlineDirty(true);
-                                }}
-                                type="date"
-                              />
-                              <EditableField
-                                label="Effective To"
-                                value={draftRecord.effectiveTo ?? ""}
-                                onChange={(value) => {
-                                  setDraftRecord({ ...draftRecord, effectiveTo: value || undefined });
-                                  setInlineDirty(true);
-                                }}
-                                type="date"
-                              />
-                              <Field label="Updated By" value={draftRecord.updatedBy} />
+                        <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[360px_1fr]">
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-[80px_1fr_84px] items-center rounded-md border border-border-subtle bg-surface-2/30 px-2 py-1 text-[11px] font-medium text-text-secondary md:grid-cols-[88px_1fr_84px_84px]">
+                              <button
+                                type="button"
+                                onClick={() => changeSort("code")}
+                                className="text-left"
+                              >
+                                Code
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => changeSort("name")}
+                                className="text-left"
+                              >
+                                Name
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => changeSort("status")}
+                                className="text-left"
+                              >
+                                Status
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => changeSort("updatedAt")}
+                                className="hidden text-left md:inline"
+                              >
+                                Updated
+                              </button>
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                              <Button variant="outline" size="sm" onClick={saveInlineRecord}>
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                Save
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => setModal({ type: "confirm-impact", action: "inactive" })}>
-                                <AlertTriangle className="h-3.5 w-3.5" />
-                                Set Inactive
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Download className="h-3.5 w-3.5" />
-                                Export Record
-                              </Button>
-                              <Button variant="danger" size="sm" onClick={() => setModal({ type: "confirm-impact", action: "archive" })}>
-                                <XCircle className="h-3.5 w-3.5" />
-                                Archive
-                              </Button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              <Button variant="outline" size="sm" onClick={() => applyQuickCreatePreset("active-standard")}>
-                                Preset: Active
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => applyQuickCreatePreset("draft-future")}>
-                                Preset: Draft
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => applyQuickCreatePreset("inactive-legacy")}>
-                                Preset: Legacy
-                              </Button>
+                            {pageRecords.length ? (
+                              pageRecords.map((record) => (
+                                <button
+                                  key={record.id}
+                                  type="button"
+                                  onClick={() => selectRecordWithGuard(record.id)}
+                                  className={`w-full rounded-md border p-2 text-left transition ${
+                                    selectedRecord?.id === record.id
+                                      ? "border-primary bg-primary-tint/40"
+                                      : "border-border-subtle bg-surface hover:bg-surface-2/60"
+                                  }`}
+                                >
+                                  <div className="grid grid-cols-[80px_1fr_84px] items-center gap-1 md:grid-cols-[88px_1fr_84px_84px]">
+                                    <div className="truncate text-[12px] font-medium text-text-primary">
+                                      {record.code}
+                                    </div>
+                                    <div className="truncate text-[11px] text-text-secondary">
+                                      {record.name}
+                                    </div>
+                                    <div className="text-left">
+                                      <StatusBadge tone={statusTone[record.status]}>
+                                        {record.status}
+                                      </StatusBadge>
+                                    </div>
+                                    <div className="hidden truncate text-[10px] text-text-disabled md:inline">
+                                      {record.updatedAt.slice(5)}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))
+                            ) : (
+                              <div className="rounded-md border border-dashed border-border p-3 text-[12px] text-text-secondary">
+                                No records match this view.
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => applyQuickCreatePreset("active-standard")}
+                                  >
+                                    Quick Add Active
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => applyQuickCreatePreset("draft-future")}
+                                  >
+                                    Quick Add Draft
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between pt-1 text-[11px] text-text-secondary">
+                              <span>
+                                Page {Math.min(pageIndex + 1, pageCount)} of {pageCount}
+                              </span>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={pageIndex === 0}
+                                  onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+                                >
+                                  Prev
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={pageIndex >= pageCount - 1}
+                                  onClick={() =>
+                                    setPageIndex((prev) => Math.min(pageCount - 1, prev + 1))
+                                  }
+                                >
+                                  Next
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                        ) : (
-                          <div className="rounded-md border border-dashed border-border p-5 text-center text-[12px] text-text-secondary">
-                            Select a record to view and edit details.
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                          {draftRecord ? (
+                            <div className="space-y-3 rounded-lg border border-border-subtle bg-surface-2/30 p-3 sm:p-4">
+                              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <EditableField
+                                  label="Code"
+                                  value={draftRecord.code}
+                                  onChange={(value) => {
+                                    setDraftRecord({ ...draftRecord, code: value });
+                                    setInlineDirty(true);
+                                  }}
+                                />
+                                <EditableField
+                                  label="Name"
+                                  value={draftRecord.name}
+                                  onChange={(value) => {
+                                    setDraftRecord({ ...draftRecord, name: value });
+                                    setInlineDirty(true);
+                                  }}
+                                />
+                                <EditableSelect
+                                  label="Status"
+                                  value={draftRecord.status}
+                                  options={["Active", "Inactive", "Draft"]}
+                                  onChange={(value) => {
+                                    setDraftRecord({
+                                      ...draftRecord,
+                                      status: value as MasterStatus,
+                                    });
+                                    setInlineDirty(true);
+                                  }}
+                                />
+                                <EditableField
+                                  label="Effective From"
+                                  value={draftRecord.effectiveFrom}
+                                  onChange={(value) => {
+                                    setDraftRecord({ ...draftRecord, effectiveFrom: value });
+                                    setInlineDirty(true);
+                                  }}
+                                  type="date"
+                                />
+                                <EditableField
+                                  label="Effective To"
+                                  value={draftRecord.effectiveTo ?? ""}
+                                  onChange={(value) => {
+                                    setDraftRecord({
+                                      ...draftRecord,
+                                      effectiveTo: value || undefined,
+                                    });
+                                    setInlineDirty(true);
+                                  }}
+                                  type="date"
+                                />
+                                <Field label="Updated By" value={draftRecord.updatedBy} />
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" size="sm" onClick={saveInlineRecord}>
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  Save
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    setModal({ type: "confirm-impact", action: "inactive" })
+                                  }
+                                >
+                                  <AlertTriangle className="h-3.5 w-3.5" />
+                                  Set Inactive
+                                </Button>
+                                <Button variant="outline" size="sm">
+                                  <Download className="h-3.5 w-3.5" />
+                                  Export Record
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  onClick={() =>
+                                    setModal({ type: "confirm-impact", action: "archive" })
+                                  }
+                                >
+                                  <XCircle className="h-3.5 w-3.5" />
+                                  Archive
+                                </Button>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyQuickCreatePreset("active-standard")}
+                                >
+                                  Preset: Active
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyQuickCreatePreset("draft-future")}
+                                >
+                                  Preset: Draft
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyQuickCreatePreset("inactive-legacy")}
+                                >
+                                  Preset: Legacy
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="rounded-md border border-dashed border-border p-5 text-center text-[12px] text-text-secondary">
+                              Select a record to view and edit details.
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    )
                   ) : null}
                 </div>
               ) : (
@@ -1811,22 +2392,22 @@ export function MastersFeature() {
           </div>
           {selectedMaster ? (
             <div className="mt-4">
-              <div className="mb-2 text-[12px] font-semibold text-text-primary">Additional Attributes</div>
+              <div className="mb-2 text-[12px] font-semibold text-text-primary">
+                Additional Attributes
+              </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {getDynamicFields(selectedMaster).map((field) => (
                   <EditableField
                     key={field.name}
                     label={field.name}
                     value={recordForm.attributes[field.name] ?? ""}
-                    onChange={(value) =>
-                      {
-                        setRecordForm((prev) => ({
-                          ...prev,
-                          attributes: { ...prev.attributes, [field.name]: value },
-                        }));
-                        setRecordFormDirty(true);
-                      }
-                    }
+                    onChange={(value) => {
+                      setRecordForm((prev) => ({
+                        ...prev,
+                        attributes: { ...prev.attributes, [field.name]: value },
+                      }));
+                      setRecordFormDirty(true);
+                    }}
                   />
                 ))}
               </div>
@@ -1837,28 +2418,43 @@ export function MastersFeature() {
 
       {modal.type === "confirm-impact" && selectedMaster && selectedRecord ? (
         <ModalShell
-          title={modal.action === "inactive" ? "Impact Check: Set Inactive" : "Impact Check: Archive Record"}
+          title={
+            modal.action === "inactive"
+              ? "Impact Check: Set Inactive"
+              : "Impact Check: Archive Record"
+          }
           onClose={() => setModal({ type: "none" })}
           footer={
             <>
               <Button variant="outline" size="sm" onClick={() => setModal({ type: "none" })}>
                 Cancel
               </Button>
-              <Button variant={modal.action === "archive" ? "danger" : "outline"} size="sm" onClick={confirmImpactAction}>
+              <Button
+                variant={modal.action === "archive" ? "danger" : "outline"}
+                size="sm"
+                onClick={confirmImpactAction}
+              >
                 Confirm
               </Button>
             </>
           }
         >
           <div className="text-[12px] text-text-secondary">
-            <span className="font-medium text-text-primary">{selectedRecord.code}</span> is consumed in{" "}
-            <span className="font-medium text-text-primary">{selectedMaster.dependencies.length}</span> downstream places.
-            Review before continuing:
+            <span className="font-medium text-text-primary">{selectedRecord.code}</span> is consumed
+            in{" "}
+            <span className="font-medium text-text-primary">
+              {selectedMaster.dependencies.length}
+            </span>{" "}
+            downstream places. Review before continuing:
           </div>
           <div className="mt-3 space-y-2">
             {selectedMaster.dependencies.map((dependency) => (
-              <div key={`${dependency.module}-${dependency.screen}-${dependency.field}`} className="rounded-md border border-border-subtle bg-surface p-2 text-[12px]">
-                <span className="font-medium text-text-primary">{dependency.module}</span> · {dependency.screen} · {dependency.field}
+              <div
+                key={`${dependency.module}-${dependency.screen}-${dependency.field}`}
+                className="rounded-md border border-border-subtle bg-surface p-2 text-[12px]"
+              >
+                <span className="font-medium text-text-primary">{dependency.module}</span> ·{" "}
+                {dependency.screen} · {dependency.field}
               </div>
             ))}
           </div>
@@ -1879,7 +2475,8 @@ export function MastersFeature() {
           }
         >
           <div className="text-[12px] text-text-secondary">
-            Upload CSV/XLSX template with columns: `code`, `name`, `status`, `effectiveFrom`, `effectiveTo` and master-specific attributes.
+            Upload CSV/XLSX template with columns: `code`, `name`, `status`, `effectiveFrom`,
+            `effectiveTo` and master-specific attributes.
           </div>
         </ModalShell>
       ) : null}
@@ -1955,7 +2552,9 @@ export function MastersFeature() {
               </select>
             </div>
             <div>
-              <div className="mb-1 text-[11px] font-medium text-text-secondary">Include no-dependency masters</div>
+              <div className="mb-1 text-[11px] font-medium text-text-secondary">
+                Include no-dependency masters
+              </div>
               <label className="flex h-9 items-center gap-2 rounded-md border border-border bg-surface px-3 text-[13px]">
                 <input
                   type="checkbox"
@@ -1965,8 +2564,18 @@ export function MastersFeature() {
                 Enabled
               </label>
             </div>
-            <EditableField label="Updated Date From" value={updatedDateFrom} onChange={setUpdatedDateFrom} type="date" />
-            <EditableField label="Updated Date To" value={updatedDateTo} onChange={setUpdatedDateTo} type="date" />
+            <EditableField
+              label="Updated Date From"
+              value={updatedDateFrom}
+              onChange={setUpdatedDateFrom}
+              type="date"
+            />
+            <EditableField
+              label="Updated Date To"
+              value={updatedDateTo}
+              onChange={setUpdatedDateTo}
+              type="date"
+            />
           </div>
           <div className="mt-3 rounded-lg border border-border-subtle bg-surface p-3 text-[12px] text-text-secondary">
             Filters are applied to record lists and catalogue behavior in real time.
@@ -1981,7 +2590,11 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="mb-1 text-[11px] font-medium text-text-secondary">{label}</div>
-      <input className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]" value={value} readOnly />
+      <input
+        className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
+        value={value}
+        readOnly
+      />
     </div>
   );
 }
@@ -2064,7 +2677,9 @@ function ModalShell({
           </button>
         </div>
         <div className="flex-1 overflow-auto p-4 sm:flex-none sm:p-5">{children}</div>
-        <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle px-4 py-3 sm:px-5">{footer}</div>
+        <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle px-4 py-3 sm:px-5">
+          {footer}
+        </div>
       </div>
     </div>
   );

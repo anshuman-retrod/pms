@@ -13,6 +13,8 @@ import {
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/app/layouts/AppShell";
+import { PosShell } from "@/app/layouts/PosShell";
+import { isPosPath } from "@/features/retrod-one/lib/access";
 import { AuthProvider } from "@/features/auth/providers/AuthProvider";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
@@ -104,8 +106,8 @@ function AuthGate() {
   const { isAuthenticated, featureEnabled } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Login page renders standalone (no shell)
-  if (pathname === "/login") return <Outlet />;
+  // Standalone routes render without the PMS shell
+  if (pathname === "/login" || pathname === "/one") return <Outlet />;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -113,10 +115,19 @@ function AuthGate() {
 
   const disabledFeature = getFeatureBlockedOnPath(pathname, featureEnabled);
   if (disabledFeature) {
+    const Shell = isPosPath(pathname) ? PosShell : AppShell;
     return (
-      <AppShell>
+      <Shell>
         <FeatureDisabled title={disabledFeature.title} description={disabledFeature.description} />
-      </AppShell>
+      </Shell>
+    );
+  }
+
+  if (isPosPath(pathname)) {
+    return (
+      <PosShell>
+        <Outlet />
+      </PosShell>
     );
   }
 

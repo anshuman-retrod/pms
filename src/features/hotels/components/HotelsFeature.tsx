@@ -1,4 +1,11 @@
-import { PageHeader, Card, CardHeader, Button, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Card,
+  CardHeader,
+  Button,
+  StatusBadge,
+  KpiCard,
+} from "@/components/ui/Primitives";
 import { Plus } from "lucide-react";
 import { hotelRegistry } from "@/features/core/data/catalog";
 
@@ -49,13 +56,18 @@ export function HotelsFeature() {
               </thead>
               <tbody>
                 {hotelRegistry.map((hotel) => (
-                  <tr key={hotel.id} className="border-b border-border-subtle hover:bg-surface-2/40">
+                  <tr
+                    key={hotel.id}
+                    className="border-b border-border-subtle hover:bg-surface-2/40"
+                  >
                     <td className="px-4 py-3 font-mono text-[12px]">{hotel.id}</td>
                     <td className="px-4 py-3 font-medium text-text-primary">{hotel.name}</td>
                     <td className="px-4 py-3 text-text-secondary">{hotel.city}</td>
                     <td className="px-4 py-3 text-text-secondary">{hotel.tier}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge tone={statusTone[hotel.status] ?? "info"}>{hotel.status}</StatusBadge>
+                      <StatusBadge tone={statusTone[hotel.status] ?? "info"}>
+                        {hotel.status}
+                      </StatusBadge>
                     </td>
                     <td className="px-4 py-3 font-mono text-text-secondary">{hotel.rooms}</td>
                   </tr>

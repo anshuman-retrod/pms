@@ -395,7 +395,9 @@ export function runGoLiveValidation(state: OnboardingState): GoLiveValidation[] 
     id: "property",
     label: "Property information",
     status: propertyReady ? "pass" : "error",
-    message: propertyReady ? "Property profile is complete." : "Complete mandatory property fields.",
+    message: propertyReady
+      ? "Property profile is complete."
+      : "Complete mandatory property fields.",
   });
 
   const gstReady =
@@ -414,7 +416,9 @@ export function runGoLiveValidation(state: OnboardingState): GoLiveValidation[] 
     id: "rooms",
     label: "Room configuration",
     status: roomsReady ? "pass" : "error",
-    message: roomsReady ? "Rooms and inventory are configured." : "Add at least one room type with inventory.",
+    message: roomsReady
+      ? "Rooms and inventory are configured."
+      : "Add at least one room type with inventory.",
   });
 
   const mealPlansReady = state.mealPlans.some((plan) => plan.active);
@@ -422,15 +426,59 @@ export function runGoLiveValidation(state: OnboardingState): GoLiveValidation[] 
     id: "meal-plans",
     label: "Meal plans",
     status: mealPlansReady ? "pass" : "error",
-    message: mealPlansReady ? "At least one active meal plan found." : "Activate at least one meal plan.",
+    message: mealPlansReady
+      ? "At least one active meal plan found."
+      : "Activate at least one meal plan.",
   });
 
-  const ratePlansReady = state.ratePlans.some((plan) => plan.active);
+  const rateReadiness = (() => {
+    const active = state.ratePlans.filter((plan) => plan.active);
+    const hasBar = active.some(
+      (plan) =>
+        (plan.category === "flexible" && plan.discountPercent === 0) ||
+        plan.name.toLowerCase().includes("bar"),
+    );
+    const hasRooms = state.roomTypes.length > 0 && active.length > 0;
+    return { active, hasBar, hasRooms };
+  })();
+
   checks.push({
     id: "rate-plans",
     label: "Rate plans",
-    status: ratePlansReady ? "pass" : "error",
-    message: ratePlansReady ? "Rate plans are configured." : "Activate at least one rate plan.",
+    status:
+      rateReadiness.active.length > 0 && rateReadiness.hasBar && rateReadiness.hasRooms
+        ? "pass"
+        : rateReadiness.active.length > 0
+          ? "warning"
+          : "error",
+    message:
+      rateReadiness.active.length === 0
+        ? "Activate at least one rate plan."
+        : !rateReadiness.hasBar
+          ? "Add an active flexible/BAR plan (0% discount) before go-live."
+          : !rateReadiness.hasRooms
+            ? "Configure room types so rate plans can link to inventory on publish."
+            : "Rate plans ready — will publish to Rate Plans module on go-live.",
+  });
+
+  const taxConfigured =
+    state.tax.gst >= 0 && state.tax.serviceCharge >= 0 && state.tax.cityTax >= 0;
+  checks.push({
+    id: "tax-config",
+    label: "Tax configuration",
+    status: taxConfigured ? "pass" : "warning",
+    message: taxConfigured
+      ? `Taxes configured (GST ${state.tax.gst}%, service ${state.tax.serviceCharge}%) — will publish to Taxes & Fees on go-live.`
+      : "Review GST, service charge, and city tax in Meal Plans, Rates & Tax step.",
+  });
+
+  checks.push({
+    id: "availability-grid",
+    label: "Availability grid",
+    status: roomsReady ? "pass" : "warning",
+    message: roomsReady
+      ? "Room inventory will seed a 30-day availability calendar on go-live."
+      : "Configure room types before availability can be published.",
   });
 
   const usersReady = state.users.length > 0;
@@ -438,7 +486,9 @@ export function runGoLiveValidation(state: OnboardingState): GoLiveValidation[] 
     id: "users",
     label: "User setup",
     status: usersReady ? "pass" : "warning",
-    message: usersReady ? "Staff invites are configured." : "No user invites found; recommend adding key roles.",
+    message: usersReady
+      ? "Staff invites are configured."
+      : "No user invites found; recommend adding key roles.",
   });
 
   const paymentsReady = state.payments.cash || state.payments.card || state.payments.upi;
@@ -446,7 +496,9 @@ export function runGoLiveValidation(state: OnboardingState): GoLiveValidation[] 
     id: "payments",
     label: "Payment configuration",
     status: paymentsReady ? "pass" : "error",
-    message: paymentsReady ? "At least one payment mode is enabled." : "Enable at least one payment mode.",
+    message: paymentsReady
+      ? "At least one payment mode is enabled."
+      : "Enable at least one payment mode.",
   });
 
   const channelsConnected = state.channelManager.channels.filter((ch) => ch.connected).length;
@@ -534,8 +586,7 @@ export function loadOnboarding(): OnboardingState {
       channelManager: {
         ...DEFAULT_ONBOARDING.channelManager,
         ...(parsed.channelManager ?? {}),
-        channels:
-          parsed.channelManager?.channels ?? DEFAULT_ONBOARDING.channelManager.channels,
+        channels: parsed.channelManager?.channels ?? DEFAULT_ONBOARDING.channelManager.channels,
       },
       roomTypes: parsed.roomTypes ?? DEFAULT_ONBOARDING.roomTypes,
       mealPlans: parsed.mealPlans ?? DEFAULT_ONBOARDING.mealPlans,

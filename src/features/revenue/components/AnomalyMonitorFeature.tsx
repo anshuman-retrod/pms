@@ -1,5 +1,12 @@
 import { AlertTriangle, ShieldAlert, Sparkles } from "lucide-react";
-import { Button, Card, CardHeader, KpiCard, PageHeader, StatusBadge } from "@/components/ui/Primitives";
+import {
+  Button,
+  Card,
+  CardHeader,
+  KpiCard,
+  PageHeader,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 
 const anomalies = [
   {
@@ -42,8 +49,18 @@ const anomalies = [
 
 const playbooks = [
   { name: "Sync containment", trigger: "High sync anomalies", eta: "15 min", owner: "Ops on-call" },
-  { name: "Revenue protection", trigger: "ADR/RevPAR drop > 5%", eta: "30 min", owner: "Revenue manager" },
-  { name: "Escalation broadcast", trigger: "Cross-domain anomalies", eta: "10 min", owner: "Duty manager" },
+  {
+    name: "Revenue protection",
+    trigger: "ADR/RevPAR drop > 5%",
+    eta: "30 min",
+    owner: "Revenue manager",
+  },
+  {
+    name: "Escalation broadcast",
+    trigger: "Cross-domain anomalies",
+    eta: "10 min",
+    owner: "Duty manager",
+  },
 ];
 
 export function AnomalyMonitorFeature() {
@@ -69,7 +86,11 @@ export function AnomalyMonitorFeature() {
       <div className="responsive-page-x space-y-5 py-4 sm:space-y-6 sm:py-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <KpiCard label="Active anomalies" value={String(anomalies.length)} accent="warning" />
-          <KpiCard label="High severity" value={String(highCount)} accent={highCount ? "error" : "success"} />
+          <KpiCard
+            label="High severity"
+            value={String(highCount)}
+            accent={highCount ? "error" : "success"}
+          />
           <KpiCard label="Avg confidence" value={`${avgConfidence}%`} accent="info" />
           <KpiCard label="Domains covered" value="Sync + Revenue" accent="brand" />
         </div>
@@ -78,16 +99,31 @@ export function AnomalyMonitorFeature() {
           <CardHeader title="Detected anomalies" hint="Prioritized by severity and confidence" />
           <div className="space-y-3 p-4 sm:p-5">
             {anomalies.map((item) => (
-              <div key={item.id} className="rounded-md border border-border-subtle bg-surface-2/20 p-3">
+              <div
+                key={item.id}
+                className="rounded-md border border-border-subtle bg-surface-2/20 p-3"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div className="font-mono text-[12px] text-text-secondary">{item.id}</div>
-                    <StatusBadge tone={item.severity === "High" ? "error" : item.severity === "Medium" ? "warning" : "info"}>
+                    <StatusBadge
+                      tone={
+                        item.severity === "High"
+                          ? "error"
+                          : item.severity === "Medium"
+                            ? "warning"
+                            : "info"
+                      }
+                    >
                       {item.severity}
                     </StatusBadge>
-                    <StatusBadge tone={item.domain === "Sync" ? "info" : "brand"}>{item.domain}</StatusBadge>
+                    <StatusBadge tone={item.domain === "Sync" ? "info" : "brand"}>
+                      {item.domain}
+                    </StatusBadge>
                   </div>
-                  <div className="text-[12px] font-mono text-text-secondary">{item.confidence}% confidence</div>
+                  <div className="text-[12px] font-mono text-text-secondary">
+                    {item.confidence}% confidence
+                  </div>
                 </div>
                 <div className="mt-2 text-[13px] font-medium text-text-primary">{item.signal}</div>
                 <p className="mt-1 text-[12px] text-text-secondary">{item.impact}</p>
@@ -120,7 +156,10 @@ export function AnomalyMonitorFeature() {
               </thead>
               <tbody>
                 {playbooks.map((row) => (
-                  <tr key={row.name} className="border-b border-border-subtle hover:bg-surface-2/30">
+                  <tr
+                    key={row.name}
+                    className="border-b border-border-subtle hover:bg-surface-2/30"
+                  >
                     <td className="px-4 py-3 font-medium text-text-primary">{row.name}</td>
                     <td className="px-4 py-3 text-text-secondary">{row.trigger}</td>
                     <td className="px-4 py-3 font-mono">{row.eta}</td>
@@ -144,7 +183,8 @@ export function AnomalyMonitorFeature() {
           </div>
           <p className="mt-2 text-[12px] text-text-secondary">
             Current posture is <strong>{highCount ? "Elevated" : "Watch"}</strong>. Keep sync
-            incidents below 2 high-severity events and maintain revenue variance alerts under 3 per day.
+            incidents below 2 high-severity events and maintain revenue variance alerts under 3 per
+            day.
           </p>
         </div>
       </div>

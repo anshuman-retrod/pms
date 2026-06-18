@@ -121,11 +121,7 @@ export function HousekeepingFeature() {
                 Mobile
               </Button>
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilterPanel((prev) => !prev)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowFilterPanel((prev) => !prev)}>
               <Filter className="h-3.5 w-3.5" />
               Filter
             </Button>
@@ -178,26 +174,26 @@ export function HousekeepingFeature() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-full overflow-x-auto sm:w-auto">
             <div className="flex min-w-max rounded-md border border-border bg-surface p-0.5 text-[12px]">
-            {(
-              [
-                { id: "board" as const, label: "Board" },
-                { id: "list" as const, label: "List" },
-                { id: "kanban" as const, label: "By attendant" },
-              ] as const
-            ).map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => setView(v.id)}
-                className={`rounded px-3 py-1 transition ${
-                  view === v.id
-                    ? "bg-foreground text-background"
-                    : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                {v.label}
-              </button>
-            ))}
+              {(
+                [
+                  { id: "board" as const, label: "Board" },
+                  { id: "list" as const, label: "List" },
+                  { id: "kanban" as const, label: "By attendant" },
+                ] as const
+              ).map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setView(v.id)}
+                  className={`rounded px-3 py-1 transition ${
+                    view === v.id
+                      ? "bg-foreground text-background"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
             </div>
           </div>
           <select
@@ -215,11 +211,7 @@ export function HousekeepingFeature() {
           <RoomCardGrid housekeepingRooms={filtered} tone={tone} cardBg={cardBg} />
         )}
         {view === "list" && (
-          <HousekeepingListView
-            rooms={filtered}
-            tone={tone}
-            onUpdateRoom={handleQuickRoomUpdate}
-          />
+          <HousekeepingListView rooms={filtered} tone={tone} onUpdateRoom={handleQuickRoomUpdate} />
         )}
         {view === "kanban" && <HousekeepingKanban rooms={filtered} tone={tone} />}
       </div>

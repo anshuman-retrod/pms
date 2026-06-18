@@ -82,7 +82,10 @@ export function NotificationCenterFeature() {
           <CardHeader title="Active alerts" hint={`${active.length} unread`} />
           <div className="divide-y divide-border-subtle">
             {active.map((item) => (
-              <div key={item.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3 sm:px-5">
+              <div
+                key={item.id}
+                className="flex flex-wrap items-start justify-between gap-3 px-4 py-3 sm:px-5"
+              >
                 <div className="flex min-w-0 items-start gap-3">
                   <div className="mt-0.5 rounded-md bg-surface-2 p-1.5">
                     <Bell className="h-3.5 w-3.5 text-text-secondary" />
@@ -96,7 +99,9 @@ export function NotificationCenterFeature() {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <StatusBadge tone={toneBySeverity[item.severity] ?? "info"}>{item.severity}</StatusBadge>
+                  <StatusBadge tone={toneBySeverity[item.severity] ?? "info"}>
+                    {item.severity}
+                  </StatusBadge>
                   <span className="text-[11px] text-text-disabled">{item.time}</span>
                   <button
                     onClick={() => {
@@ -108,7 +113,13 @@ export function NotificationCenterFeature() {
                     Acknowledge
                   </button>
                   <a
-                    href={item.owner === "Ops" ? "/pms-integrations" : item.owner === "Revenue" ? "/revenue" : "/users"}
+                    href={
+                      item.owner === "Ops"
+                        ? "/pms-integrations"
+                        : item.owner === "Revenue"
+                          ? "/revenue"
+                          : "/users"
+                    }
                     className="rounded-md border border-border px-2 py-1 text-[11px] text-primary transition hover:bg-primary-tint"
                   >
                     Open

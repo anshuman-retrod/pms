@@ -13,6 +13,7 @@ You want the new green/Syne design system applied **through the existing UI prim
 ## Phase 1 — Design tokens (foundation)
 
 Update `src/styles.css`:
+
 - Color tokens to oklch equivalents of the spec:
   - `--primary` → #1D9E75 · `--primary-foreground` white
   - `--background` → #F6FAF8 · `--card` → #FFFFFF
@@ -37,22 +38,23 @@ Update `src/styles.css`:
 
 Add under `src/features/restaurant/...` and `src/routes/...`, all reusing `Primitives`:
 
-| Route | Feature module | Notes |
-|---|---|---|
-| `/pos` | `PosFeature` | Split menu grid + active order panel |
-| `/inventory` | `InventoryFeature` | Tabs: Stock / POs / Suppliers / Recipes |
-| `/online-orders` | `OnlineOrdersFeature` | Platform pills + queue + detail |
-| `/menu` | `MenuFeature` | Category tree + item grid + drawer |
-| `/crm` | `CrmFeature` | Stats + tabs + customer drawer |
-| `/addons` | `AddonsFeature` | Settings tabs incl. Add-ons grid |
-| `/restaurant` | `RestaurantDashboardFeature` | KPIs, revenue chart, top items, live orders |
-| `/restaurant-reports` | `RestaurantReportsFeature` | Reuse existing `ReportsSidebar` pattern |
+| Route                 | Feature module               | Notes                                       |
+| --------------------- | ---------------------------- | ------------------------------------------- |
+| `/pos`                | `PosFeature`                 | Split menu grid + active order panel        |
+| `/inventory`          | `InventoryFeature`           | Tabs: Stock / POs / Suppliers / Recipes     |
+| `/online-orders`      | `OnlineOrdersFeature`        | Platform pills + queue + detail             |
+| `/menu`               | `MenuFeature`                | Category tree + item grid + drawer          |
+| `/crm`                | `CrmFeature`                 | Stats + tabs + customer drawer              |
+| `/addons`             | `AddonsFeature`              | Settings tabs incl. Add-ons grid            |
+| `/restaurant`         | `RestaurantDashboardFeature` | KPIs, revenue chart, top items, live orders |
+| `/restaurant-reports` | `RestaurantReportsFeature`   | Reuse existing `ReportsSidebar` pattern     |
 
 All charts via Recharts (already used). Mock data in `src/services/mock/restaurant.ts`.
 
 ## Phase 4 — Sidebar grouping
 
 Update sidebar nav to two collapsible groups:
+
 - **Hotel Operations** (existing items)
 - **Restaurant** (new POS routes)
 - **Settings** (existing — Users, Roles, Property, etc.)

@@ -20,7 +20,10 @@ export function HousekeepingMobileFeature() {
 
   const assigned = housekeepingRooms.filter((r) => r.staff === "Priya" || r.staff === "Lakshmi");
   const myRooms = assigned.length ? assigned.slice(0, 8) : housekeepingRooms.slice(0, 8);
-  const nextRoom = useMemo(() => myRooms.find((r) => r.status === "Dirty" || r.status === "Cleaning"), [myRooms]);
+  const nextRoom = useMemo(
+    () => myRooms.find((r) => r.status === "Dirty" || r.status === "Cleaning"),
+    [myRooms],
+  );
 
   const handleStartNextRoom = () => {
     if (!nextRoom) {

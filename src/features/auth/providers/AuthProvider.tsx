@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { type Permission, type Role } from "@/types/rbac";
 import { type AppUser, type TenantEntitlements } from "@/types/auth";
 import type { FeatureFlags, FeatureKey } from "@/types/entitlements";
+import { DEFAULT_PLATFORM_APPS } from "@/types/entitlements";
 import { hasPermission, ROLE_LABEL } from "../lib/rbac";
 
 export interface AuthCtx {
@@ -146,6 +147,7 @@ const DEFAULT_ENTITLEMENTS: TenantEntitlements = {
     revenueAi: true,
     masterData: true,
   },
+  platformApps: { ...DEFAULT_PLATFORM_APPS },
   propertyOverrides: [
     {
       property: "The Grand Palace",
@@ -404,6 +406,7 @@ function loadEntitlements(): TenantEntitlements {
       ...DEFAULT_ENTITLEMENTS,
       ...parsed,
       features: { ...DEFAULT_ENTITLEMENTS.features, ...(parsed.features ?? {}) },
+      platformApps: { ...DEFAULT_PLATFORM_APPS, ...(parsed.platformApps ?? {}) },
       propertyOverrides: parsed.propertyOverrides ?? DEFAULT_ENTITLEMENTS.propertyOverrides,
     };
   } catch {

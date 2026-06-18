@@ -1,5 +1,12 @@
 import { ArrowRight, CheckCircle2, Gauge, TriangleAlert } from "lucide-react";
-import { Button, Card, CardHeader, KpiCard, PageHeader, StatusBadge } from "@/components/ui/Primitives";
+import {
+  Button,
+  Card,
+  CardHeader,
+  KpiCard,
+  PageHeader,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 
 const funnelSteps = [
   { step: "Search sessions", count: 4120, rate: 100 },
@@ -39,10 +46,26 @@ export function BookingReadinessFeature() {
 
       <div className="responsive-page-x space-y-5 py-4 sm:space-y-6 sm:py-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard label="Funnel completion" value={`${completionRate.toFixed(1)}%`} accent="info" />
-          <KpiCard label="Parity confidence" value={`${confidence}%`} accent={confidence >= 85 ? "success" : "warning"} />
-          <KpiCard label="Watch checks" value={String(unhealthy)} accent={unhealthy ? "warning" : "success"} />
-          <KpiCard label="Readiness state" value={confidence >= 85 ? "Ready" : "Needs tuning"} accent={confidence >= 85 ? "success" : "warning"} />
+          <KpiCard
+            label="Funnel completion"
+            value={`${completionRate.toFixed(1)}%`}
+            accent="info"
+          />
+          <KpiCard
+            label="Parity confidence"
+            value={`${confidence}%`}
+            accent={confidence >= 85 ? "success" : "warning"}
+          />
+          <KpiCard
+            label="Watch checks"
+            value={String(unhealthy)}
+            accent={unhealthy ? "warning" : "success"}
+          />
+          <KpiCard
+            label="Readiness state"
+            value={confidence >= 85 ? "Ready" : "Needs tuning"}
+            accent={confidence >= 85 ? "success" : "warning"}
+          />
         </div>
 
         <Card>
@@ -70,7 +93,10 @@ export function BookingReadinessFeature() {
         </Card>
 
         <Card>
-          <CardHeader title="Parity confidence checks" hint="Rate/inventory/offer consistency signals" />
+          <CardHeader
+            title="Parity confidence checks"
+            hint="Rate/inventory/offer consistency signals"
+          />
           <div className="table-scroll-shadow overflow-x-auto">
             <table className="w-full min-w-[680px] text-[13px]">
               <thead>
@@ -111,8 +137,8 @@ export function BookingReadinessFeature() {
               Readiness recommendation
             </div>
             <p className="mt-2 text-[12px] text-text-secondary">
-              Keep traffic budget steady. Improve promo parity before scaling campaign spend; estimated
-              conversion lift opportunity is +1.2 to +1.8 percentage points.
+              Keep traffic budget steady. Improve promo parity before scaling campaign spend;
+              estimated conversion lift opportunity is +1.2 to +1.8 percentage points.
             </p>
           </div>
           <div className="rounded-lg border border-border bg-surface p-4 shadow-e1">

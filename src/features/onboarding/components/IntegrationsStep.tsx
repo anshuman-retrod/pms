@@ -228,7 +228,9 @@ export function IntegrationsStep({ state, setState, disabled }: IntegrationsStep
         <div className="label-uppercase mb-2">Channel Manager Setup</div>
         <div className="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-[12px] font-medium text-text-secondary">Provider</label>
+            <label className="mb-1.5 block text-[12px] font-medium text-text-secondary">
+              Provider
+            </label>
             <input
               disabled={disabled}
               className={inputCls}
@@ -312,28 +314,52 @@ export function IntegrationsStep({ state, setState, disabled }: IntegrationsStep
       <div className="rounded-md border border-border bg-surface p-4">
         <div className="label-uppercase mb-2">Reusable Setup Screens</div>
         <div className="grid grid-cols-1 gap-2 text-[12px] md:grid-cols-2">
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/users">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/users"
+          >
             Users & Access
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/pricing">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/pricing"
+          >
             Dynamic Pricing / Rate Plans
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/channel-manager/connections">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/channel-manager/connections"
+          >
             Channel Manager Connections
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/channel-manager/room-mapping">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/channel-manager/room-mapping"
+          >
             Channel Manager Room Mapping
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/channel-manager/rate-plans">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/channel-manager/rate-plans"
+          >
             Channel Manager Rate Plan Mapping
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/booking-engine">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/booking-engine"
+          >
             Booking Engine Settings
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/website-builder">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/website-builder"
+          >
             Website Builder
           </a>
-          <a className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2" href="/communications">
+          <a
+            className="rounded border border-border-subtle px-3 py-2 hover:bg-surface-2"
+            href="/communications"
+          >
             CRM Communications
           </a>
         </div>

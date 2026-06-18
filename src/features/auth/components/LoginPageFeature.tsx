@@ -47,7 +47,7 @@ export function LoginPageFeature() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      nav({ to: "/" });
+      nav({ to: "/one" });
     }
   }, [isAuthenticated, nav]);
 
@@ -86,7 +86,7 @@ export function LoginPageFeature() {
       return;
     }
     login(match.id);
-    nav({ to: "/" });
+    nav({ to: "/one" });
   };
 
   const sendOtp = async (e: React.FormEvent) => {
@@ -115,7 +115,7 @@ export function LoginPageFeature() {
     const match = users.find((u) => u.id === selected) ?? users[0];
     if (match) {
       login(match.id);
-      nav({ to: "/" });
+      nav({ to: "/one" });
     }
   };
 

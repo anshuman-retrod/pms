@@ -217,7 +217,7 @@ export function SyncLogsScreen() {
 
           <Card>
             <CardHeader title="Sync log" hint="SU API job history" />
-          <SyncJobTable rows={filtered} />
+            <SyncJobTable rows={filtered} />
           </Card>
         </>
       )}

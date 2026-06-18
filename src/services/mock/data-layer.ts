@@ -4,6 +4,12 @@ import type { FrontDeskWorkflowReservation, ReservationType } from "@/types/pms"
 const delay = (ms = 80) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const SUBMITTED_KEY = "retrod:new-reservation:last-submitted:v1";
 const OPS_TASKS_KEY = "retrod:ops-tasks:v1";
+const RATE_PLANS_KEY = "retrod:rate-plans:v1";
+const RATE_PLAN_VERSIONS_KEY = "retrod:rate-plans:versions:v1";
+const TAX_COMPONENTS_KEY = "retrod:tax-components:v1";
+const TAX_GROUPS_KEY = "retrod:tax-groups:v1";
+const TAX_ASSIGNMENTS_KEY = "retrod:tax-assignments:v1";
+const AVAILABILITY_CELLS_KEY = "retrod:availability-cells:v1";
 const WB_WORKSPACE_KEY = "retrod:website-builder:workspace:v1";
 const WB_APPROVALS_KEY = "retrod:website-builder:approvals:v1";
 const WB_PUBLISH_KEY = "retrod:website-builder:publish-history:v1";
@@ -50,7 +56,12 @@ export const dataKeys = {
   aiRevenueDashboard: ["data", "aiRevenueDashboard"] as const,
   mealPlans: ["data", "mealPlans"] as const,
   ratePlans: ["data", "ratePlans"] as const,
+  ratePlanVersions: ["data", "ratePlanVersions"] as const,
   ratePlanPolicies: ["data", "ratePlanPolicies"] as const,
+  taxComponents: ["data", "taxComponents"] as const,
+  taxGroups: ["data", "taxGroups"] as const,
+  taxAssignments: ["data", "taxAssignments"] as const,
+  availabilityCells: ["data", "availabilityCells"] as const,
   hotelPackages: ["data", "hotelPackages"] as const,
   packageItems: ["data", "packageItems"] as const,
   occupancyPricingRules: ["data", "occupancyPricingRules"] as const,
@@ -232,8 +243,113 @@ export async function fetchMealPlans() {
 }
 export async function fetchRatePlans() {
   await delay();
+  if (typeof window !== "undefined") {
+    const raw = localStorage.getItem(RATE_PLANS_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as typeof db.ratePlans;
+      } catch {
+        /* fall through to seed */
+      }
+    }
+  }
   return db.ratePlans;
 }
+
+export async function saveRatePlans(plans: typeof db.ratePlans) {
+  await delay(40);
+  if (typeof window !== "undefined") {
+    localStorage.setItem(RATE_PLANS_KEY, JSON.stringify(plans));
+  }
+  return plans;
+}
+
+export async function fetchRatePlanVersions() {
+  await delay();
+  if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem(RATE_PLAN_VERSIONS_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function appendRatePlanVersion(version: unknown) {
+  await delay(40);
+  const existing = await fetchRatePlanVersions();
+  const next = [version, ...existing];
+  if (typeof window !== "undefined") {
+    localStorage.setItem(RATE_PLAN_VERSIONS_KEY, JSON.stringify(next.slice(0, 200)));
+  }
+  return next;
+}
+
+function readStoredArray<T>(key: string, fallback: T[]): T[] {
+  if (typeof window === "undefined") return fallback;
+  const raw = localStorage.getItem(key);
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? (parsed as T[]) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStoredArray(key: string, value: unknown[]) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+}
+
+export async function fetchTaxComponents() {
+  await delay();
+  return readStoredArray(TAX_COMPONENTS_KEY, db.taxComponents);
+}
+
+export async function saveTaxComponents(components: typeof db.taxComponents) {
+  await delay(40);
+  writeStoredArray(TAX_COMPONENTS_KEY, components);
+  return components;
+}
+
+export async function fetchTaxGroups() {
+  await delay();
+  return readStoredArray(TAX_GROUPS_KEY, db.taxGroups);
+}
+
+export async function saveTaxGroups(groups: typeof db.taxGroups) {
+  await delay(40);
+  writeStoredArray(TAX_GROUPS_KEY, groups);
+  return groups;
+}
+
+export async function fetchTaxAssignments() {
+  await delay();
+  return readStoredArray(TAX_ASSIGNMENTS_KEY, db.taxAssignments);
+}
+
+export async function saveTaxAssignments(assignments: typeof db.taxAssignments) {
+  await delay(40);
+  writeStoredArray(TAX_ASSIGNMENTS_KEY, assignments);
+  return assignments;
+}
+
+export async function fetchAvailabilityCells() {
+  await delay();
+  return readStoredArray(AVAILABILITY_CELLS_KEY, db.availabilityCells);
+}
+
+export async function saveAvailabilityCells(cells: typeof db.availabilityCells) {
+  await delay(40);
+  writeStoredArray(AVAILABILITY_CELLS_KEY, cells);
+  return cells;
+}
+
 export async function fetchRatePlanPolicies() {
   await delay();
   return db.ratePlanPolicies;
@@ -400,7 +516,12 @@ function readSubmittedReservation(): FrontDeskWorkflowReservation | null {
       balance: 0,
       reservationType: parsed.type,
       frontDeskStatus: "pre_arrival",
-      billingMode: parsed.type === "corporate" ? "direct_bill" : parsed.type === "group" ? "split" : "guest_pay",
+      billingMode:
+        parsed.type === "corporate"
+          ? "direct_bill"
+          : parsed.type === "group"
+            ? "split"
+            : "guest_pay",
       folioState: "open",
       checkinChecklist: [
         { key: "find_guest", label: "Find guest", done: true, required: true },

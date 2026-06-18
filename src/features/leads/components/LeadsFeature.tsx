@@ -1,4 +1,11 @@
-import { PageHeader, Card, CardHeader, Button, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Card,
+  CardHeader,
+  Button,
+  StatusBadge,
+  KpiCard,
+} from "@/components/ui/Primitives";
 import { Plus } from "lucide-react";
 import { crmLeads } from "@/features/core/data/catalog";
 
@@ -55,7 +62,9 @@ export function LeadsFeature() {
                     <td className="px-4 py-3 font-medium text-text-primary">{lead.name}</td>
                     <td className="px-4 py-3 text-text-secondary">{lead.source}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge tone={toneByStage[lead.stage] ?? "neutral"}>{lead.stage}</StatusBadge>
+                      <StatusBadge tone={toneByStage[lead.stage] ?? "neutral"}>
+                        {lead.stage}
+                      </StatusBadge>
                     </td>
                     <td className="px-4 py-3 text-text-secondary">{lead.owner}</td>
                     <td className="px-4 py-3 text-text-secondary">{lead.eta}</td>

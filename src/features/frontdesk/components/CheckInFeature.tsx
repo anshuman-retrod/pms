@@ -56,7 +56,11 @@ const BLOCKER_LABEL: Record<FrontDeskBlockerCode, string> = {
 
 const TYPE_META: Record<
   ReservationType,
-  { label: string; tone: "brand" | "info" | "warning" | "success" | "neutral"; icon: React.ComponentType<{ className?: string }> }
+  {
+    label: string;
+    tone: "brand" | "info" | "warning" | "success" | "neutral";
+    icon: React.ComponentType<{ className?: string }>;
+  }
 > = {
   individual: { label: "Individual", tone: "info", icon: IdCard },
   group: { label: "Group", tone: "warning", icon: Users },
@@ -100,7 +104,8 @@ function stepLabelForType(type: ReservationType, key: FrontDeskChecklistKey) {
 function blockerForStep(stepKey: FrontDeskChecklistKey): FrontDeskBlockerCode[] {
   if (stepKey === "verify_id") return ["missing_id"];
   if (stepKey === "assign_room") return ["room_not_ready", "pickup_mismatch"];
-  if (stepKey === "collect_payment") return ["pending_po", "unsettled_folio", "event_overage_pending"];
+  if (stepKey === "collect_payment")
+    return ["pending_po", "unsettled_folio", "event_overage_pending"];
   return [];
 }
 
@@ -146,7 +151,8 @@ export function CheckInFeature() {
   const blockersForCurrentStep = blockerForStep(currentStepKey);
   const activeBlockers =
     selectedArrival?.blockerCodes.filter((x) => blockersForCurrentStep.includes(x)) ?? [];
-  const canAdvanceCurrentStep = (stepChecklistItem?.required ? stepChecklistItem.done : true) && activeBlockers.length === 0;
+  const canAdvanceCurrentStep =
+    (stepChecklistItem?.required ? stepChecklistItem.done : true) && activeBlockers.length === 0;
 
   return (
     <div>
@@ -159,33 +165,33 @@ export function CheckInFeature() {
       <div className="responsive-page-x space-y-5 py-4 sm:space-y-6 sm:py-6">
         <div className="w-full overflow-x-auto">
           <div className="flex min-w-max rounded-md border border-border bg-surface p-0.5 text-[13px]">
-          <button
-            type="button"
-            onClick={() => setTab("checkin")}
-            className={`rounded px-4 py-1.5 transition ${
-              tab === "checkin" ? "bg-foreground text-background" : "text-text-secondary"
-            }`}
-          >
-            Walk-in check-in
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("online")}
-            className={`rounded px-4 py-1.5 transition ${
-              tab === "online" ? "bg-foreground text-background" : "text-text-secondary"
-            }`}
-          >
-            Online pre-check-in · {onlineCheckIns.length}
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("checkout")}
-            className={`rounded px-4 py-1.5 transition ${
-              tab === "checkout" ? "bg-foreground text-background" : "text-text-secondary"
-            }`}
-          >
-            Check-Out · {departuresToday.length}
-          </button>
+            <button
+              type="button"
+              onClick={() => setTab("checkin")}
+              className={`rounded px-4 py-1.5 transition ${
+                tab === "checkin" ? "bg-foreground text-background" : "text-text-secondary"
+              }`}
+            >
+              Walk-in check-in
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("online")}
+              className={`rounded px-4 py-1.5 transition ${
+                tab === "online" ? "bg-foreground text-background" : "text-text-secondary"
+              }`}
+            >
+              Online pre-check-in · {onlineCheckIns.length}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("checkout")}
+              className={`rounded px-4 py-1.5 transition ${
+                tab === "checkout" ? "bg-foreground text-background" : "text-text-secondary"
+              }`}
+            >
+              Check-Out · {departuresToday.length}
+            </button>
           </div>
         </div>
 
@@ -201,7 +207,7 @@ export function CheckInFeature() {
               <KpiCard label="Completed" value="1" accent="success" />
               <KpiCard label="Avg completion" value="4.2 min" accent="info" />
             </div>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-[320px_1fr]">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[320px_1fr]">
               <Card>
                 <CardHeader title="Online queue" hint="Sorted by ETA" />
                 <ul className="divide-y divide-border-subtle">
@@ -210,34 +216,34 @@ export function CheckInFeature() {
                     const type = linked?.reservationType ?? "individual";
                     const typeMeta = TYPE_META[type];
                     return (
-                    <li
-                      key={o.resId}
-                      className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition ${
-                        i === 0 ? "bg-primary-tint/40" : "hover:bg-surface-2/60"
-                      }`}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="text-[13px] font-medium text-text-primary">{o.guest}</div>
-                        <div className="text-[11px] text-text-secondary">
-                          {o.resId} · {o.roomType}
-                        </div>
-                        <div className="mt-1">
-                          <StatusBadge tone={typeMeta.tone}>{typeMeta.label}</StatusBadge>
-                        </div>
-                      </div>
-                      <StatusBadge
-                        tone={
-                          o.status === "Approved"
-                            ? "success"
-                            : o.status === "Needs info"
-                              ? "error"
-                              : "warning"
-                        }
+                      <li
+                        key={o.resId}
+                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition ${
+                          i === 0 ? "bg-primary-tint/40" : "hover:bg-surface-2/60"
+                        }`}
                       >
-                        {o.status}
-                      </StatusBadge>
-                    </li>
-                  );
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[13px] font-medium text-text-primary">{o.guest}</div>
+                          <div className="text-[11px] text-text-secondary">
+                            {o.resId} · {o.roomType}
+                          </div>
+                          <div className="mt-1">
+                            <StatusBadge tone={typeMeta.tone}>{typeMeta.label}</StatusBadge>
+                          </div>
+                        </div>
+                        <StatusBadge
+                          tone={
+                            o.status === "Approved"
+                              ? "success"
+                              : o.status === "Needs info"
+                                ? "error"
+                                : "warning"
+                          }
+                        >
+                          {o.status}
+                        </StatusBadge>
+                      </li>
+                    );
                   })}
                 </ul>
               </Card>
@@ -245,26 +251,30 @@ export function CheckInFeature() {
                 <CardHeader
                   title="Verify · Elena Rodriguez"
                   hint={
-                    onlineCheckIns[0] ? `${onlineCheckIns[0].resId} · ETA ${onlineCheckIns[0].eta}` : "No pending rows"
+                    onlineCheckIns[0]
+                      ? `${onlineCheckIns[0].resId} · ETA ${onlineCheckIns[0].eta}`
+                      : "No pending rows"
                   }
                 />
                 {onlineCheckIns[0] ? (
                   <div className="space-y-4 p-4 text-[13px] sm:p-5">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <VerifyRow label="ID verified" ok={onlineCheckIns[0].idVerified} />
-                    <VerifyRow label="Payment" value={onlineCheckIns[0].paymentStatus} />
-                    <VerifyRow label="Room type" value={onlineCheckIns[0].roomType} />
-                    <VerifyRow label="ETA" value={onlineCheckIns[0].eta} />
-                  </div>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <Button size="sm">Approve & assign room</Button>
-                    <Button size="sm" variant="outline">
-                      Request more info
-                    </Button>
-                  </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <VerifyRow label="ID verified" ok={onlineCheckIns[0].idVerified} />
+                      <VerifyRow label="Payment" value={onlineCheckIns[0].paymentStatus} />
+                      <VerifyRow label="Room type" value={onlineCheckIns[0].roomType} />
+                      <VerifyRow label="ETA" value={onlineCheckIns[0].eta} />
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <Button size="sm">Approve & assign room</Button>
+                      <Button size="sm" variant="outline">
+                        Request more info
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="p-5 text-[13px] text-text-secondary">No online pre-check-ins right now.</div>
+                  <div className="p-5 text-[13px] text-text-secondary">
+                    No online pre-check-ins right now.
+                  </div>
                 )}
               </Card>
             </div>
@@ -294,7 +304,11 @@ export function CheckInFeature() {
                       key={r.id}
                       onClick={() => setSelectedArrivalId(r.id)}
                       className={`flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-surface-2/60 transition ${
-                        selectedArrival?.id === r.id ? "bg-primary-tint/40" : i === 0 ? "bg-surface-2/20" : ""
+                        selectedArrival?.id === r.id
+                          ? "bg-primary-tint/40"
+                          : i === 0
+                            ? "bg-surface-2/20"
+                            : ""
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5 text-text-secondary" />
@@ -362,9 +376,13 @@ export function CheckInFeature() {
                       {i < step ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
                     </button>
                     <span className={i <= step ? "text-text-primary" : "text-text-disabled"}>
-                      {selectedArrival ? stepLabelForType(selectedArrival.reservationType, s) : stepLabelForType("individual", s)}
+                      {selectedArrival
+                        ? stepLabelForType(selectedArrival.reservationType, s)
+                        : stepLabelForType("individual", s)}
                     </span>
-                    {i < CHECKIN_STEPS.length - 1 && <ArrowRight className="h-3 w-3 text-text-disabled" />}
+                    {i < CHECKIN_STEPS.length - 1 && (
+                      <ArrowRight className="h-3 w-3 text-text-disabled" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -388,13 +406,19 @@ export function CheckInFeature() {
                     {step === 0 && <StepFind reservation={selectedArrival} />}
                     {step === 1 && <StepID reservation={selectedArrival} />}
                     {step === 2 && (
-                      <StepRoom reservation={selectedArrival} selected={selectedRoom} onSelect={setSelectedRoom} />
+                      <StepRoom
+                        reservation={selectedArrival}
+                        selected={selectedRoom}
+                        onSelect={setSelectedRoom}
+                      />
                     )}
                     {step === 3 && <StepPayment reservation={selectedArrival} />}
                     {step === 4 && <StepKey reservation={selectedArrival} room={selectedRoom} />}
                   </>
                 ) : (
-                  <div className="text-[13px] text-text-secondary">No arrivals available for check-in.</div>
+                  <div className="text-[13px] text-text-secondary">
+                    No arrivals available for check-in.
+                  </div>
                 )}
               </div>
 
@@ -421,7 +445,11 @@ export function CheckInFeature() {
                   <Button
                     size="sm"
                     disabled={Boolean(selectedArrival?.blockerCodes.length)}
-                    title={selectedArrival?.blockerCodes.length ? "Resolve blockers before completing check-in." : undefined}
+                    title={
+                      selectedArrival?.blockerCodes.length
+                        ? "Resolve blockers before completing check-in."
+                        : undefined
+                    }
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Complete check-in
@@ -442,68 +470,80 @@ export function CheckInFeature() {
               />
               <ul className="divide-y divide-border-subtle">
                 {departuresToday.map((r) => (
-                    <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5">
-                      <div>
-                        <div className="text-[14px] font-medium text-text-primary">{r.guest}</div>
-                        <div className="text-[11px] text-text-secondary">
-                          Room {r.room} · final folio emailed at 06:00 · {TYPE_META[r.reservationType].label}
-                        </div>
+                  <li
+                    key={r.id}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5"
+                  >
+                    <div>
+                      <div className="text-[14px] font-medium text-text-primary">{r.guest}</div>
+                      <div className="text-[11px] text-text-secondary">
+                        Room {r.room} · final folio emailed at 06:00 ·{" "}
+                        {TYPE_META[r.reservationType].label}
                       </div>
-                      <Button size="sm" variant="outline">
-                        Confirm auto-charge
-                      </Button>
-                    </li>
-                  ))}
+                    </div>
+                    <Button size="sm" variant="outline">
+                      Confirm auto-charge
+                    </Button>
+                  </li>
+                ))}
               </ul>
             </Card>
 
             <Card>
               <CardHeader
                 title="Standard check-out"
-                hint={selectedCheckout ? `Selected: ${selectedCheckout.guest} (${TYPE_META[selectedCheckout.reservationType].label})` : "Folio review · multi-tender · GST invoice"}
+                hint={
+                  selectedCheckout
+                    ? `Selected: ${selectedCheckout.guest} (${TYPE_META[selectedCheckout.reservationType].label})`
+                    : "Folio review · multi-tender · GST invoice"
+                }
               />
               <ul className="divide-y divide-border-subtle">
                 {departuresToday.map((r) => (
-                    <li
-                      key={r.id}
-                      onClick={() => setSelectedCheckoutId(r.id)}
-                      className={`flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-surface-2/40 sm:px-5 sm:py-3.5 ${
-                        selectedCheckout?.id === r.id ? "bg-primary-tint/30" : ""
-                      }`}
-                    >
-                      <div>
-                        <div className="text-[14px] font-medium text-text-primary">{r.guest}</div>
-                        <div className="text-[11px] text-text-secondary">
-                          Room {r.room} · Checkout 11:00 · {STATUS_LABEL[r.frontDeskStatus]}
-                        </div>
-                        <div className="mt-1">
-                          <StatusBadge tone={TYPE_META[r.reservationType].tone}>
-                            {TYPE_META[r.reservationType].label}
-                          </StatusBadge>
-                        </div>
+                  <li
+                    key={r.id}
+                    onClick={() => setSelectedCheckoutId(r.id)}
+                    className={`flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-surface-2/40 sm:px-5 sm:py-3.5 ${
+                      selectedCheckout?.id === r.id ? "bg-primary-tint/30" : ""
+                    }`}
+                  >
+                    <div>
+                      <div className="text-[14px] font-medium text-text-primary">{r.guest}</div>
+                      <div className="text-[11px] text-text-secondary">
+                        Room {r.room} · Checkout 11:00 · {STATUS_LABEL[r.frontDeskStatus]}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {r.balance ? (
-                          <StatusBadge tone="warning">
-                            ₹{r.balance.toLocaleString()} due
-                          </StatusBadge>
-                        ) : (
-                          <StatusBadge tone="success">Settled</StatusBadge>
-                        )}
-                        <Button
-                          size="sm"
-                          disabled={r.blockerCodes.includes("unsettled_folio") || r.blockerCodes.includes("event_overage_pending")}
-                        >
-                          Settle & checkout
-                        </Button>
+                      <div className="mt-1">
+                        <StatusBadge tone={TYPE_META[r.reservationType].tone}>
+                          {TYPE_META[r.reservationType].label}
+                        </StatusBadge>
                       </div>
-                    </li>
-                  ))}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {r.balance ? (
+                        <StatusBadge tone="warning">₹{r.balance.toLocaleString()} due</StatusBadge>
+                      ) : (
+                        <StatusBadge tone="success">Settled</StatusBadge>
+                      )}
+                      <Button
+                        size="sm"
+                        disabled={
+                          r.blockerCodes.includes("unsettled_folio") ||
+                          r.blockerCodes.includes("event_overage_pending")
+                        }
+                      >
+                        Settle & checkout
+                      </Button>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </Card>
 
             <Card className="lg:col-span-2">
-              <CardHeader title="Checkout controls" hint="Per-type settlement + closure checklist" />
+              <CardHeader
+                title="Checkout controls"
+                hint="Per-type settlement + closure checklist"
+              />
               {selectedCheckout ? (
                 <div className="grid grid-cols-1 gap-5 p-4 sm:p-5 lg:grid-cols-[1.2fr_1fr]">
                   <div className="space-y-4">
@@ -541,11 +581,20 @@ export function CheckInFeature() {
                     <div className="label-uppercase">Closure checklist</div>
                     <div className="mt-3 space-y-2">
                       {selectedCheckout.checkoutChecklist.map((item) => (
-                        <div key={item.key} className="flex items-start gap-2 rounded border border-border-subtle bg-surface px-3 py-2">
-                          <span className={`mt-1 h-2 w-2 rounded-full ${item.done ? "bg-success" : "bg-warning"}`} />
+                        <div
+                          key={item.key}
+                          className="flex items-start gap-2 rounded border border-border-subtle bg-surface px-3 py-2"
+                        >
+                          <span
+                            className={`mt-1 h-2 w-2 rounded-full ${item.done ? "bg-success" : "bg-warning"}`}
+                          />
                           <div className="text-[12px]">
-                            <div className="font-medium text-text-primary">{stepLabelForType(selectedCheckout.reservationType, item.key)}</div>
-                            {item.note ? <div className="text-text-secondary">{item.note}</div> : null}
+                            <div className="font-medium text-text-primary">
+                              {stepLabelForType(selectedCheckout.reservationType, item.key)}
+                            </div>
+                            {item.note ? (
+                              <div className="text-text-secondary">{item.note}</div>
+                            ) : null}
                           </div>
                         </div>
                       ))}
@@ -580,7 +629,10 @@ function StepFind({ reservation }: { reservation: FrontDeskWorkflowReservation }
       <FieldRow label="Source" value={reservation.source} />
       <FieldRow label="Reservation" value={reservation.id} mono />
       <FieldRow label="Room" value={reservation.room} mono />
-      <FieldRow label="Stay" value={`${reservation.ci} → ${reservation.co} · ${reservation.nights} nights`} />
+      <FieldRow
+        label="Stay"
+        value={`${reservation.ci} → ${reservation.co} · ${reservation.nights} nights`}
+      />
       <FieldRow label="Type" value={TYPE_META[reservation.reservationType].label} />
     </div>
   );
@@ -734,7 +786,13 @@ function StepPayment({ reservation }: { reservation: FrontDeskWorkflowReservatio
   );
 }
 
-function StepKey({ reservation, room }: { reservation: FrontDeskWorkflowReservation; room: string }) {
+function StepKey({
+  reservation,
+  room,
+}: {
+  reservation: FrontDeskWorkflowReservation;
+  room: string;
+}) {
   return (
     <div className="text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-tint">

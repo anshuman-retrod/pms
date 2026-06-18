@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { PageHeader, Card, CardHeader, Button, KpiCard, StatusBadge } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Card,
+  CardHeader,
+  Button,
+  KpiCard,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 import { RefreshCcw, ShieldCheck, KeyRound, RotateCcw } from "lucide-react";
 import { useOtaSyncLogsQuery } from "@/services/mock/queries";
 import { SyncJobTable, type SyncJobRow } from "@/features/channel-manager/components/SyncJobTable";
@@ -31,7 +38,11 @@ export function PmsIntegrationsFeature() {
   }));
 
   const nowLabel = () =>
-    new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    new Date().toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
   const seedTransitionsIfEmpty = () => {
     setTransitionEvents((prev) => {
@@ -107,8 +118,7 @@ export function PmsIntegrationsFeature() {
       toast.error("Select at least one failed operation.");
       return;
     }
-    const wait =
-      retryPolicy === "immediate" ? 500 : retryPolicy === "delayed" ? 1100 : 1600;
+    const wait = retryPolicy === "immediate" ? 500 : retryPolicy === "delayed" ? 1100 : 1600;
     setRetryingId("bulk");
     const base = queue.length ? queue : normalizedLogs;
     const selectedRows = base.filter((item) => selectedIds.includes(item.id));
@@ -187,7 +197,9 @@ export function PmsIntegrationsFeature() {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border-subtle bg-surface-2/20 px-3 py-2">
               <div>
                 <div className="text-[13px] font-medium text-text-primary">SU API token</div>
-                <div className="text-[11px] text-text-secondary">Last rotated: 2026-05-20 09:20</div>
+                <div className="text-[11px] text-text-secondary">
+                  Last rotated: 2026-05-20 09:20
+                </div>
               </div>
               <StatusBadge tone="success">Valid until {tokenExpiry}</StatusBadge>
             </div>
@@ -226,7 +238,9 @@ export function PmsIntegrationsFeature() {
             <select
               className="h-8 rounded-md border border-border bg-surface px-2 text-[12px]"
               value={retryPolicy}
-              onChange={(e) => setRetryPolicy(e.target.value as "immediate" | "delayed" | "nightly")}
+              onChange={(e) =>
+                setRetryPolicy(e.target.value as "immediate" | "delayed" | "nightly")
+              }
             >
               <option value="immediate">Retry policy: Immediate</option>
               <option value="delayed">Retry policy: Delayed (5 min)</option>
@@ -251,7 +265,10 @@ export function PmsIntegrationsFeature() {
             onSelectAll={(checked) => {
               if (!checked) return setSelectedIds([]);
               const targets = (queue.length ? queue : normalizedLogs)
-                .filter((row) => row.status === "Error" || row.status === "Warning" || row.status === "Failed")
+                .filter(
+                  (row) =>
+                    row.status === "Error" || row.status === "Warning" || row.status === "Failed",
+                )
                 .map((row) => row.id);
               setSelectedIds(targets);
             }}
@@ -264,7 +281,10 @@ export function PmsIntegrationsFeature() {
         </Card>
 
         <Card>
-          <CardHeader title="Failed operations queue" hint={`${failedQueue.length} items require action`} />
+          <CardHeader
+            title="Failed operations queue"
+            hint={`${failedQueue.length} items require action`}
+          />
           <div className="space-y-2 p-4 sm:p-5">
             {failedQueue.map((item) => (
               <div
@@ -275,7 +295,9 @@ export function PmsIntegrationsFeature() {
                   <div className="text-[13px] font-medium text-text-primary">
                     {item.id} · {item.channel}
                   </div>
-                  <div className="text-[12px] text-text-secondary">{item.message ?? item.action}</div>
+                  <div className="text-[12px] text-text-secondary">
+                    {item.message ?? item.action}
+                  </div>
                 </div>
                 <Button
                   size="sm"
@@ -314,12 +336,25 @@ export function PmsIntegrationsFeature() {
               </thead>
               <tbody>
                 {transitionEvents.slice(0, 24).map((event) => (
-                  <tr key={event.id} className="border-b border-border-subtle hover:bg-surface-2/30">
-                    <td className="px-4 py-3 font-mono text-[12px] text-text-secondary">{event.at}</td>
+                  <tr
+                    key={event.id}
+                    className="border-b border-border-subtle hover:bg-surface-2/30"
+                  >
+                    <td className="px-4 py-3 font-mono text-[12px] text-text-secondary">
+                      {event.at}
+                    </td>
                     <td className="px-4 py-3 font-mono text-[12px]">{event.jobId}</td>
                     <td className="px-4 py-3 text-text-secondary">{event.from}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge tone={event.to === "Success" ? "success" : event.to === "Retrying" ? "info" : "warning"}>
+                      <StatusBadge
+                        tone={
+                          event.to === "Success"
+                            ? "success"
+                            : event.to === "Retrying"
+                              ? "info"
+                              : "warning"
+                        }
+                      >
                         {event.to}
                       </StatusBadge>
                     </td>

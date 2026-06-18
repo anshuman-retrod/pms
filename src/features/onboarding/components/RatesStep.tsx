@@ -22,10 +22,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export function RatesStep({ state, setState, disabled }: RatesStepProps) {
   const setTax = (patch: Partial<OnboardingState["tax"]>) =>
     setState((s) => ({ ...s, tax: { ...s.tax, ...patch } }));
-  const setRatePlans = (updater: (prev: OnboardingState["ratePlans"]) => OnboardingState["ratePlans"]) =>
-    setState((s) => ({ ...s, ratePlans: updater(s.ratePlans) }));
-  const setMealPlans = (updater: (prev: OnboardingState["mealPlans"]) => OnboardingState["mealPlans"]) =>
-    setState((s) => ({ ...s, mealPlans: updater(s.mealPlans) }));
+  const setRatePlans = (
+    updater: (prev: OnboardingState["ratePlans"]) => OnboardingState["ratePlans"],
+  ) => setState((s) => ({ ...s, ratePlans: updater(s.ratePlans) }));
+  const setMealPlans = (
+    updater: (prev: OnboardingState["mealPlans"]) => OnboardingState["mealPlans"],
+  ) => setState((s) => ({ ...s, mealPlans: updater(s.mealPlans) }));
 
   return (
     <div className="space-y-6">

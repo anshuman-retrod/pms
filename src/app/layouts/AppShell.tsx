@@ -14,7 +14,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const showMobileSidebar = isMobile && mobileOpen;
 
   return (
-    <div className={cn("flex min-h-screen w-full bg-background text-foreground", mobileOpen && isMobile ? "h-screen overflow-hidden" : "")}>
+    <div
+      className={cn(
+        "flex min-h-screen w-full bg-background text-foreground",
+        mobileOpen && isMobile ? "h-screen overflow-hidden" : "",
+      )}
+    >
       {isMobile && mobileOpen && (
         <button
           type="button"
@@ -51,7 +56,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ) : null
           }
         />
-        <main className="flex-1 overflow-x-hidden pb-[env(safe-area-inset-bottom)]">{children}</main>
+        <main className="flex-1 overflow-x-hidden pb-[env(safe-area-inset-bottom)]">
+          {children}
+        </main>
       </div>
     </div>
   );

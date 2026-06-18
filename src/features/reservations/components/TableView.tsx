@@ -39,7 +39,9 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
               </div>
               <div>
                 <div className="text-text-disabled">Balance</div>
-                <div className="font-mono text-text-primary">{r.balance ? `₹${r.balance.toLocaleString()}` : "—"}</div>
+                <div className="font-mono text-text-primary">
+                  {r.balance ? `₹${r.balance.toLocaleString()}` : "—"}
+                </div>
               </div>
             </div>
             <div className="mt-2 flex items-center justify-between">

@@ -13,7 +13,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { ALL_PERMISSIONS, ROLE_DESCRIPTION, ROLE_LABEL, ROLE_PERMISSIONS } from "@/features/auth/lib/rbac";
+import {
+  ALL_PERMISSIONS,
+  ROLE_DESCRIPTION,
+  ROLE_LABEL,
+  ROLE_PERMISSIONS,
+} from "@/features/auth/lib/rbac";
 import { ROLE_OPTIONS } from "@/features/auth/lib/role-options";
 import { type AppUser } from "@/types/auth";
 import { type Role } from "@/types/rbac";
@@ -88,9 +93,10 @@ export function UsersFeature() {
             <div className="rounded-lg border border-warning/40 bg-warning-tint p-4 text-[12px] text-text-primary sm:p-5">
               <div className="font-medium text-warning">Read-only access</div>
               <div className="mt-1 text-[12px] text-text-secondary">
-                You can review users and roles, but your current role cannot invite, disable, or delete users.
-                Contact an administrator with <span className="font-medium text-text-primary">users.manage</span>{" "}
-                permission for account changes.
+                You can review users and roles, but your current role cannot invite, disable, or
+                delete users. Contact an administrator with{" "}
+                <span className="font-medium text-text-primary">users.manage</span> permission for
+                account changes.
               </div>
             </div>
           </Card>
@@ -239,119 +245,121 @@ export function UsersFeature() {
           </div>
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-border bg-surface-2/40 text-left">
-                {["User", "Role", "Property", "Status", "Last active", ""].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u: AppUser) => (
-                <tr key={u.id} className="border-b border-border-subtle hover:bg-surface-2/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
-                        {u.initials}
-                      </div>
-                      <div>
-                        <div className="font-medium text-text-primary">
-                          {u.name}
-                          {currentUser?.id === u.id && (
-                            <span className="ml-2 text-[10px] text-primary">you</span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-text-secondary">{u.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {canManage ? (
-                      <div>
-                        <select
-                          className="h-7 rounded-md border border-border bg-surface px-2 text-[12px] text-text-primary focus:border-primary focus:outline-none"
-                          value={u.role}
-                          onChange={(e) => {
-                            const nextRole = e.target.value as Role;
-                            updateUser(u.id, { role: nextRole });
-                            toast.success(
-                              `${u.name}'s role updated to ${ROLE_LABEL[nextRole]}.`,
-                            );
-                          }}
-                        >
-                          {ROLE_OPTIONS.map((r) => (
-                            <option key={r} value={r}>
-                              {ROLE_LABEL[r]}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="mt-1 text-[10px] text-text-secondary">{ROLE_DESCRIPTION[u.role]}</div>
-                        <div className="mt-1 text-[10px] text-text-disabled">
-                          {ROLE_PERMISSIONS[u.role].length}/{ALL_PERMISSIONS.length} permissions
-                        </div>
-                        <a
-                          href={`/roles?role=${u.role}`}
-                          className="mt-1 inline-block text-[11px] font-medium text-primary hover:text-primary-pressed hover:underline"
-                        >
-                          View role permissions
-                        </a>
-                      </div>
-                    ) : (
-                      <div>
-                        <span className="text-text-primary">{ROLE_LABEL[u.role]}</span>
-                        <div className="mt-1 text-[10px] text-text-secondary">{ROLE_DESCRIPTION[u.role]}</div>
-                        <div className="mt-1 text-[10px] text-text-disabled">
-                          {ROLE_PERMISSIONS[u.role].length}/{ALL_PERMISSIONS.length} permissions
-                        </div>
-                        <a
-                          href={`/roles?role=${u.role}`}
-                          className="mt-1 inline-block text-[11px] font-medium text-primary hover:text-primary-pressed hover:underline"
-                        >
-                          View role permissions
-                        </a>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary">{u.property}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge tone={u.active ? "success" : "neutral"}>
-                      {u.active ? "Active" : "Disabled"}
-                    </StatusBadge>
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary">{u.lastActive ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    {canManage && (
-                      <div className="flex justify-end gap-1">
-                        <button
-                          className="rounded p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary transition"
-                          title={u.active ? "Disable" : "Enable"}
-                          onClick={() => openStatusConfirm(u)}
-                        >
-                          {u.active ? (
-                            <ShieldOff className="h-3.5 w-3.5" />
-                          ) : (
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                        <button
-                          className="rounded p-1.5 text-text-secondary hover:bg-error-tint hover:text-error disabled:opacity-30 transition"
-                          title="Remove"
-                          disabled={currentUser?.id === u.id}
-                          onClick={() => openDeleteConfirm(u)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    )}
-                  </td>
+              <thead>
+                <tr className="border-b border-border bg-surface-2/40 text-left">
+                  {["User", "Role", "Property", "Status", "Last active", ""].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
+              </thead>
+              <tbody>
+                {users.map((u: AppUser) => (
+                  <tr key={u.id} className="border-b border-border-subtle hover:bg-surface-2/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
+                          {u.initials}
+                        </div>
+                        <div>
+                          <div className="font-medium text-text-primary">
+                            {u.name}
+                            {currentUser?.id === u.id && (
+                              <span className="ml-2 text-[10px] text-primary">you</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-text-secondary">{u.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      {canManage ? (
+                        <div>
+                          <select
+                            className="h-7 rounded-md border border-border bg-surface px-2 text-[12px] text-text-primary focus:border-primary focus:outline-none"
+                            value={u.role}
+                            onChange={(e) => {
+                              const nextRole = e.target.value as Role;
+                              updateUser(u.id, { role: nextRole });
+                              toast.success(`${u.name}'s role updated to ${ROLE_LABEL[nextRole]}.`);
+                            }}
+                          >
+                            {ROLE_OPTIONS.map((r) => (
+                              <option key={r} value={r}>
+                                {ROLE_LABEL[r]}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="mt-1 text-[10px] text-text-secondary">
+                            {ROLE_DESCRIPTION[u.role]}
+                          </div>
+                          <div className="mt-1 text-[10px] text-text-disabled">
+                            {ROLE_PERMISSIONS[u.role].length}/{ALL_PERMISSIONS.length} permissions
+                          </div>
+                          <a
+                            href={`/roles?role=${u.role}`}
+                            className="mt-1 inline-block text-[11px] font-medium text-primary hover:text-primary-pressed hover:underline"
+                          >
+                            View role permissions
+                          </a>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="text-text-primary">{ROLE_LABEL[u.role]}</span>
+                          <div className="mt-1 text-[10px] text-text-secondary">
+                            {ROLE_DESCRIPTION[u.role]}
+                          </div>
+                          <div className="mt-1 text-[10px] text-text-disabled">
+                            {ROLE_PERMISSIONS[u.role].length}/{ALL_PERMISSIONS.length} permissions
+                          </div>
+                          <a
+                            href={`/roles?role=${u.role}`}
+                            className="mt-1 inline-block text-[11px] font-medium text-primary hover:text-primary-pressed hover:underline"
+                          >
+                            View role permissions
+                          </a>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-text-secondary">{u.property}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge tone={u.active ? "success" : "neutral"}>
+                        {u.active ? "Active" : "Disabled"}
+                      </StatusBadge>
+                    </td>
+                    <td className="px-4 py-3 text-text-secondary">{u.lastActive ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      {canManage && (
+                        <div className="flex justify-end gap-1">
+                          <button
+                            className="rounded p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary transition"
+                            title={u.active ? "Disable" : "Enable"}
+                            onClick={() => openStatusConfirm(u)}
+                          >
+                            {u.active ? (
+                              <ShieldOff className="h-3.5 w-3.5" />
+                            ) : (
+                              <ShieldCheck className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <button
+                            className="rounded p-1.5 text-text-secondary hover:bg-error-tint hover:text-error disabled:opacity-30 transition"
+                            title="Remove"
+                            disabled={currentUser?.id === u.id}
+                            onClick={() => openDeleteConfirm(u)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </Card>

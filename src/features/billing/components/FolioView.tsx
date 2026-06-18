@@ -68,35 +68,35 @@ export function FolioView({ folio, calcTax }: FolioViewProps) {
         </div>
 
         <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
-          <thead>
-            <tr className="border-b border-border bg-surface-2/40 text-left">
-              {["Date", "Description", "HSN/SAC", "Qty", "Amount"].map((h) => (
-                <th
-                  key={h}
-                  className="px-6 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {folio.map((f) => (
-              <tr key={f.id} className="border-b border-border-subtle">
-                <td className="px-6 py-2.5 text-text-secondary">{f.date}</td>
-                <td className="px-6 py-2.5 text-text-primary">
-                  {f.desc} <span className="text-text-disabled">· {f.cat}</span>
-                </td>
-                <td className="px-6 py-2.5 font-mono text-text-secondary">{f.hsn}</td>
-                <td className="px-6 py-2.5 font-mono text-text-secondary">{f.qty}</td>
-                <td className="px-6 py-2.5 text-right font-mono text-text-primary">
-                  ₹{f.amt.toLocaleString()}
-                </td>
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-border bg-surface-2/40 text-left">
+                {["Date", "Description", "HSN/SAC", "Qty", "Amount"].map((h) => (
+                  <th
+                    key={h}
+                    className="px-6 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {folio.map((f) => (
+                <tr key={f.id} className="border-b border-border-subtle">
+                  <td className="px-6 py-2.5 text-text-secondary">{f.date}</td>
+                  <td className="px-6 py-2.5 text-text-primary">
+                    {f.desc} <span className="text-text-disabled">· {f.cat}</span>
+                  </td>
+                  <td className="px-6 py-2.5 font-mono text-text-secondary">{f.hsn}</td>
+                  <td className="px-6 py-2.5 font-mono text-text-secondary">{f.qty}</td>
+                  <td className="px-6 py-2.5 text-right font-mono text-text-primary">
+                    ₹{f.amt.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         <div className="border-t border-border-subtle px-4 py-4 sm:px-6">

@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { PageHeader, Card, CardHeader, StatusBadge } from "@/components/ui/Primitives";
-import { useGuestsQuery, useReservationsQuery, useActivityFeedQuery } from "@/services/mock/queries";
+import {
+  useGuestsQuery,
+  useReservationsQuery,
+  useActivityFeedQuery,
+} from "@/services/mock/queries";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { buildSearchIndex } from "@/features/search/lib/search-index";
 
@@ -16,7 +20,10 @@ export function GlobalSearchFeature() {
     () => buildSearchIndex({ guests, reservations, activityFeed, users }),
     [activityFeed, guests, reservations, users],
   );
-  const urlTerm = useMemo(() => new URL(href, "https://retrod.local").searchParams.get("q") ?? "", [href]);
+  const urlTerm = useMemo(
+    () => new URL(href, "https://retrod.local").searchParams.get("q") ?? "",
+    [href],
+  );
   const [query, setQuery] = useState(urlTerm);
 
   const filtered = useMemo(() => {
@@ -34,7 +41,10 @@ export function GlobalSearchFeature() {
       />
       <div className="responsive-page-x space-y-5 py-4 sm:space-y-6 sm:py-6">
         <Card>
-          <CardHeader title="Search query" hint={pathname === "/search" ? "Unified entity lookup" : undefined} />
+          <CardHeader
+            title="Search query"
+            hint={pathname === "/search" ? "Unified entity lookup" : undefined}
+          />
           <div className="p-4 sm:p-5">
             <input
               value={query}

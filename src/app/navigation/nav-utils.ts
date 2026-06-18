@@ -35,7 +35,10 @@ function flattenNavRoutes(): FlatNavRouteNode[] {
 
   const walk = (nodes: NavItem[], groupTitle: string, ancestors: NavTrailEntry[]) => {
     for (const node of nodes) {
-      const nextTrail: NavTrailEntry[] = [...ancestors, { id: node.id, label: node.label, to: node.to }];
+      const nextTrail: NavTrailEntry[] = [
+        ...ancestors,
+        { id: node.id, label: node.label, to: node.to },
+      ];
       if (node.to) {
         rows.push({
           id: node.id,

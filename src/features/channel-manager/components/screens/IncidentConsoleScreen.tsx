@@ -101,7 +101,11 @@ export function IncidentConsoleScreen() {
   const transferOwner = (row: SyncJobRow) => {
     const nextOwner = row.owner === "Ops" ? "Revenue" : "Ops";
     setIncidentOwners((prev) => ({ ...prev, [row.id]: nextOwner }));
-    logAuditEvent("OTA incident reassigned", row.id, `Transferred ${row.id} from ${row.owner} to ${nextOwner}.`);
+    logAuditEvent(
+      "OTA incident reassigned",
+      row.id,
+      `Transferred ${row.id} from ${row.owner} to ${nextOwner}.`,
+    );
     toast.success(`${row.id} moved to ${nextOwner} ownership.`);
   };
 
@@ -128,7 +132,11 @@ export function IncidentConsoleScreen() {
           value={String(incidents.filter((i) => i.status === "Warning").length)}
           accent="warning"
         />
-        <KpiCard label="SLA breaches" value={String(slaBreaches)} accent={slaBreaches ? "error" : "info"} />
+        <KpiCard
+          label="SLA breaches"
+          value={String(slaBreaches)}
+          accent={slaBreaches ? "error" : "info"}
+        />
       </div>
 
       <Card>

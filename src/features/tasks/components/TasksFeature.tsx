@@ -74,7 +74,8 @@ export function TasksFeature() {
     return dueDate >= sevenDaysAgo;
   }).length;
 
-  const requiredMissing = !form.title || !form.department || !form.assignee || !form.dueDate || !form.dueTime;
+  const requiredMissing =
+    !form.title || !form.department || !form.assignee || !form.dueDate || !form.dueTime;
   const hasValidationErrors = Object.keys(errors).length > 0;
   const canSubmit = !requiredMissing && !hasValidationErrors && !saveOpsTasksMutation.isPending;
 
@@ -319,7 +320,9 @@ function TaskModal({
               <select
                 className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
                 value={form.priority}
-                onChange={(event) => onChange("priority", event.target.value as OpsTask["priority"])}
+                onChange={(event) =>
+                  onChange("priority", event.target.value as OpsTask["priority"])
+                }
               >
                 {(["Normal", "High"] as const).map((priority) => (
                   <option key={priority} value={priority}>

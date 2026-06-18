@@ -40,7 +40,10 @@ export function AvailabilityView({ availabilityMatrix }: AvailabilityViewProps) 
         </div>
         <div className="table-scroll-shadow hidden overflow-x-auto md:block">
           <div className="min-w-[900px]">
-            <div className="grid gap-px bg-border-subtle" style={{ gridTemplateColumns: `160px repeat(14, 1fr)` }}>
+            <div
+              className="grid gap-px bg-border-subtle"
+              style={{ gridTemplateColumns: `160px repeat(14, 1fr)` }}
+            >
               <div className="bg-surface px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
                 Room type
               </div>

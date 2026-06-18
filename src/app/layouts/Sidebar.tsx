@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   CalendarRange,
   ConciergeBell,
+  LayoutGrid,
   LogIn,
   Sparkles,
   Wrench,
@@ -91,6 +92,9 @@ const ICONS_BY_ROUTE: Record<string, IconType> = {
   "/billing": Receipt,
   "/payments": CreditCard,
   "/revenue": TrendingUp,
+  "/rate-plans": TrendingUp,
+  "/availability": CalendarRange,
+  "/taxes-fees": Receipt,
   "/pricing": TrendingUp,
   "/channel-manager": Globe2,
   "/booking-engine": Globe,
@@ -138,8 +142,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   const [searchFocusIndex, setSearchFocusIndex] = useState(0);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => readPinnedNavNodeIds());
   const [recentIds, setRecentIds] = useState<string[]>(() => readRecentNavNodeIds());
-  const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>(
-    () => readExpandedNavGroupIds(),
+  const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>(() =>
+    readExpandedNavGroupIds(),
   );
   const [expandedIds, setExpandedIds] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
@@ -160,10 +164,12 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   }, [expandedIds]);
 
   const toggleExpand = (id: string) => {
-    setExpandedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
   };
 
-  const allRouteNodes = getAllNavRouteNodes().filter((node) => node.perm ? can(node.perm) : true);
+  const allRouteNodes = getAllNavRouteNodes().filter((node) => (node.perm ? can(node.perm) : true));
 
   const pinnedNodes = pinnedIds
     .map((id) => allRouteNodes.find((node) => node.id === id))
@@ -177,7 +183,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const searchedNodes = normalizedQuery
     ? allRouteNodes.filter((node) => {
-        const haystack = `${node.label} ${node.group} ${node.trail.map((t) => t.label).join(" ")}`.toLowerCase();
+        const haystack =
+          `${node.label} ${node.group} ${node.trail.map((t) => t.label).join(" ")}`.toLowerCase();
         return haystack.includes(normalizedQuery);
       })
     : [];
@@ -208,7 +215,9 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
   const canAccessNode = (item: NavItem): boolean => {
     if (item.to)
-      return (item.perm ? can(item.perm) : true) && (item.feature ? featureEnabled(item.feature) : true);
+      return (
+        (item.perm ? can(item.perm) : true) && (item.feature ? featureEnabled(item.feature) : true)
+      );
     if (item.children?.length) return item.children.some(canAccessNode);
     return false;
   };
@@ -234,7 +243,14 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
             )}
             title={collapsed ? item.label : undefined}
           >
-            {depth === 0 && <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", expanded ? "rotate-180" : "rotate-0")} />}
+            {depth === 0 && (
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 shrink-0 transition-transform",
+                  expanded ? "rotate-180" : "rotate-0",
+                )}
+              />
+            )}
             {!collapsed && <span className="truncate">{item.label}</span>}
           </button>
           {!collapsed && expanded && (
@@ -247,7 +263,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     }
 
     if (!item.to) return null;
-    const ItemIcon = depth === 0 ? ICONS_BY_ROUTE[item.to] ?? LayoutDashboard : null;
+    const ItemIcon = depth === 0 ? (ICONS_BY_ROUTE[item.to] ?? LayoutDashboard) : null;
     const pinned = pinnedIds.includes(item.id);
     const badgeText =
       item.id === "new-reservation"
@@ -275,7 +291,9 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
             {active && depth === 0 && (
               <span className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r bg-white" />
             )}
-            {depth === 0 && ItemIcon ? <ItemIcon className="h-[18px] w-[18px] shrink-0 stroke-[1.5]" /> : null}
+            {depth === 0 && ItemIcon ? (
+              <ItemIcon className="h-[18px] w-[18px] shrink-0 stroke-[1.5]" />
+            ) : null}
             {!collapsed && (
               <>
                 <span className="truncate">{item.label}</span>
@@ -317,19 +335,40 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         {!collapsed ? (
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
-              R
-            </div>
-            <span className="font-display text-[17px] font-semibold tracking-tight">Retrod</span>
-            <span className="label-uppercase ml-1 text-[9px] !text-sidebar-muted">PMS</span>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Link
+              to="/one"
+              className="flex min-w-0 items-center gap-2 rounded-md transition hover:opacity-90"
+            >
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
+                R
+              </div>
+              <span className="truncate font-display text-[17px] font-semibold tracking-tight">
+                Retrod
+              </span>
+            </Link>
+            <span className="label-uppercase shrink-0 text-[9px] !text-sidebar-muted">PMS</span>
           </div>
         ) : (
-          <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
+          <Link
+            to="/one"
+            className="mx-auto flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold"
+            title="Retrod One"
+          >
             R
-          </div>
+          </Link>
         )}
       </div>
+
+      {!collapsed && (
+        <Link
+          to="/one"
+          className="mx-3 mt-2 flex items-center gap-2 rounded-md border border-sidebar-border/80 bg-sidebar-hover/30 px-3 py-2 text-[12px] font-medium text-sidebar-foreground transition hover:bg-sidebar-hover"
+        >
+          <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
+          Retrod One
+        </Link>
+      )}
 
       {/* Property switcher */}
       {!collapsed && (
@@ -433,7 +472,12 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                     <div className="hidden items-center gap-0.5 group-hover:flex">
                       <button
                         type="button"
-                        onClick={() => movePinned(pinnedNodes.findIndex((n) => n.id === node.id), pinnedNodes.findIndex((n) => n.id === node.id) - 1)}
+                        onClick={() =>
+                          movePinned(
+                            pinnedNodes.findIndex((n) => n.id === node.id),
+                            pinnedNodes.findIndex((n) => n.id === node.id) - 1,
+                          )
+                        }
                         className="rounded p-1 text-sidebar-muted hover:bg-sidebar-hover hover:text-sidebar-foreground"
                         aria-label={`Move ${node.label} up`}
                       >
@@ -441,7 +485,12 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                       </button>
                       <button
                         type="button"
-                        onClick={() => movePinned(pinnedNodes.findIndex((n) => n.id === node.id), pinnedNodes.findIndex((n) => n.id === node.id) + 1)}
+                        onClick={() =>
+                          movePinned(
+                            pinnedNodes.findIndex((n) => n.id === node.id),
+                            pinnedNodes.findIndex((n) => n.id === node.id) + 1,
+                          )
+                        }
                         className="rounded p-1 text-sidebar-muted hover:bg-sidebar-hover hover:text-sidebar-foreground"
                         aria-label={`Move ${node.label} down`}
                       >
@@ -489,31 +538,32 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
         {normalizedQuery.length === 0 &&
           APP_NAV_GROUPS.map((group) => {
-          const visibleItems = group.nodes.filter(canAccessNode);
-          if (visibleItems.length === 0) return null;
-          const hasActiveInGroup = visibleItems.some(isNodeActive);
-          const groupExpanded = hasActiveInGroup || expandedGroupIds.includes(group.id);
-          return (
-            <div key={group.title} className="mb-4">
-              {!collapsed && (
-                <button
-                  type="button"
-                  onClick={() => toggleGroupExpanded(group.id)}
-                  className="flex w-full items-center gap-1 px-3 pb-1.5 text-left text-[10px] font-medium uppercase tracking-[0.08em] text-sidebar-muted hover:text-sidebar-foreground"
-                >
-                  <ChevronDown
-                    className={cn("h-3 w-3 shrink-0 transition-transform", groupExpanded ? "rotate-180" : "rotate-0")}
-                  />
-                  <span>{group.title}</span>
-                </button>
-              )}
-              {(collapsed || groupExpanded) && (
-                <ul className="space-y-0.5">
-                  {visibleItems.map((item) => renderNode(item))}
-                </ul>
-              )}
-            </div>
-          );
+            const visibleItems = group.nodes.filter(canAccessNode);
+            if (visibleItems.length === 0) return null;
+            const hasActiveInGroup = visibleItems.some(isNodeActive);
+            const groupExpanded = hasActiveInGroup || expandedGroupIds.includes(group.id);
+            return (
+              <div key={group.title} className="mb-4">
+                {!collapsed && (
+                  <button
+                    type="button"
+                    onClick={() => toggleGroupExpanded(group.id)}
+                    className="flex w-full items-center gap-1 px-3 pb-1.5 text-left text-[10px] font-medium uppercase tracking-[0.08em] text-sidebar-muted hover:text-sidebar-foreground"
+                  >
+                    <ChevronDown
+                      className={cn(
+                        "h-3 w-3 shrink-0 transition-transform",
+                        groupExpanded ? "rotate-180" : "rotate-0",
+                      )}
+                    />
+                    <span>{group.title}</span>
+                  </button>
+                )}
+                {(collapsed || groupExpanded) && (
+                  <ul className="space-y-0.5">{visibleItems.map((item) => renderNode(item))}</ul>
+                )}
+              </div>
+            );
           })}
       </nav>
 

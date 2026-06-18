@@ -72,31 +72,31 @@ export function FrontDeskFeature() {
         {/* Tabs */}
         <div className="w-full overflow-x-auto">
           <div className="flex min-w-max gap-1 rounded-md border border-border bg-surface p-1">
-          {(
-            [
-              { id: "checkin", label: "Active check-in", icon: KeyRound },
-              { id: "move", label: "Room move", icon: MoveRight },
-              { id: "ooo", label: "Out of order", icon: Wrench },
-              { id: "upgrade", label: "Upgrade", icon: ArrowUpCircle },
-              { id: "services", label: "Guest services", icon: Headset },
-            ] as TabDef[]
-          ).map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-[12px] font-medium transition ${
-                  tab === t.id
-                    ? "bg-foreground text-background"
-                    : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {t.label}
-              </button>
-            );
-          })}
+            {(
+              [
+                { id: "checkin", label: "Active check-in", icon: KeyRound },
+                { id: "move", label: "Room move", icon: MoveRight },
+                { id: "ooo", label: "Out of order", icon: Wrench },
+                { id: "upgrade", label: "Upgrade", icon: ArrowUpCircle },
+                { id: "services", label: "Guest services", icon: Headset },
+              ] as TabDef[]
+            ).map((t) => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-[12px] font-medium transition ${
+                    tab === t.id
+                      ? "bg-foreground text-background"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

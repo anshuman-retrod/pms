@@ -1,5 +1,9 @@
 import { PageHeader, Card, CardHeader, StatusBadge } from "@/components/ui/Primitives";
-import { useActivityFeedQuery, useOtaSyncLogsQuery, useReservationsQuery } from "@/services/mock/queries";
+import {
+  useActivityFeedQuery,
+  useOtaSyncLogsQuery,
+  useReservationsQuery,
+} from "@/services/mock/queries";
 
 export function ActivityTimelineFeature() {
   const { data: activityFeed = [] } = useActivityFeedQuery();
@@ -19,7 +23,12 @@ export function ActivityTimelineFeature() {
       time: s.at,
       domain: "Integrations",
       text: `${s.channel} · ${s.action} · ${s.status}`,
-      tone: s.status === "Error" ? ("error" as const) : s.status === "Warning" ? ("warning" as const) : ("success" as const),
+      tone:
+        s.status === "Error"
+          ? ("error" as const)
+          : s.status === "Warning"
+            ? ("warning" as const)
+            : ("success" as const),
     })),
     ...reservations.slice(0, 6).map((r) => ({
       id: r.id,

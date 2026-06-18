@@ -1,5 +1,12 @@
 import { BarChart3, Download, SlidersHorizontal } from "lucide-react";
-import { Button, Card, CardHeader, KpiCard, PageHeader, StatusBadge } from "@/components/ui/Primitives";
+import {
+  Button,
+  Card,
+  CardHeader,
+  KpiCard,
+  PageHeader,
+  StatusBadge,
+} from "@/components/ui/Primitives";
 
 const adrBySegment = [
   { segment: "Leisure", channel: "Direct", adr: 12840, compSet: 12100, trend: "+6.1%" },
@@ -46,10 +53,30 @@ export function RevenueDrilldownFeature() {
 
       <div className="responsive-page-x space-y-5 py-4 sm:space-y-6 sm:py-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard label="Weighted ADR" value={formatInr(11420)} delta="+4.7% vs last week" accent="success" />
-          <KpiCard label="Weighted RevPAR" value={formatInr(8290)} delta="+5.3% vs STLY" accent="success" />
-          <KpiCard label="Best segment" value={strongestRevpar.segment} delta={formatInr(strongestRevpar.revpar)} accent="info" />
-          <KpiCard label="Watch segment" value={weakestRevpar.segment} delta={formatInr(weakestRevpar.revpar)} accent="warning" />
+          <KpiCard
+            label="Weighted ADR"
+            value={formatInr(11420)}
+            delta="+4.7% vs last week"
+            accent="success"
+          />
+          <KpiCard
+            label="Weighted RevPAR"
+            value={formatInr(8290)}
+            delta="+5.3% vs STLY"
+            accent="success"
+          />
+          <KpiCard
+            label="Best segment"
+            value={strongestRevpar.segment}
+            delta={formatInr(strongestRevpar.revpar)}
+            accent="info"
+          />
+          <KpiCard
+            label="Watch segment"
+            value={weakestRevpar.segment}
+            delta={formatInr(weakestRevpar.revpar)}
+            accent="warning"
+          />
         </div>
 
         <Card>
@@ -73,11 +100,16 @@ export function RevenueDrilldownFeature() {
                   const variance = row.adr - row.compSet;
                   const varianceTone = variance >= 0 ? "success" : "warning";
                   return (
-                    <tr key={`${row.segment}-${row.channel}`} className="border-b border-border-subtle hover:bg-surface-2/30">
+                    <tr
+                      key={`${row.segment}-${row.channel}`}
+                      className="border-b border-border-subtle hover:bg-surface-2/30"
+                    >
                       <td className="px-4 py-3 font-medium text-text-primary">{row.segment}</td>
                       <td className="px-4 py-3 text-text-secondary">{row.channel}</td>
                       <td className="px-4 py-3 font-mono">{formatInr(row.adr)}</td>
-                      <td className="px-4 py-3 font-mono text-text-secondary">{formatInr(row.compSet)}</td>
+                      <td className="px-4 py-3 font-mono text-text-secondary">
+                        {formatInr(row.compSet)}
+                      </td>
                       <td className="px-4 py-3">
                         <StatusBadge tone={varianceTone}>
                           {variance >= 0 ? "+" : ""}
@@ -94,11 +126,17 @@ export function RevenueDrilldownFeature() {
         </Card>
 
         <Card>
-          <CardHeader title="RevPAR decomposition and benchmark" hint="Occupancy x ADR with gap-to-benchmark view" />
+          <CardHeader
+            title="RevPAR decomposition and benchmark"
+            hint="Occupancy x ADR with gap-to-benchmark view"
+          />
           <div className="space-y-3 p-4 sm:p-5">
             {revparBySegment.map((row) => {
               const benchmarkGap = row.revpar - row.benchmark;
-              const progress = Math.min(100, Math.round((row.revpar / Math.max(row.benchmark, 1)) * 100));
+              const progress = Math.min(
+                100,
+                Math.round((row.revpar / Math.max(row.benchmark, 1)) * 100),
+              );
               return (
                 <div
                   key={row.segment}
@@ -111,7 +149,9 @@ export function RevenueDrilldownFeature() {
                         {benchmarkGap >= 0 ? "+" : ""}
                         {formatInr(benchmarkGap)} vs benchmark
                       </StatusBadge>
-                      <span className="font-mono text-text-secondary">Occ {(row.occupancy * 100).toFixed(0)}%</span>
+                      <span className="font-mono text-text-secondary">
+                        Occ {(row.occupancy * 100).toFixed(0)}%
+                      </span>
                     </div>
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded bg-surface">
@@ -137,8 +177,9 @@ export function RevenueDrilldownFeature() {
             Scenario notes
           </div>
           <p className="mt-2 text-[12px] text-text-secondary">
-            Corporate + Groups are currently below benchmark. Recommended next step is a weekday corporate
-            package test with controlled ADR floor, while maintaining leisure weekend uplift.
+            Corporate + Groups are currently below benchmark. Recommended next step is a weekday
+            corporate package test with controlled ADR floor, while maintaining leisure weekend
+            uplift.
           </p>
         </div>
       </div>

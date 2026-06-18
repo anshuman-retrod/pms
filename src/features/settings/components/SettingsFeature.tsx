@@ -12,8 +12,14 @@ const integrations = [
 ];
 
 export function SettingsFeature() {
-  const { user, entitlements, effectiveFeatures, setTenantFeature, setPropertyFeatures, setEntitlementPlan } =
-    useAuth();
+  const {
+    user,
+    entitlements,
+    effectiveFeatures,
+    setTenantFeature,
+    setPropertyFeatures,
+    setEntitlementPlan,
+  } = useAuth();
   const activeProperty = user?.property || "The Grand Palace";
   const featureRows: Array<{ key: FeatureKey; label: string; hint: string }> = [
     {
@@ -80,7 +86,10 @@ export function SettingsFeature() {
           <CardHeader title="Integrations" hint="Connect Retrod to your operational stack" />
           <ul className="divide-y divide-border-subtle">
             {integrations.map((it) => (
-              <li key={it.name} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-4">
+              <li
+                key={it.name}
+                className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-4"
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-md bg-surface-2 font-display text-[14px] font-semibold text-text-primary">
                     {it.name[0]}
@@ -120,7 +129,9 @@ export function SettingsFeature() {
             </div>
 
             <div className="rounded-md border border-border-subtle bg-surface-2/20 p-3">
-              <div className="mb-2 text-[12px] font-semibold text-text-primary">Tenant-level features</div>
+              <div className="mb-2 text-[12px] font-semibold text-text-primary">
+                Tenant-level features
+              </div>
               <div className="space-y-2">
                 {featureRows.map((row) => (
                   <label
@@ -128,7 +139,9 @@ export function SettingsFeature() {
                     className="flex items-center justify-between gap-3 rounded-md border border-border-subtle bg-surface px-3 py-2"
                   >
                     <span>
-                      <span className="block text-[13px] font-medium text-text-primary">{row.label}</span>
+                      <span className="block text-[13px] font-medium text-text-primary">
+                        {row.label}
+                      </span>
                       <span className="block text-[11px] text-text-secondary">{row.hint}</span>
                     </span>
                     <input

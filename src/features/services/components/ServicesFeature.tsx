@@ -1,4 +1,11 @@
-import { PageHeader, Card, CardHeader, Button, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import {
+  PageHeader,
+  Card,
+  CardHeader,
+  Button,
+  StatusBadge,
+  KpiCard,
+} from "@/components/ui/Primitives";
 import { Plus } from "lucide-react";
 import { serviceCatalog } from "@/features/core/data/catalog";
 
@@ -49,13 +56,18 @@ export function ServicesFeature() {
               </thead>
               <tbody>
                 {serviceCatalog.map((service) => (
-                  <tr key={service.id} className="border-b border-border-subtle hover:bg-surface-2/40">
+                  <tr
+                    key={service.id}
+                    className="border-b border-border-subtle hover:bg-surface-2/40"
+                  >
                     <td className="px-4 py-3 font-mono text-[12px]">{service.id}</td>
                     <td className="px-4 py-3 text-text-secondary">{service.category}</td>
                     <td className="px-4 py-3 font-medium text-text-primary">{service.name}</td>
                     <td className="px-4 py-3 font-mono text-text-secondary">{service.price}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge tone={statusTone[service.status] ?? "neutral"}>{service.status}</StatusBadge>
+                      <StatusBadge tone={statusTone[service.status] ?? "neutral"}>
+                        {service.status}
+                      </StatusBadge>
                     </td>
                   </tr>
                 ))}

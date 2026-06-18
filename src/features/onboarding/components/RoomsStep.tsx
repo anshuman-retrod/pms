@@ -46,14 +46,16 @@ export function RoomsStep({ state, setState, disabled }: RoomsStepProps) {
         <table className="w-full text-[13px]">
           <thead className="bg-surface-2/40">
             <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
-              {["Name", "Count", "Capacity", "Base rate", "Amenities", "Description", ""].map((h) => (
-                <th
-                  key={h}
-                  className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
-                >
-                  {h}
-                </th>
-              ))}
+              {["Name", "Count", "Capacity", "Base rate", "Amenities", "Description", ""].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-text-secondary"
+                  >
+                    {h}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>

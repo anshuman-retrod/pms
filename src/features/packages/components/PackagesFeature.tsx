@@ -7,7 +7,11 @@ import {
   CardHeader,
   StatusBadge,
 } from "@/components/ui/Primitives";
-import { usePackageProductsQuery, useHotelPackagesQuery, usePackageItemsQuery } from "@/services/mock/queries";
+import {
+  usePackageProductsQuery,
+  useHotelPackagesQuery,
+  usePackageItemsQuery,
+} from "@/services/mock/queries";
 
 export function PackagesFeature() {
   const { data: packageProducts = [] } = usePackageProductsQuery();
@@ -82,10 +86,7 @@ export function PackagesFeature() {
           </table>
         </Card>
         <Card>
-          <CardHeader
-            title="Hotel package templates"
-            hint="Room + meals + services + activities"
-          />
+          <CardHeader title="Hotel package templates" hint="Room + meals + services + activities" />
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-border bg-surface-2/40 text-left">

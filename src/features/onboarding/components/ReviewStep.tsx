@@ -155,7 +155,10 @@ export function ReviewStep({ state }: ReviewStepProps) {
         <Summary title="Payments & Channels">
           <Line
             k="Payments"
-            v={`${state.payments.cash ? "Cash " : ""}${state.payments.card ? "Card " : ""}${state.payments.upi ? "UPI" : ""}`.trim() || "None"}
+            v={
+              `${state.payments.cash ? "Cash " : ""}${state.payments.card ? "Card " : ""}${state.payments.upi ? "UPI" : ""}`.trim() ||
+              "None"
+            }
           />
           <Line k="Gateway" v={state.payments.paymentGateway || "—"} />
           <Line k="Connected channels" v={connectedChannels || "None"} />
@@ -167,11 +170,11 @@ export function ReviewStep({ state }: ReviewStepProps) {
             k="Promo codes"
             v={state.bookingEngine.promoCodesEnabled ? "Enabled" : "Disabled"}
           />
+          <Line k="Direct booking offer" v={state.bookingEngine.directBookingOffer || "—"} />
           <Line
-            k="Direct booking offer"
-            v={state.bookingEngine.directBookingOffer || "—"}
+            k="Website pages"
+            v={state.websiteBuilder.pagesConfigured ? "Configured" : "Pending"}
           />
-          <Line k="Website pages" v={state.websiteBuilder.pagesConfigured ? "Configured" : "Pending"} />
           <Line
             k="Website contact"
             v={state.websiteBuilder.contactConfigured ? "Configured" : "Pending"}

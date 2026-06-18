@@ -43,10 +43,21 @@ import {
   fetchAIRevenueDashboard,
   fetchMealPlans,
   fetchRatePlans,
+  saveRatePlans,
+  fetchRatePlanVersions,
+  appendRatePlanVersion,
   fetchRatePlanPolicies,
   fetchHotelPackages,
   fetchPackageItems,
   fetchOccupancyPricingRules,
+  fetchTaxComponents,
+  saveTaxComponents,
+  fetchTaxGroups,
+  saveTaxGroups,
+  fetchTaxAssignments,
+  saveTaxAssignments,
+  fetchAvailabilityCells,
+  saveAvailabilityCells,
   fetchFrontDeskWorkflowReservations,
   fetchFrontDeskArrivalQueue,
   fetchFrontDeskCheckoutQueue,
@@ -143,6 +154,29 @@ export const useMealPlansQuery = () =>
   useQuery({ queryKey: dataKeys.mealPlans, queryFn: fetchMealPlans });
 export const useRatePlansQuery = () =>
   useQuery({ queryKey: dataKeys.ratePlans, queryFn: fetchRatePlans });
+
+export const useSaveRatePlansMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveRatePlans,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.ratePlans, data);
+    },
+  });
+};
+
+export const useRatePlanVersionsQuery = () =>
+  useQuery({ queryKey: dataKeys.ratePlanVersions, queryFn: fetchRatePlanVersions });
+
+export const useAppendRatePlanVersionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: appendRatePlanVersion,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.ratePlanVersions, data);
+    },
+  });
+};
 export const useRatePlanPoliciesQuery = () =>
   useQuery({ queryKey: dataKeys.ratePlanPolicies, queryFn: fetchRatePlanPolicies });
 export const useHotelPackagesQuery = () =>
@@ -154,6 +188,59 @@ export const useOccupancyPricingRulesQuery = () =>
     queryKey: dataKeys.occupancyPricingRules,
     queryFn: fetchOccupancyPricingRules,
   });
+
+export const useTaxComponentsQuery = () =>
+  useQuery({ queryKey: dataKeys.taxComponents, queryFn: fetchTaxComponents });
+
+export const useSaveTaxComponentsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveTaxComponents,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.taxComponents, data);
+    },
+  });
+};
+
+export const useTaxGroupsQuery = () =>
+  useQuery({ queryKey: dataKeys.taxGroups, queryFn: fetchTaxGroups });
+
+export const useSaveTaxGroupsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveTaxGroups,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.taxGroups, data);
+    },
+  });
+};
+
+export const useTaxAssignmentsQuery = () =>
+  useQuery({ queryKey: dataKeys.taxAssignments, queryFn: fetchTaxAssignments });
+
+export const useSaveTaxAssignmentsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveTaxAssignments,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.taxAssignments, data);
+    },
+  });
+};
+
+export const useAvailabilityCellsQuery = () =>
+  useQuery({ queryKey: dataKeys.availabilityCells, queryFn: fetchAvailabilityCells });
+
+export const useSaveAvailabilityCellsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveAvailabilityCells,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.availabilityCells, data);
+    },
+  });
+};
+
 export const useFrontDeskWorkflowReservationsQuery = () =>
   useQuery({
     queryKey: dataKeys.frontDeskWorkflowReservations,

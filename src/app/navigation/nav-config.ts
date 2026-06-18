@@ -80,6 +80,7 @@ export const APP_NAV_GROUPS: NavGroup[] = [
         children: [
           { id: "billing", label: "Billing & Invoicing", to: "/billing", perm: "billing.view" },
           { id: "payments", label: "Payments", to: "/payments", perm: "payments.process" },
+          { id: "taxes-fees", label: "Taxes & Fees", to: "/taxes-fees", perm: "billing.view" },
         ],
       },
       {
@@ -87,6 +88,8 @@ export const APP_NAV_GROUPS: NavGroup[] = [
         label: "Revenue & Yield",
         children: [
           { id: "revenue", label: "Revenue Mgmt", to: "/revenue", perm: "revenue.view" },
+          { id: "rate-plans", label: "Rate Plans", to: "/rate-plans", perm: "revenue.view" },
+          { id: "availability", label: "Availability", to: "/availability", perm: "revenue.view" },
           { id: "dynamic-pricing", label: "Dynamic Pricing", to: "/pricing", perm: "pricing.view" },
           { id: "revenue-drilldown", label: "Revenue Drilldown", to: "/revenue-drilldown", perm: "reports.view" },
           { id: "ai-revenue-dashboard", label: "AI Revenue Dashboard", to: "/revenue/ai-dashboard", perm: "revenue.aiDashboard" },

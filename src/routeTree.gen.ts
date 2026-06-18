@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebsiteBuilderRouteImport } from './routes/website-builder'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as TransportRouteImport } from './routes/transport'
+import { Route as TaxesFeesRouteImport } from './routes/taxes-fees'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as StaffRouteImport } from './routes/staff'
@@ -25,12 +26,15 @@ import { Route as RevenueRouteImport } from './routes/revenue'
 import { Route as ReservationsRouteImport } from './routes/reservations'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as RegistrationCardsRouteImport } from './routes/registration-cards'
+import { Route as RatePlansRouteImport } from './routes/rate-plans'
 import { Route as PropertyRouteImport } from './routes/property'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PosRouteImport } from './routes/pos'
 import { Route as PmsIntegrationsRouteImport } from './routes/pms-integrations'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as PackagesRouteImport } from './routes/packages'
 import { Route as OtaRouteImport } from './routes/ota'
+import { Route as OneRouteImport } from './routes/one'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MastersRouteImport } from './routes/masters'
@@ -54,6 +58,7 @@ import { Route as ChannelManagerRouteImport } from './routes/channel-manager'
 import { Route as BookingReadinessRouteImport } from './routes/booking-readiness'
 import { Route as BookingEngineRouteImport } from './routes/booking-engine'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as AvailabilityRouteImport } from './routes/availability'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AnomalyMonitorRouteImport } from './routes/anomaly-monitor'
 import { Route as AiInsightsRouteImport } from './routes/ai-insights'
@@ -63,6 +68,10 @@ import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RevenueAiDashboardRouteImport } from './routes/revenue.ai-dashboard'
 import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
+import { Route as PosMenuRouteImport } from './routes/pos.menu'
+import { Route as PosKotRouteImport } from './routes/pos.kot'
+import { Route as PosInventoryRouteImport } from './routes/pos.inventory'
+import { Route as PosBillingRouteImport } from './routes/pos.billing'
 import { Route as HousekeepingMobileRouteImport } from './routes/housekeeping.mobile'
 import { Route as DashboardMultiPropertyRouteImport } from './routes/dashboard.multi-property'
 import { Route as ChannelManagerSyncLogsRouteImport } from './routes/channel-manager.sync-logs'
@@ -96,6 +105,11 @@ const UsersRoute = UsersRouteImport.update({
 const TransportRoute = TransportRouteImport.update({
   id: '/transport',
   path: '/transport',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaxesFeesRoute = TaxesFeesRouteImport.update({
+  id: '/taxes-fees',
+  path: '/taxes-fees',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TasksRoute = TasksRouteImport.update({
@@ -163,6 +177,11 @@ const RegistrationCardsRoute = RegistrationCardsRouteImport.update({
   path: '/registration-cards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RatePlansRoute = RatePlansRouteImport.update({
+  id: '/rate-plans',
+  path: '/rate-plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropertyRoute = PropertyRouteImport.update({
   id: '/property',
   path: '/property',
@@ -171,6 +190,11 @@ const PropertyRoute = PropertyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PosRoute = PosRouteImport.update({
+  id: '/pos',
+  path: '/pos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PmsIntegrationsRoute = PmsIntegrationsRouteImport.update({
@@ -191,6 +215,11 @@ const PackagesRoute = PackagesRouteImport.update({
 const OtaRoute = OtaRouteImport.update({
   id: '/ota',
   path: '/ota',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OneRoute = OneRouteImport.update({
+  id: '/one',
+  path: '/one',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -308,6 +337,11 @@ const BillingRoute = BillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvailabilityRoute = AvailabilityRouteImport.update({
+  id: '/availability',
+  path: '/availability',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuditRoute = AuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -352,6 +386,26 @@ const ReservationsNewRoute = ReservationsNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => ReservationsRoute,
+} as any)
+const PosMenuRoute = PosMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosKotRoute = PosKotRouteImport.update({
+  id: '/kot',
+  path: '/kot',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosInventoryRoute = PosInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => PosRoute,
+} as any)
+const PosBillingRoute = PosBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => PosRoute,
 } as any)
 const HousekeepingMobileRoute = HousekeepingMobileRouteImport.update({
   id: '/mobile',
@@ -465,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/ai-insights': typeof AiInsightsRoute
   '/anomaly-monitor': typeof AnomalyMonitorRoute
   '/audit': typeof AuditRoute
+  '/availability': typeof AvailabilityRoute
   '/billing': typeof BillingRoute
   '/booking-engine': typeof BookingEngineRoute
   '/booking-readiness': typeof BookingReadinessRoute
@@ -488,12 +543,15 @@ export interface FileRoutesByFullPath {
   '/masters': typeof MastersRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
+  '/one': typeof OneRoute
   '/ota': typeof OtaRoute
   '/packages': typeof PackagesRoute
   '/payments': typeof PaymentsRoute
   '/pms-integrations': typeof PmsIntegrationsRoute
+  '/pos': typeof PosRouteWithChildren
   '/pricing': typeof PricingRoute
   '/property': typeof PropertyRoute
+  '/rate-plans': typeof RatePlansRoute
   '/registration-cards': typeof RegistrationCardsRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
@@ -507,6 +565,7 @@ export interface FileRoutesByFullPath {
   '/staff': typeof StaffRoute
   '/styleguide': typeof StyleguideRoute
   '/tasks': typeof TasksRoute
+  '/taxes-fees': typeof TaxesFeesRoute
   '/transport': typeof TransportRoute
   '/users': typeof UsersRoute
   '/website-builder': typeof WebsiteBuilderRoute
@@ -529,6 +588,10 @@ export interface FileRoutesByFullPath {
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/inventory': typeof PosInventoryRoute
+  '/pos/kot': typeof PosKotRoute
+  '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -540,6 +603,7 @@ export interface FileRoutesByTo {
   '/ai-insights': typeof AiInsightsRoute
   '/anomaly-monitor': typeof AnomalyMonitorRoute
   '/audit': typeof AuditRoute
+  '/availability': typeof AvailabilityRoute
   '/billing': typeof BillingRoute
   '/booking-engine': typeof BookingEngineRoute
   '/booking-readiness': typeof BookingReadinessRoute
@@ -563,12 +627,15 @@ export interface FileRoutesByTo {
   '/masters': typeof MastersRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
+  '/one': typeof OneRoute
   '/ota': typeof OtaRoute
   '/packages': typeof PackagesRoute
   '/payments': typeof PaymentsRoute
   '/pms-integrations': typeof PmsIntegrationsRoute
+  '/pos': typeof PosRouteWithChildren
   '/pricing': typeof PricingRoute
   '/property': typeof PropertyRoute
+  '/rate-plans': typeof RatePlansRoute
   '/registration-cards': typeof RegistrationCardsRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
@@ -582,6 +649,7 @@ export interface FileRoutesByTo {
   '/staff': typeof StaffRoute
   '/styleguide': typeof StyleguideRoute
   '/tasks': typeof TasksRoute
+  '/taxes-fees': typeof TaxesFeesRoute
   '/transport': typeof TransportRoute
   '/users': typeof UsersRoute
   '/website-builder': typeof WebsiteBuilderRoute
@@ -604,6 +672,10 @@ export interface FileRoutesByTo {
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/inventory': typeof PosInventoryRoute
+  '/pos/kot': typeof PosKotRoute
+  '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -616,6 +688,7 @@ export interface FileRoutesById {
   '/ai-insights': typeof AiInsightsRoute
   '/anomaly-monitor': typeof AnomalyMonitorRoute
   '/audit': typeof AuditRoute
+  '/availability': typeof AvailabilityRoute
   '/billing': typeof BillingRoute
   '/booking-engine': typeof BookingEngineRoute
   '/booking-readiness': typeof BookingReadinessRoute
@@ -639,12 +712,15 @@ export interface FileRoutesById {
   '/masters': typeof MastersRoute
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
+  '/one': typeof OneRoute
   '/ota': typeof OtaRoute
   '/packages': typeof PackagesRoute
   '/payments': typeof PaymentsRoute
   '/pms-integrations': typeof PmsIntegrationsRoute
+  '/pos': typeof PosRouteWithChildren
   '/pricing': typeof PricingRoute
   '/property': typeof PropertyRoute
+  '/rate-plans': typeof RatePlansRoute
   '/registration-cards': typeof RegistrationCardsRoute
   '/reports': typeof ReportsRoute
   '/reservations': typeof ReservationsRouteWithChildren
@@ -658,6 +734,7 @@ export interface FileRoutesById {
   '/staff': typeof StaffRoute
   '/styleguide': typeof StyleguideRoute
   '/tasks': typeof TasksRoute
+  '/taxes-fees': typeof TaxesFeesRoute
   '/transport': typeof TransportRoute
   '/users': typeof UsersRoute
   '/website-builder': typeof WebsiteBuilderRoute
@@ -680,6 +757,10 @@ export interface FileRoutesById {
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
+  '/pos/billing': typeof PosBillingRoute
+  '/pos/inventory': typeof PosInventoryRoute
+  '/pos/kot': typeof PosKotRoute
+  '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -693,6 +774,7 @@ export interface FileRouteTypes {
     | '/ai-insights'
     | '/anomaly-monitor'
     | '/audit'
+    | '/availability'
     | '/billing'
     | '/booking-engine'
     | '/booking-readiness'
@@ -716,12 +798,15 @@ export interface FileRouteTypes {
     | '/masters'
     | '/notifications'
     | '/onboarding'
+    | '/one'
     | '/ota'
     | '/packages'
     | '/payments'
     | '/pms-integrations'
+    | '/pos'
     | '/pricing'
     | '/property'
+    | '/rate-plans'
     | '/registration-cards'
     | '/reports'
     | '/reservations'
@@ -735,6 +820,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/styleguide'
     | '/tasks'
+    | '/taxes-fees'
     | '/transport'
     | '/users'
     | '/website-builder'
@@ -757,6 +843,10 @@ export interface FileRouteTypes {
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
     | '/housekeeping/mobile'
+    | '/pos/billing'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   fileRoutesByTo: FileRoutesByTo
@@ -768,6 +858,7 @@ export interface FileRouteTypes {
     | '/ai-insights'
     | '/anomaly-monitor'
     | '/audit'
+    | '/availability'
     | '/billing'
     | '/booking-engine'
     | '/booking-readiness'
@@ -791,12 +882,15 @@ export interface FileRouteTypes {
     | '/masters'
     | '/notifications'
     | '/onboarding'
+    | '/one'
     | '/ota'
     | '/packages'
     | '/payments'
     | '/pms-integrations'
+    | '/pos'
     | '/pricing'
     | '/property'
+    | '/rate-plans'
     | '/registration-cards'
     | '/reports'
     | '/reservations'
@@ -810,6 +904,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/styleguide'
     | '/tasks'
+    | '/taxes-fees'
     | '/transport'
     | '/users'
     | '/website-builder'
@@ -832,6 +927,10 @@ export interface FileRouteTypes {
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
     | '/housekeeping/mobile'
+    | '/pos/billing'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   id:
@@ -843,6 +942,7 @@ export interface FileRouteTypes {
     | '/ai-insights'
     | '/anomaly-monitor'
     | '/audit'
+    | '/availability'
     | '/billing'
     | '/booking-engine'
     | '/booking-readiness'
@@ -866,12 +966,15 @@ export interface FileRouteTypes {
     | '/masters'
     | '/notifications'
     | '/onboarding'
+    | '/one'
     | '/ota'
     | '/packages'
     | '/payments'
     | '/pms-integrations'
+    | '/pos'
     | '/pricing'
     | '/property'
+    | '/rate-plans'
     | '/registration-cards'
     | '/reports'
     | '/reservations'
@@ -885,6 +988,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/styleguide'
     | '/tasks'
+    | '/taxes-fees'
     | '/transport'
     | '/users'
     | '/website-builder'
@@ -907,6 +1011,10 @@ export interface FileRouteTypes {
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
     | '/housekeeping/mobile'
+    | '/pos/billing'
+    | '/pos/inventory'
+    | '/pos/kot'
+    | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   fileRoutesById: FileRoutesById
@@ -919,6 +1027,7 @@ export interface RootRouteChildren {
   AiInsightsRoute: typeof AiInsightsRoute
   AnomalyMonitorRoute: typeof AnomalyMonitorRoute
   AuditRoute: typeof AuditRoute
+  AvailabilityRoute: typeof AvailabilityRoute
   BillingRoute: typeof BillingRoute
   BookingEngineRoute: typeof BookingEngineRoute
   BookingReadinessRoute: typeof BookingReadinessRoute
@@ -942,12 +1051,15 @@ export interface RootRouteChildren {
   MastersRoute: typeof MastersRoute
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
+  OneRoute: typeof OneRoute
   OtaRoute: typeof OtaRoute
   PackagesRoute: typeof PackagesRoute
   PaymentsRoute: typeof PaymentsRoute
   PmsIntegrationsRoute: typeof PmsIntegrationsRoute
+  PosRoute: typeof PosRouteWithChildren
   PricingRoute: typeof PricingRoute
   PropertyRoute: typeof PropertyRoute
+  RatePlansRoute: typeof RatePlansRoute
   RegistrationCardsRoute: typeof RegistrationCardsRoute
   ReportsRoute: typeof ReportsRoute
   ReservationsRoute: typeof ReservationsRouteWithChildren
@@ -961,6 +1073,7 @@ export interface RootRouteChildren {
   StaffRoute: typeof StaffRoute
   StyleguideRoute: typeof StyleguideRoute
   TasksRoute: typeof TasksRoute
+  TaxesFeesRoute: typeof TaxesFeesRoute
   TransportRoute: typeof TransportRoute
   UsersRoute: typeof UsersRoute
   WebsiteBuilderRoute: typeof WebsiteBuilderRoute
@@ -989,6 +1102,13 @@ declare module '@tanstack/react-router' {
       path: '/transport'
       fullPath: '/transport'
       preLoaderRoute: typeof TransportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/taxes-fees': {
+      id: '/taxes-fees'
+      path: '/taxes-fees'
+      fullPath: '/taxes-fees'
+      preLoaderRoute: typeof TaxesFeesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tasks': {
@@ -1082,6 +1202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistrationCardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rate-plans': {
+      id: '/rate-plans'
+      path: '/rate-plans'
+      fullPath: '/rate-plans'
+      preLoaderRoute: typeof RatePlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/property': {
       id: '/property'
       path: '/property'
@@ -1094,6 +1221,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pos': {
+      id: '/pos'
+      path: '/pos'
+      fullPath: '/pos'
+      preLoaderRoute: typeof PosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pms-integrations': {
@@ -1122,6 +1256,13 @@ declare module '@tanstack/react-router' {
       path: '/ota'
       fullPath: '/ota'
       preLoaderRoute: typeof OtaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/one': {
+      id: '/one'
+      path: '/one'
+      fullPath: '/one'
+      preLoaderRoute: typeof OneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -1285,6 +1426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/availability': {
+      id: '/availability'
+      path: '/availability'
+      fullPath: '/availability'
+      preLoaderRoute: typeof AvailabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/audit': {
       id: '/audit'
       path: '/audit'
@@ -1347,6 +1495,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/reservations/new'
       preLoaderRoute: typeof ReservationsNewRouteImport
       parentRoute: typeof ReservationsRoute
+    }
+    '/pos/menu': {
+      id: '/pos/menu'
+      path: '/menu'
+      fullPath: '/pos/menu'
+      preLoaderRoute: typeof PosMenuRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/kot': {
+      id: '/pos/kot'
+      path: '/kot'
+      fullPath: '/pos/kot'
+      preLoaderRoute: typeof PosKotRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/inventory': {
+      id: '/pos/inventory'
+      path: '/inventory'
+      fullPath: '/pos/inventory'
+      preLoaderRoute: typeof PosInventoryRouteImport
+      parentRoute: typeof PosRoute
+    }
+    '/pos/billing': {
+      id: '/pos/billing'
+      path: '/billing'
+      fullPath: '/pos/billing'
+      preLoaderRoute: typeof PosBillingRouteImport
+      parentRoute: typeof PosRoute
     }
     '/housekeeping/mobile': {
       id: '/housekeeping/mobile'
@@ -1538,6 +1714,22 @@ const HousekeepingRouteWithChildren = HousekeepingRoute._addFileChildren(
   HousekeepingRouteChildren,
 )
 
+interface PosRouteChildren {
+  PosBillingRoute: typeof PosBillingRoute
+  PosInventoryRoute: typeof PosInventoryRoute
+  PosKotRoute: typeof PosKotRoute
+  PosMenuRoute: typeof PosMenuRoute
+}
+
+const PosRouteChildren: PosRouteChildren = {
+  PosBillingRoute: PosBillingRoute,
+  PosInventoryRoute: PosInventoryRoute,
+  PosKotRoute: PosKotRoute,
+  PosMenuRoute: PosMenuRoute,
+}
+
+const PosRouteWithChildren = PosRoute._addFileChildren(PosRouteChildren)
+
 interface ReservationsRouteChildren {
   ReservationsNewRoute: typeof ReservationsNewRoute
 }
@@ -1569,6 +1761,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiInsightsRoute: AiInsightsRoute,
   AnomalyMonitorRoute: AnomalyMonitorRoute,
   AuditRoute: AuditRoute,
+  AvailabilityRoute: AvailabilityRoute,
   BillingRoute: BillingRoute,
   BookingEngineRoute: BookingEngineRoute,
   BookingReadinessRoute: BookingReadinessRoute,
@@ -1592,12 +1785,15 @@ const rootRouteChildren: RootRouteChildren = {
   MastersRoute: MastersRoute,
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
+  OneRoute: OneRoute,
   OtaRoute: OtaRoute,
   PackagesRoute: PackagesRoute,
   PaymentsRoute: PaymentsRoute,
   PmsIntegrationsRoute: PmsIntegrationsRoute,
+  PosRoute: PosRouteWithChildren,
   PricingRoute: PricingRoute,
   PropertyRoute: PropertyRoute,
+  RatePlansRoute: RatePlansRoute,
   RegistrationCardsRoute: RegistrationCardsRoute,
   ReportsRoute: ReportsRoute,
   ReservationsRoute: ReservationsRouteWithChildren,
@@ -1611,6 +1807,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffRoute: StaffRoute,
   StyleguideRoute: StyleguideRoute,
   TasksRoute: TasksRoute,
+  TaxesFeesRoute: TaxesFeesRoute,
   TransportRoute: TransportRoute,
   UsersRoute: UsersRoute,
   WebsiteBuilderRoute: WebsiteBuilderRoute,

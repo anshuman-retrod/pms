@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { type Permission, type Role } from "@/types/rbac";
 import { type AppUser, type TenantEntitlements } from "@/types/auth";
 import type { FeatureFlags, FeatureKey } from "@/types/entitlements";
+import { DEFAULT_PLATFORM_APPS } from "@/types/entitlements";
 import { hasPermission, ROLE_LABEL } from "../lib/rbac";
+import { authApi } from "@/services/auth-api";
 
 export interface AuthCtx {
   user: AppUser | null;
@@ -24,6 +26,9 @@ export interface AuthCtx {
   deleteUser: (id: string) => void;
   roleLabel: (r: Role) => string;
   logAuditEvent: (action: string, target?: string, detail?: string) => void;
+  loginWithPassword: (emailOrUsername: string, password: string) => Promise<AppUser>;
+  requestOtp: (contact: string) => Promise<any>;
+  verifyOtp: (contact: string, otpCode: string) => Promise<AppUser>;
 }
 
 export const Ctx = createContext<AuthCtx | null>(null);
@@ -146,6 +151,7 @@ const DEFAULT_ENTITLEMENTS: TenantEntitlements = {
     revenueAi: true,
     masterData: true,
   },
+  platformApps: { ...DEFAULT_PLATFORM_APPS },
   propertyOverrides: [
     {
       property: "The Grand Palace",
@@ -183,6 +189,38 @@ function persistUsers(users: AppUser[]) {
   if (typeof window !== "undefined") localStorage.setItem(LS_USERS, JSON.stringify(users));
 }
 
+function mapBackendUserToAppUser(backendUser: any, backendProperties: any[], backendPermissions: string[]): AppUser {
+  let role: Role = "front_desk_agent";
+  let propertyName = "The Grand Palace";
+  
+  if (backendProperties && backendProperties.length > 0) {
+    role = backendProperties[0].role as Role;
+    propertyName = backendProperties[0].name;
+  }
+  
+  if (backendPermissions.includes("*:*")) {
+    role = "super_admin";
+  }
+  
+  const initials = backendUser.name
+    .split(" ")
+    .map((s: string) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "US";
+
+  return {
+    id: backendUser.id,
+    name: backendUser.name,
+    email: backendUser.email,
+    role: role,
+    initials: initials,
+    active: true,
+    property: propertyName,
+    lastActive: "Just now",
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<AppUser[]>(SEED_USERS);
   const [user, setUser] = useState<AppUser | null>(null);
@@ -197,17 +235,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsers(u);
     setEntitlements(e);
     setAuditEvents(a);
-    try {
-      const raw = localStorage.getItem(LS_USER);
-      if (raw) {
-        const parsed = JSON.parse(raw) as AppUser;
-        const fresh = u.find((x) => x.id === parsed.id) ?? parsed;
-        setUser(fresh);
+
+    async function hydrateAuth() {
+      const access = localStorage.getItem("retrod.auth.access_token");
+      if (access) {
+        try {
+          const data = await authApi.getCurrentUser();
+          if (data && data.user) {
+            const mappedUser = mapBackendUserToAppUser(data.user, data.properties, data.permissions);
+            setUser(mappedUser);
+          } else {
+            setUser(null);
+            authApi.clearTokens();
+          }
+        } catch (err) {
+          console.error("Hydration getCurrentUser failed:", err);
+          setUser(null);
+          authApi.clearTokens();
+        }
       }
-    } catch {
-      /* noop */
+      setHydrated(true);
     }
-    setHydrated(true);
+    hydrateAuth();
   }, []);
 
   useEffect(() => {
@@ -326,7 +375,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user) {
           addAuditEvent("User logged out", user.email, `Session ended for ${user.name}.`);
         }
+        authApi.logout();
         setUser(null);
+      },
+      loginWithPassword: async (emailOrUsername, password) => {
+        const data = await authApi.login(emailOrUsername, password);
+        authApi.saveTokens(data.tokens.access, data.tokens.refresh);
+        const mappedUser = mapBackendUserToAppUser(data.user, data.properties, data.permissions);
+        setUser(mappedUser);
+        addAuditEvent("User logged in (Password)", mappedUser.email, `Session started for ${mappedUser.name}.`, {
+          name: mappedUser.name,
+          role: mappedUser.role,
+        });
+        return mappedUser;
+      },
+      requestOtp: async (contact) => {
+        return await authApi.requestOtp(contact);
+      },
+      verifyOtp: async (contact, otpCode) => {
+        const data = await authApi.verifyOtp(contact, otpCode);
+        authApi.saveTokens(data.tokens.access, data.tokens.refresh);
+        const mappedUser = mapBackendUserToAppUser(data.user, data.properties, data.permissions);
+        setUser(mappedUser);
+        addAuditEvent("User logged in (OTP)", mappedUser.email, `Session started for ${mappedUser.name}.`, {
+          name: mappedUser.name,
+          role: mappedUser.role,
+        });
+        return mappedUser;
       },
       can: (perm) => hasPermission(user?.role, perm),
       switchRole: (role) => {
@@ -404,6 +479,7 @@ function loadEntitlements(): TenantEntitlements {
       ...DEFAULT_ENTITLEMENTS,
       ...parsed,
       features: { ...DEFAULT_ENTITLEMENTS.features, ...(parsed.features ?? {}) },
+      platformApps: { ...DEFAULT_PLATFORM_APPS, ...(parsed.platformApps ?? {}) },
       propertyOverrides: parsed.propertyOverrides ?? DEFAULT_ENTITLEMENTS.propertyOverrides,
     };
   } catch {

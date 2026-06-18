@@ -322,14 +322,73 @@ export interface RatePlanPolicy {
   discountRule: string;
 }
 
+export type RatePlanCategory =
+  | "bar"
+  | "corporate"
+  | "package"
+  | "seasonal"
+  | "non_refundable"
+  | "member"
+  | "promotional";
+
+export type RatePlanPricingMode = "absolute" | "relative_to_bar";
+
+export type RatePlanSyncStatus = "not_synced" | "pending" | "synced" | "error";
+
 export interface RatePlan {
   id: string;
+  externalRatePlanCode: string;
   name: string;
   description: string;
   benefits: string[];
+  category: RatePlanCategory;
   policyId: string;
+  cancelPolicyCode: string;
   discountPercent: number;
-  status: "Active" | "Inactive";
+  pricingMode: RatePlanPricingMode;
+  baseRate?: number;
+  currency: string;
+  status: "Active" | "Inactive" | "Draft";
+  version: number;
+  effectiveFrom?: string;
+  effectiveTo?: string;
+  minLos: number;
+  maxLos: number;
+  roomTypeIds: string[];
+  defaultMealPlanCode: MealPlan["code"];
+  packageId?: string;
+  corporateAccountIds?: string[];
+  isBarAnchor: boolean;
+  syncStatus: RatePlanSyncStatus;
+  lastSyncedAt?: string;
+  propertyId: string;
+  tenantId: string;
+  bookingsMtd?: number;
+}
+
+export interface RatePlanVersion {
+  id: string;
+  ratePlanId: string;
+  version: number;
+  snapshot: RatePlan;
+  publishedAt: string;
+  publishedBy: string;
+  changeSummary: string;
+}
+
+export type RatePlanValidationSeverity = "error" | "warning";
+
+export interface RatePlanValidationIssue {
+  ruleId: string;
+  message: string;
+  severity: RatePlanValidationSeverity;
+  tab?: "General" | "Pricing" | "Restrictions" | "Policies" | "Room & meal" | "Channels";
+}
+
+export interface RatePlanValidationResult {
+  errors: RatePlanValidationIssue[];
+  warnings: RatePlanValidationIssue[];
+  canPublish: boolean;
 }
 
 export interface PackageItem {
@@ -693,6 +752,94 @@ export interface WebsiteBuilderWorkspace {
   lastAction: string;
   lastSavedAt: string;
   lastPublishedAt?: string;
+}
+
+export type TaxComponentType =
+  | "gst"
+  | "city_tax"
+  | "service_charge"
+  | "tourism_tax"
+  | "vat"
+  | "luxury_tax";
+
+export type TaxCalculationBase =
+  | "room_tariff"
+  | "folio_subtotal"
+  | "per_night"
+  | "per_guest_night";
+
+export interface TaxComponent {
+  id: string;
+  code: string;
+  name: string;
+  type: TaxComponentType;
+  ratePercent: number;
+  flatAmount?: number;
+  calculationBase: TaxCalculationBase;
+  inclusive: boolean;
+  status: "Active" | "Inactive";
+  effectiveFrom?: string;
+  effectiveTo?: string;
+  gstSlabMin?: number;
+  gstSlabMax?: number;
+  jurisdiction?: "intra_state" | "inter_state";
+  description?: string;
+}
+
+export interface TaxGroup {
+  id: string;
+  code: string;
+  name: string;
+  componentIds: string[];
+  status: "Active" | "Inactive";
+  description?: string;
+}
+
+export type TaxAssignmentTarget =
+  | "rate_plan"
+  | "package"
+  | "add_on"
+  | "meal_plan"
+  | "folio_default";
+
+export interface TaxAssignment {
+  id: string;
+  targetType: TaxAssignmentTarget;
+  targetId: string;
+  targetLabel: string;
+  taxGroupId: string;
+}
+
+export interface FolioTaxLine {
+  componentCode: string;
+  componentName: string;
+  type: TaxComponentType;
+  ratePercent: number;
+  amount: number;
+}
+
+export interface FolioTaxBreakdown {
+  subtotal: number;
+  lines: FolioTaxLine[];
+  totalTax: number;
+  grandTotal: number;
+}
+
+export type AvailabilityStatus = "open" | "closed";
+
+export type AvailabilityRestriction = "stop_sell" | "cta" | "ctd";
+
+export interface AvailabilityCell {
+  id: string;
+  date: string;
+  roomTypeId: string;
+  status: AvailabilityStatus;
+  restrictions: AvailabilityRestriction[];
+  total: number;
+  sold: number;
+  allocated: number;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export type Guest = GuestProfile;

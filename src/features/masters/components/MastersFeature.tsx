@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Download, Filter, Plus, Search, CheckCircle2, AlertTriangle, XCircle, PencilLine, FileUp, FileDown, Clock3 } from "lucide-react";
 import { PageHeader, Button, Card, CardHeader, StatusBadge, KpiCard } from "@/components/ui/Primitives";
+import { RATE_PLAN_CATEGORY_LABEL } from "@/features/rate-plans/lib/constants";
+import { TAX_COMPONENT_TYPE_LABEL } from "@/features/taxes-fees/lib/constants";
+import { useRatePlansQuery, useTaxComponentsQuery } from "@/services/mock/queries";
 
 type MasterScope = "Global" | "Tenant" | "Property";
 type MasterPriority = "P1" | "P2" | "P3";
@@ -210,7 +214,7 @@ const MASTER_DEFINITIONS: MasterDefinition[] = [
     id: "rate-plan",
     module: "Revenue Management",
     name: "Rate Plan Master",
-    purpose: "Defines commercial selling plans and booking rules.",
+    purpose: "Schema reference only — operational rate plan records are managed in the Rate Plans module.",
     scope: "Property",
     priority: "P1",
     operations: {
@@ -873,6 +877,8 @@ const statusTone: Record<MasterStatus, "success" | "neutral" | "warning"> = {
 };
 
 export function MastersFeature() {
+  const { data: steadyRatePlans = [] } = useRatePlansQuery();
+  const { data: steadyTaxComponents = [] } = useTaxComponentsQuery();
   const [masters, setMasters] = useState<MasterDefinition[]>(MASTER_DEFINITIONS);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([
     {
@@ -943,6 +949,8 @@ export function MastersFeature() {
 
   const selectedMaster =
     filteredMasters.find((master) => master.id === selectedMasterId) ?? filteredMasters[0] ?? null;
+  const isRatePlanDelegated = selectedMaster?.id === "rate-plan";
+  const isTaxGroupDelegated = selectedMaster?.id === "tax-group";
 
   const selectedRecord =
     selectedMaster?.records.find((record) => record.id === selectedRecordId) ?? selectedMaster?.records[0] ?? null;
@@ -1283,7 +1291,7 @@ export function MastersFeature() {
               <FileDown className="h-3.5 w-3.5" />
               Export
             </Button>
-            <Button size="sm" onClick={() => openRecordForm("create")}>
+            <Button size="sm" onClick={() => openRecordForm("create")} disabled={isRatePlanDelegated || isTaxGroupDelegated}>
               <Plus className="h-3.5 w-3.5" />
               Create master record
             </Button>
@@ -1528,6 +1536,113 @@ export function MastersFeature() {
                   ) : null}
 
                   {workspaceTab === "records" ? (
+                    isRatePlanDelegated ? (
+                      <Card className="border-border-subtle">
+                        <CardHeader
+                          title="Delegated to Rate Plans module"
+                          hint="Create, edit, publish, and sync rate plans in steady-state operations."
+                        />
+                        <div className="space-y-4 p-4 sm:p-5">
+                          <p className="text-[13px] text-text-secondary">
+                            This master page keeps the attribute schema and dependency map. Live rate plan
+                            records are maintained in{" "}
+                            <Link to="/rate-plans" className="font-medium text-primary hover:underline">
+                              Commercial → Rate Plans
+                            </Link>
+                            , including SU sync and versioning.
+                          </p>
+                          <Link
+                            to="/rate-plans"
+                            className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+                          >
+                            Open Rate Plans module
+                          </Link>
+                          <div className="table-scroll-shadow overflow-x-auto">
+                            <table className="w-full min-w-[520px] text-[12px]">
+                              <thead>
+                                <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                                  {["Code", "Name", "Category", "Status", "Sync"].map((header) => (
+                                    <th key={header} className="px-3 py-2 font-medium text-text-secondary">
+                                      {header}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {steadyRatePlans.map((plan) => (
+                                  <tr key={plan.id} className="border-b border-border-subtle">
+                                    <td className="px-3 py-2 font-mono">{plan.externalRatePlanCode}</td>
+                                    <td className="px-3 py-2">{plan.name}</td>
+                                    <td className="px-3 py-2">{RATE_PLAN_CATEGORY_LABEL[plan.category]}</td>
+                                    <td className="px-3 py-2">
+                                      <StatusBadge tone={plan.status === "Active" ? "success" : "warning"}>
+                                        {plan.status}
+                                      </StatusBadge>
+                                    </td>
+                                    <td className="px-3 py-2 capitalize">{plan.syncStatus.replace("_", " ")}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : isTaxGroupDelegated ? (
+                      <Card className="border-border-subtle">
+                        <CardHeader
+                          title="Delegated to Taxes & Fees module"
+                          hint="GST, city tax, service charge, and tourism tax rules for folios and rates."
+                        />
+                        <div className="space-y-4 p-4 sm:p-5">
+                          <p className="text-[13px] text-text-secondary">
+                            This master page keeps the attribute schema and dependency map. Live tax
+                            components and groups are maintained in{" "}
+                            <Link to="/taxes-fees" className="font-medium text-primary hover:underline">
+                              Commercial → Taxes & Fees
+                            </Link>
+                            , including folio calculation profiles.
+                          </p>
+                          <Link
+                            to="/taxes-fees"
+                            className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+                          >
+                            Open Taxes & Fees module
+                          </Link>
+                          <div className="table-scroll-shadow overflow-x-auto">
+                            <table className="w-full min-w-[520px] text-[12px]">
+                              <thead>
+                                <tr className="border-b border-border-subtle bg-surface-2/40 text-left">
+                                  {["Code", "Name", "Type", "Rate", "Status"].map((header) => (
+                                    <th key={header} className="px-3 py-2 font-medium text-text-secondary">
+                                      {header}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {steadyTaxComponents.map((component) => (
+                                  <tr key={component.id} className="border-b border-border-subtle">
+                                    <td className="px-3 py-2 font-mono">{component.code}</td>
+                                    <td className="px-3 py-2">{component.name}</td>
+                                    <td className="px-3 py-2">{TAX_COMPONENT_TYPE_LABEL[component.type]}</td>
+                                    <td className="px-3 py-2 font-mono">
+                                      {component.flatAmount != null && component.calculationBase === "per_night"
+                                        ? `₹${component.flatAmount}/night`
+                                        : `${component.ratePercent}%`}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <StatusBadge tone={component.status === "Active" ? "success" : "neutral"}>
+                                        {component.status}
+                                      </StatusBadge>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : (
                     <Card className="border-border-subtle">
                       <CardHeader
                         title="Master Records"
@@ -1737,6 +1852,7 @@ export function MastersFeature() {
                         )}
                       </div>
                     </Card>
+                    )
                   ) : null}
                 </div>
               ) : (

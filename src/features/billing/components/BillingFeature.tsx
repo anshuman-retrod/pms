@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Download,
   Mail,
@@ -14,6 +14,7 @@ import {
   RotateCcw,
   FileText,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { PageHeader, Button, KpiCard } from "@/components/ui/Primitives";
 import { FolioView } from "./FolioView";
 import { SplitView } from "./SplitView";
@@ -22,6 +23,11 @@ import { PaymentView } from "./PaymentView";
 import { DepositView } from "./DepositView";
 import { RefundView } from "./RefundView";
 import { ARView } from "./ARView";
+import {
+  calculateFolioTaxes,
+  resolveDefaultTaxGroup,
+} from "@/features/taxes-fees/lib/calculation";
+import { useTaxComponentsQuery, useTaxGroupsQuery } from "@/services/mock/queries";
 
 const folio = [
   {
@@ -75,15 +81,21 @@ const folio = [
 type Tab = "folio" | "split" | "transfer" | "payment" | "deposit" | "refund" | "ar";
 type TabDef = { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> };
 
-function calcTax(sub: number) {
-  // GST 18% (tariff > 7500/night) split as CGST 9% + SGST 9%
-  const cgst = Math.round(sub * 0.09);
-  const sgst = Math.round(sub * 0.09);
-  return { cgst, sgst, total: sub + cgst + sgst };
-}
-
 export function BillingFeature() {
   const [tab, setTab] = useState<Tab>("folio");
+  const { data: taxComponents = [] } = useTaxComponentsQuery();
+  const { data: taxGroups = [] } = useTaxGroupsQuery();
+  const defaultTaxGroup = useMemo(() => resolveDefaultTaxGroup(taxGroups), [taxGroups]);
+
+  const calcTax = (sub: number) => {
+    const breakdown = calculateFolioTaxes(sub, taxComponents, defaultTaxGroup, 2);
+    const cgstLine = breakdown.lines.find((line) => line.componentCode === "CGST9");
+    const sgstLine = breakdown.lines.find((line) => line.componentCode === "SGST9");
+    const gstLine = breakdown.lines.find((line) => line.type === "gst");
+    const cgst = cgstLine?.amount ?? gstLine?.amount ?? Math.round(sub * 0.09);
+    const sgst = sgstLine?.amount ?? 0;
+    return { cgst, sgst, total: breakdown.grandTotal };
+  };
 
   return (
     <div>
@@ -92,10 +104,18 @@ export function BillingFeature() {
         title="Billing & Invoicing"
         description="Folio management, multi-tender payments, GST tax invoices."
         actions={
-          <Button size="sm">
-            <Plus className="h-3.5 w-3.5" />
-            New invoice
-          </Button>
+          <>
+            <Link
+              to="/taxes-fees"
+              className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+            >
+              Taxes & Fees
+            </Link>
+            <Button size="sm">
+              <Plus className="h-3.5 w-3.5" />
+              New invoice
+            </Button>
+          </>
         }
       />
 

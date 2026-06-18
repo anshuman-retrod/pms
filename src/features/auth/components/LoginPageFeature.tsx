@@ -25,7 +25,7 @@ type Mode = "otp" | "password";
 type ErrorKind = null | "credentials" | "otp_expired" | "network";
 
 export function LoginPageFeature() {
-  const { users, login, isAuthenticated } = useAuth();
+  const { users, isAuthenticated, loginWithPassword, requestOtp: requestOtpApi, verifyOtp: verifyOtpApi } = useAuth();
   const nav = useNavigate();
   const [mode, setMode] = useState<Mode>("password");
   const [selected, setSelected] = useState<string>(users[0]?.id ?? "");
@@ -36,7 +36,7 @@ export function LoginPageFeature() {
   const [otp, setOtp] = useState("");
 
   // Password state
-  const [username, setUsername] = useState("aarav");
+  const [username, setUsername] = useState("aarav@grandpalace.in");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [remember, setRemember] = useState(false);
@@ -44,14 +44,16 @@ export function LoginPageFeature() {
   // Async UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorKind>(null);
+  const [customError, setCustomError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
-      nav({ to: "/" });
+      nav({ to: "/one" });
     }
   }, [isAuthenticated, nav]);
 
   const errorMsg = useMemo(() => {
+    if (customError) return customError;
     switch (error) {
       case "credentials":
         return "Invalid credentials. Please check your username and password.";
@@ -62,60 +64,64 @@ export function LoginPageFeature() {
       default:
         return null;
     }
-  }, [error]);
+  }, [error, customError]);
 
   const fakeDelay = () => new Promise<void>((r) => setTimeout(r, 700));
 
   const submitPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    await fakeDelay();
-
-    const trimmedUsername = username.trim().toLowerCase();
-    const match = trimmedUsername
-      ? (users.find((u) => u.email.toLowerCase().startsWith(trimmedUsername)) ??
-        users.find((u) => u.email.toLowerCase().includes(trimmedUsername)) ??
-        users.find((u) => u.name.toLowerCase().includes(trimmedUsername)) ??
-        users.find((u) => u.id === selected))
-      : users.find((u) => u.id === selected);
-
-    setLoading(false);
-    if (!match || !password) {
+    setCustomError(null);
+    if (!username.trim() || !password) {
       setError("credentials");
       return;
     }
-    login(match.id);
-    nav({ to: "/" });
+    setLoading(true);
+    try {
+      await loginWithPassword(username.trim(), password);
+      setLoading(false);
+      nav({ to: "/one" });
+    } catch (err: any) {
+      setLoading(false);
+      setCustomError(err.message || "Invalid credentials.");
+    }
   };
 
   const sendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contact.trim()) {
-      setError("credentials");
+      setCustomError("Provide a valid email or phone number.");
       return;
     }
     setError(null);
+    setCustomError(null);
     setLoading(true);
-    await fakeDelay();
-    setLoading(false);
-    setOtpSent(true);
+    try {
+      await requestOtpApi(contact.trim());
+      setLoading(false);
+      setOtpSent(true);
+    } catch (err: any) {
+      setLoading(false);
+      setCustomError(err.message || "Failed to send OTP code.");
+    }
   };
 
   const verifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    await fakeDelay();
-    setLoading(false);
+    setCustomError(null);
     if (otp.length < 4) {
       setError("otp_expired");
       return;
     }
-    const match = users.find((u) => u.id === selected) ?? users[0];
-    if (match) {
-      login(match.id);
-      nav({ to: "/" });
+    setLoading(true);
+    try {
+      await verifyOtpApi(contact.trim(), otp);
+      setLoading(false);
+      nav({ to: "/one" });
+    } catch (err: any) {
+      setLoading(false);
+      setCustomError(err.message || "Invalid OTP code.");
     }
   };
 
@@ -318,7 +324,7 @@ export function LoginPageFeature() {
                   setSelected(e.target.value);
                   const u = users.find((x) => x.id === e.target.value);
                   if (u) {
-                    setUsername(u.email.split("@")[0]);
+                    setUsername(u.email);
                   }
                 }}
                 className="h-10 w-full appearance-none rounded-lg border border-border bg-surface px-3 pr-9 text-[12.5px] text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all"

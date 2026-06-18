@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   CalendarRange,
   ConciergeBell,
+  LayoutGrid,
   LogIn,
   Sparkles,
   Wrench,
@@ -91,6 +92,9 @@ const ICONS_BY_ROUTE: Record<string, IconType> = {
   "/billing": Receipt,
   "/payments": CreditCard,
   "/revenue": TrendingUp,
+  "/rate-plans": TrendingUp,
+  "/availability": CalendarRange,
+  "/taxes-fees": Receipt,
   "/pricing": TrendingUp,
   "/channel-manager": Globe2,
   "/booking-engine": Globe,
@@ -317,19 +321,35 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         {!collapsed ? (
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
-              R
-            </div>
-            <span className="font-display text-[17px] font-semibold tracking-tight">Retrod</span>
-            <span className="label-uppercase ml-1 text-[9px] !text-sidebar-muted">PMS</span>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Link to="/one" className="flex min-w-0 items-center gap-2 rounded-md transition hover:opacity-90">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
+                R
+              </div>
+              <span className="truncate font-display text-[17px] font-semibold tracking-tight">Retrod</span>
+            </Link>
+            <span className="label-uppercase shrink-0 text-[9px] !text-sidebar-muted">PMS</span>
           </div>
         ) : (
-          <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold">
+          <Link
+            to="/one"
+            className="mx-auto flex h-7 w-7 items-center justify-center rounded-sm bg-primary text-primary-foreground font-display text-sm font-semibold"
+            title="Retrod One"
+          >
             R
-          </div>
+          </Link>
         )}
       </div>
+
+      {!collapsed && (
+        <Link
+          to="/one"
+          className="mx-3 mt-2 flex items-center gap-2 rounded-md border border-sidebar-border/80 bg-sidebar-hover/30 px-3 py-2 text-[12px] font-medium text-sidebar-foreground transition hover:bg-sidebar-hover"
+        >
+          <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
+          Retrod One
+        </Link>
+      )}
 
       {/* Property switcher */}
       {!collapsed && (

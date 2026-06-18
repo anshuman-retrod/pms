@@ -1,11 +1,37 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Link2, RefreshCcw } from "lucide-react";
 import { Button, Card, CardHeader, KpiCard, StatusBadge } from "@/components/ui/Primitives";
+import { MEAL_PLAN_LABEL } from "@/features/rate-plans/lib/constants";
 import { suClient } from "@/services/su/client";
-import { SU_CHANNELS, type SuChannel } from "@/types/channel-manager";
+import { useRatePlansQuery } from "@/services/mock/queries";
+import { SU_CHANNELS, type SuChannel, type SuRatePlanMapping } from "@/types/channel-manager";
 import { ChannelManagerShell } from "../ChannelManagerShell";
 import { useSuData } from "../../hooks/useSuData";
 import { ChannelFilterToolbar, LoadingBlock, ErrorBlock, mapTone } from "../shared";
+
+function resolveMapping(
+  planCode: string,
+  planName: string,
+  mappings: SuRatePlanMapping[],
+): SuRatePlanMapping | undefined {
+  return mappings.find(
+    (row) =>
+      row.pmsRatePlanCode.toUpperCase() === planCode.toUpperCase() ||
+      row.pmsRatePlan === planName,
+  );
+}
+
+function unmappedChannelsRow(planCode: string, mealLabel: string): SuRatePlanMapping {
+  return {
+    pmsRatePlan: planCode,
+    pmsRatePlanCode: planCode,
+    mealPlan: mealLabel,
+    channels: Object.fromEntries(
+      SU_CHANNELS.map((ch) => [ch, { otaRatePlanId: "—", status: "Unmapped" as const }]),
+    ) as SuRatePlanMapping["channels"],
+  };
+}
 
 export function RoomMappingScreen() {
   const { data, loading, error, reload } = useSuData(() => suClient.getRoomMappings());
@@ -130,51 +156,97 @@ export function RoomMappingScreen() {
 }
 
 export function RatePlanMappingScreen() {
-  const { data, loading, error, reload } = useSuData(() => suClient.getRatePlanMappings());
+  const { data: mappings, loading, error, reload } = useSuData(() => suClient.getRatePlanMappings());
+  const { data: ratePlans = [] } = useRatePlansQuery();
   const [channel, setChannel] = useState<SuChannel | "All">("All");
+
+  const rows = useMemo(() => {
+    const catalog = ratePlans.filter((plan) => plan.status !== "Inactive");
+    const mappingList = mappings ?? [];
+
+    return catalog.map((plan) => {
+      const mealLabel = MEAL_PLAN_LABEL[plan.defaultMealPlanCode] ?? plan.defaultMealPlanCode;
+      const mapping =
+        resolveMapping(plan.externalRatePlanCode, plan.name, mappingList) ??
+        unmappedChannelsRow(plan.externalRatePlanCode, mealLabel);
+
+      const hasOtaMapping = mappingList.some(
+        (row) =>
+          row.pmsRatePlanCode.toUpperCase() === plan.externalRatePlanCode.toUpperCase() ||
+          row.pmsRatePlan === plan.name,
+      );
+
+      return {
+        plan,
+        mapping,
+        mealLabel,
+        hasOtaMapping,
+      };
+    });
+  }, [ratePlans, mappings]);
+
+  const stats = useMemo(() => {
+    let pending = 0;
+    let unmappedPlans = 0;
+    for (const row of rows) {
+      if (!row.hasOtaMapping) unmappedPlans += 1;
+      for (const ch of SU_CHANNELS) {
+        if (row.mapping.channels[ch].status === "Pending") pending += 1;
+      }
+    }
+    return { pending, unmappedPlans };
+  }, [rows]);
 
   return (
     <ChannelManagerShell
       title="Rate Plan Mapping"
-      description="Align PMS rate plans and meal plans with OTA rate plan codes."
+      description="Align canonical PMS rate plan codes from Rate Plans with OTA rate plan IDs."
       actions={
-        <Button size="sm">
-          <Link2 className="h-3.5 w-3.5" />
-          Map rate plans
-        </Button>
+        <Link
+          to="/rate-plans"
+          className="inline-flex h-8 items-center rounded-md border border-border bg-surface px-3 text-[12px] font-medium text-primary hover:bg-surface-2"
+        >
+          Open Rate Plans
+        </Link>
       }
     >
       {loading && <LoadingBlock />}
       {error && <ErrorBlock message={error} onRetry={reload} />}
 
-      {data && (
+      {mappings && (
         <>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <KpiCard label="PMS rate plans" value={String(data.length)} accent="brand" />
-            <KpiCard label="Channels" value={String(SU_CHANNELS.length)} accent="info" />
-            <KpiCard
-              label="Pending mappings"
-              value={String(
-                data.flatMap((r) => SU_CHANNELS.filter((c) => r.channels[c].status === "Pending"))
-                  .length,
-              )}
-              accent="warning"
-            />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard label="Canonical plans" value={String(rows.length)} accent="brand" />
+            <KpiCard label="SU mapping rows" value={String(mappings.length)} accent="info" />
+            <KpiCard label="Plans without SU row" value={String(stats.unmappedPlans)} accent="warning" />
+            <KpiCard label="Pending channel cells" value={String(stats.pending)} accent="warning" />
           </div>
 
-          <ChannelFilterToolbar channel={channel} onChannel={setChannel} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ChannelFilterToolbar channel={channel} onChannel={setChannel} />
+            <Button variant="outline" size="sm" onClick={reload}>
+              <RefreshCcw className="h-3.5 w-3.5" />
+              Refresh
+            </Button>
+          </div>
 
           <Card>
-            <CardHeader title="Rate plan mapping" hint="BAR · Corporate · NRF" />
+            <CardHeader title="Rate plan mapping" hint="Codes from /rate-plans · BAR-FLEX · CORP-NEG · NRF-STD" />
             <div className="table-scroll-shadow overflow-x-auto">
-              <table className="w-full min-w-[900px] text-[13px]">
+              <table className="w-full min-w-[960px] text-[13px]">
                 <thead>
                   <tr className="border-b border-border bg-surface-2/40 text-left">
                     <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
-                      PMS rate plan
+                      PMS code
+                    </th>
+                    <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
+                      Rate plan
                     </th>
                     <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
                       Meal plan
+                    </th>
+                    <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-text-secondary">
+                      Catalog
                     </th>
                     {(channel === "All" ? SU_CHANNELS : [channel]).map((ch) => (
                       <th
@@ -187,15 +259,27 @@ export function RatePlanMappingScreen() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((row) => (
+                  {rows.map(({ plan, mapping, mealLabel, hasOtaMapping }) => (
                     <tr
-                      key={row.pmsRatePlan}
+                      key={plan.id}
                       className="border-b border-border-subtle hover:bg-surface-2/30"
                     >
-                      <td className="px-4 py-3 font-medium">{row.pmsRatePlan}</td>
-                      <td className="px-4 py-3 text-text-secondary">{row.mealPlan}</td>
+                      <td className="px-4 py-3 font-mono text-[12px]">{plan.externalRatePlanCode}</td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{plan.name}</div>
+                        <div className="text-[11px] text-text-secondary">{mapping.pmsRatePlan}</div>
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary">{mealLabel}</td>
+                      <td className="px-4 py-3">
+                        <StatusBadge tone={plan.syncStatus === "synced" ? "success" : plan.syncStatus === "pending" ? "warning" : "neutral"}>
+                          {plan.syncStatus.replace("_", " ")}
+                        </StatusBadge>
+                        {!hasOtaMapping && (
+                          <div className="mt-1 text-[11px] text-warning">No SU mapping row</div>
+                        )}
+                      </td>
                       {(channel === "All" ? SU_CHANNELS : [channel]).map((ch) => {
-                        const m = row.channels[ch];
+                        const m = mapping.channels[ch];
                         return (
                           <td key={ch} className="px-3 py-3">
                             <StatusBadge tone={mapTone(m.status)}>{m.status}</StatusBadge>

@@ -1,6 +1,7 @@
 import type {
   SuAnalyticsMetrics,
   SuAvailabilityCell,
+  SuAvailabilitySyncJob,
   SuChannel,
   SuChannelRevenue,
   SuConnection,
@@ -10,7 +11,9 @@ import type {
   SuPropertyChannelSummary,
   SuPropertyContent,
   SuRateCell,
+  SuRatePlanDefinition,
   SuRatePlanMapping,
+  SuRatePlanSyncJob,
   SuReservationSync,
   SuRestriction,
   SuRoomContent,
@@ -18,6 +21,19 @@ import type {
   SuSyncLog,
   SyncType,
 } from "@/types/channel-manager";
+import {
+  enqueueSuRatePlanSyncJob,
+  getSuRatePlanDefinition,
+  getSuRatePlanSyncJob,
+  listSuRatePlanDefinitions,
+  listSuRatePlanSyncJobs,
+  upsertSuRatePlanDefinition,
+} from "./rate-plan-store";
+import {
+  enqueueSuAvailabilitySyncJob,
+  getSuAvailabilitySyncJob,
+  listSuAvailabilitySyncJobs,
+} from "./availability-store";
 import {
   suAnalytics,
   suAvailability,
@@ -230,6 +246,135 @@ export class SuChannelManagerClient {
     } catch {
       await delay(300);
       return wrap({ jobId: `JOB-${Date.now()}`, status: "queued" });
+    }
+  }
+
+  async getRatePlanDefinitions(): Promise<SuApiResponse<SuRatePlanDefinition[]>> {
+    try {
+      return await this.request<SuRatePlanDefinition[]>("/v1/rate-plans");
+    } catch {
+      return wrap(listSuRatePlanDefinitions());
+    }
+  }
+
+  async getRatePlanDefinition(
+    code: string,
+  ): Promise<SuApiResponse<SuRatePlanDefinition | null>> {
+    try {
+      return await this.request<SuRatePlanDefinition | null>(`/v1/rate-plans/${encodeURIComponent(code)}`);
+    } catch {
+      return wrap(getSuRatePlanDefinition(code) ?? null);
+    }
+  }
+
+  async createRatePlanDefinition(
+    body: SuRatePlanDefinition,
+  ): Promise<SuApiResponse<SuRatePlanDefinition>> {
+    try {
+      return await this.request<SuRatePlanDefinition>("/v1/rate-plans", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    } catch {
+      await delay(80);
+      return wrap(upsertSuRatePlanDefinition(body));
+    }
+  }
+
+  async updateRatePlanDefinition(
+    code: string,
+    body: SuRatePlanDefinition,
+  ): Promise<SuApiResponse<SuRatePlanDefinition>> {
+    try {
+      return await this.request<SuRatePlanDefinition>(`/v1/rate-plans/${encodeURIComponent(code)}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      });
+    } catch {
+      await delay(80);
+      return wrap(upsertSuRatePlanDefinition(body));
+    }
+  }
+
+  async syncRatePlans(codes: string[]): Promise<SuApiResponse<SuRatePlanSyncJob>> {
+    try {
+      return await this.request<SuRatePlanSyncJob>("/v1/channel-manager/rate-plans/sync", {
+        method: "POST",
+        body: JSON.stringify({ codes }),
+      });
+    } catch {
+      await delay(200);
+      const job = enqueueSuRatePlanSyncJob(codes, codes.length);
+      return wrap(job);
+    }
+  }
+
+  async getRatePlanSyncJobs(): Promise<SuApiResponse<SuRatePlanSyncJob[]>> {
+    try {
+      return await this.request<SuRatePlanSyncJob[]>("/v1/channel-manager/rate-plans/sync/jobs");
+    } catch {
+      return wrap(listSuRatePlanSyncJobs());
+    }
+  }
+
+  async getRatePlanSyncJob(jobId: string): Promise<SuApiResponse<SuRatePlanSyncJob | null>> {
+    try {
+      return await this.request<SuRatePlanSyncJob | null>(
+        `/v1/channel-manager/rate-plans/sync/jobs/${encodeURIComponent(jobId)}`,
+      );
+    } catch {
+      return wrap(getSuRatePlanSyncJob(jobId) ?? null);
+    }
+  }
+
+  async updateRatePlanMapping(
+    code: string,
+    body: Partial<SuRatePlanMapping>,
+  ): Promise<SuApiResponse<SuRatePlanMapping>> {
+    try {
+      return await this.request<SuRatePlanMapping>(
+        `/v1/channel-manager/mappings/rate-plans/${encodeURIComponent(code)}`,
+        { method: "PUT", body: JSON.stringify(body) },
+      );
+    } catch {
+      await delay(120);
+      const existing = suRatePlanMappings.find(
+        (row) => row.pmsRatePlanCode.toUpperCase() === code.toUpperCase(),
+      );
+      if (!existing) throw new Error(`No mapping for rate plan code ${code}`);
+      const merged = { ...existing, ...body, pmsRatePlanCode: code };
+      return wrap(merged);
+    }
+  }
+
+  async syncAvailability(cellIds: string[]): Promise<SuApiResponse<SuAvailabilitySyncJob>> {
+    try {
+      return await this.request<SuAvailabilitySyncJob>("/v1/channel-manager/availability/sync", {
+        method: "POST",
+        body: JSON.stringify({ cellIds }),
+      });
+    } catch {
+      await delay(200);
+      const job = enqueueSuAvailabilitySyncJob(cellIds, cellIds.length);
+      return wrap(job);
+    }
+  }
+
+  async getAvailabilitySyncJobs(): Promise<SuApiResponse<SuAvailabilitySyncJob[]>> {
+    try {
+      return await this.request<SuAvailabilitySyncJob[]>("/v1/channel-manager/availability/sync/jobs");
+    } catch {
+      return wrap(listSuAvailabilitySyncJobs());
+    }
+  }
+
+  async getAvailabilitySyncJob(jobId: string): Promise<SuApiResponse<SuAvailabilitySyncJob | null>> {
+    try {
+      return await this.request<SuAvailabilitySyncJob | null>(
+        `/v1/channel-manager/availability/sync/jobs/${encodeURIComponent(jobId)}`,
+      );
+    } catch {
+      return wrap(getSuAvailabilitySyncJob(jobId) ?? null);
     }
   }
 }

@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Building2,
   BedDouble,
@@ -24,6 +26,10 @@ import {
 } from "@/lib/onboarding-store";
 import { type Role } from "@/types/rbac";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { publishOnboardingToRatePlans } from "@/features/rate-plans/lib/onboarding-publish";
+import { publishOnboardingToAvailability } from "@/features/availability/lib/onboarding-publish";
+import { publishOnboardingToTaxes } from "@/features/taxes-fees/lib/onboarding-publish";
+import { dataKeys } from "@/services/mock/data-layer";
 import type { FeatureFlags } from "@/types/entitlements";
 
 import { ProfileStep } from "./ProfileStep";
@@ -53,7 +59,8 @@ const STEPS: Array<{ key: OnboardingStepKey; label: string; icon: typeof Buildin
 
 export function OnboardingFeature() {
   const nav = useNavigate();
-  const { can, inviteUser, setTenantFeature, setPropertyFeatures } = useAuth();
+  const { can, inviteUser, setTenantFeature, setPropertyFeatures, logAuditEvent } = useAuth();
+  const queryClient = useQueryClient();
   const [state, setState] = useState<OnboardingState>(DEFAULT_ONBOARDING);
   const [hydrated, setHydrated] = useState(false);
 
@@ -75,7 +82,7 @@ export function OnboardingFeature() {
   const canRun = can("onboarding.run");
   const progress = computeOnboardingProgress(withDerivedOnboarding(state));
 
-  const finish = () => {
+  const finish = async () => {
     state.users.forEach((s) => {
       inviteUser({
         name: s.name,
@@ -85,10 +92,31 @@ export function OnboardingFeature() {
       });
     });
     const finalState = withDerivedOnboarding({ ...state, completed: true });
+
+    try {
+      const [mergedPlans, mergedAvailability, taxPublish] = await Promise.all([
+        publishOnboardingToRatePlans(finalState),
+        publishOnboardingToAvailability(finalState),
+        publishOnboardingToTaxes(finalState),
+      ]);
+      queryClient.setQueryData(dataKeys.ratePlans, mergedPlans);
+      queryClient.setQueryData(dataKeys.availabilityCells, mergedAvailability);
+      queryClient.setQueryData(dataKeys.taxComponents, taxPublish.components);
+      queryClient.setQueryData(dataKeys.taxGroups, taxPublish.groups);
+      logAuditEvent(
+        "Onboarding steady-state publish",
+        state.profile.propertyCode || "PROP-1",
+        `Rate plans, availability (${mergedAvailability.filter((c) => c.id.startsWith("onb-")).length} cells), and taxes published.`,
+      );
+      toast.success("Rate plans, availability, and taxes published to steady-state modules.");
+    } catch {
+      toast.error("Go-live saved, but steady-state publish failed for one or more modules.");
+    }
+
     setState(finalState);
     saveOnboarding(finalState);
     applyOnboardingEntitlements(finalState, setTenantFeature, setPropertyFeatures);
-    nav({ to: "/" });
+    nav({ to: "/rate-plans" });
   };
 
   return (

@@ -11,6 +11,9 @@ export interface AppUser {
   active: boolean;
   property: string;
   lastActive?: string;
+  properties?: Array<{ id: string; name: string; role: string }>;
+  password?: string;
+  avatarUrl?: string;
 }
 
 export interface TenantEntitlements {

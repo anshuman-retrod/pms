@@ -14,13 +14,38 @@ import {
 import appCss from "../styles.css?url";
 import { AppShell } from "@/app/layouts/AppShell";
 import { PosShell } from "@/app/layouts/PosShell";
-import { isPosPath } from "@/features/retrod-one/lib/access";
+import { SuperadminShell } from "@/app/layouts/SuperadminShell";
+import { isPosPath, resolvePlatformApps } from "@/features/retrod-one/lib/access";
 import { AuthProvider } from "@/features/auth/providers/AuthProvider";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
 import { applyTheme, readSavedTheme } from "@/app/theme/theme";
 import FeatureDisabled from "@/components/FeatureDisabled";
+import AccessDenied from "@/components/AccessDenied";
 import type { FeatureKey } from "@/types/entitlements";
+import { toast } from "sonner";
+
+// Suppress unauthorized/credential error toasts after logout or when not authenticated
+if (typeof window !== "undefined") {
+  const originalError = toast.error;
+  toast.error = (message, data) => {
+    const hasAccessToken = !!localStorage.getItem("retrod.auth.access_token");
+    if (!hasAccessToken) {
+      const msgStr = String(message).toLowerCase();
+      if (
+        msgStr.includes("credential") ||
+        msgStr.includes("unauthorized") ||
+        msgStr.includes("auth") ||
+        msgStr.includes("401") ||
+        msgStr.includes("not provided")
+      ) {
+        console.warn("Suppressed post-logout/unauthenticated error toast:", message);
+        return "";
+      }
+    }
+    return originalError(message, data);
+  };
+}
 
 function NotFoundComponent() {
   return (
@@ -103,23 +128,88 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function AuthGate() {
-  const { isAuthenticated, featureEnabled } = useAuth();
+  const { isAuthenticated, featureEnabled, user, entitlements } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Standalone routes render without the PMS shell
+  // Standalone check: All routes except "/login" require authentication
+  if (pathname !== "/login" && !isAuthenticated) {
+    const hasAccessToken = typeof window !== "undefined" && !!localStorage.getItem("retrod.auth.access_token");
+    if (hasAccessToken) {
+      return (
+        <div className="flex h-screen w-screen items-center justify-center bg-background text-text-secondary">
+          <div className="flex flex-col items-center gap-2.5">
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-[12px] font-medium tracking-wide">Hydrating session context...</span>
+          </div>
+        </div>
+      );
+    }
+    return <Navigate to="/login" />;
+  }
+
+  // Standalone routes render without any sidebar/header shells
   if (pathname === "/login" || pathname === "/one") return <Outlet />;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+  const isSuperadmin = pathname === "/superadmin" || pathname.startsWith("/superadmin/");
+
+  if (isSuperadmin && user?.role !== "super_admin") {
+    return (
+      <AccessDenied
+        title="Access Denied"
+        description="You do not have the required credentials to access the superadmin dashboard."
+      />
+    );
+  }
+
+  // Subscription access guard
+  if (user?.role !== "super_admin") {
+    const platformApps = resolvePlatformApps(entitlements);
+    let appKey: keyof typeof platformApps | null = null;
+    
+    if (pathname.startsWith("/pos")) {
+      appKey = "pos";
+    } else if (pathname.startsWith("/leads")) {
+      appKey = "crm";
+    } else if (pathname.startsWith("/analytics") || pathname === "/revenue/ai-dashboard") {
+      appKey = "analytics";
+    } else if (pathname.startsWith("/reports")) {
+      appKey = "reports";
+    } else if (pathname.startsWith("/channel-manager")) {
+      appKey = "channelManager";
+    } else if (pathname.startsWith("/booking-engine")) {
+      appKey = "bookingEngine";
+    } else if (pathname.startsWith("/ai-insights")) {
+      appKey = "aiHub";
+    } else {
+      // General PMS routes
+      appKey = "pms";
+    }
+
+    if (appKey && !platformApps[appKey]) {
+      return (
+        <AccessDenied
+          title="Subscription Required"
+          description={`Your property is not subscribed to the ${appKey.toUpperCase()} application. Please contact the system administrator to enable this module.`}
+        />
+      );
+    }
   }
 
   const disabledFeature = getFeatureBlockedOnPath(pathname, featureEnabled);
   if (disabledFeature) {
-    const Shell = isPosPath(pathname) ? PosShell : AppShell;
+    const Shell = isSuperadmin ? SuperadminShell : (isPosPath(pathname) ? PosShell : AppShell);
     return (
       <Shell>
         <FeatureDisabled title={disabledFeature.title} description={disabledFeature.description} />
       </Shell>
+    );
+  }
+
+  if (isSuperadmin) {
+    return (
+      <SuperadminShell>
+        <Outlet />
+      </SuperadminShell>
     );
   }
 
@@ -138,11 +228,56 @@ function AuthGate() {
   );
 }
 
+function applyTypography(fontFamily: string, fontSize: string) {
+  if (typeof document === "undefined" || !fontFamily) return;
+  
+  // Dynamically load Google Font
+  const fontId = `google-font-${fontFamily.replace(/\s+/g, "-").toLowerCase()}`;
+  if (!document.getElementById(fontId)) {
+    const link = document.createElement("link");
+    link.id = fontId;
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@300;400;500;600;700&display=swap`;
+    document.head.appendChild(link);
+  }
+  
+  const root = document.documentElement;
+  // Override Tailwind font-sans variable
+  root.style.setProperty("--font-sans", `"${fontFamily}", ui-sans-serif, system-ui, sans-serif`);
+  // Explicitly assign to body as well to ensure total coverage
+  document.body.style.fontFamily = `"${fontFamily}", ui-sans-serif, system-ui, sans-serif`;
+  if (fontSize) {
+    root.style.fontSize = fontSize;
+  }
+}
+
+import { settingsApi } from "@/services/api/settings";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
     applyTheme(readSavedTheme());
+
+    // Fetch and apply dynamic typography settings from the backend API
+    const loadTypography = async () => {
+      // Fallback typography
+      applyTypography("Inter", "14px");
+    };
+    loadTypography();
+
+    // Listen to real-time updates from settings changes
+    const handleTypographyUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ fontFamily: string; fontSize: string }>;
+      if (customEvent.detail) {
+        applyTypography(customEvent.detail.fontFamily, customEvent.detail.fontSize);
+      }
+    };
+
+    window.addEventListener("typography-updated", handleTypographyUpdate);
+    return () => {
+      window.removeEventListener("typography-updated", handleTypographyUpdate);
+    };
   }, []);
 
   return (

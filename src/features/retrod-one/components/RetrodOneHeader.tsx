@@ -39,7 +39,12 @@ export function RetrodOneHeader() {
   const [search, setSearch] = useState("");
   const [theme, setTheme] = useState<AppTheme>(() => readSavedTheme());
 
-  const properties = useMemo(() => hotelRegistry.map((h) => h.name), []);
+  const properties = useMemo(() => {
+    if (user && user.properties && user.properties.length > 0) {
+      return user.properties.map((p) => p.name);
+    }
+    return hotelRegistry.map((h) => h.name);
+  }, [user]);
 
   useEffect(() => {
     applyTheme(theme);
@@ -117,9 +122,13 @@ export function RetrodOneHeader() {
                 className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface px-2 py-1.5 text-left transition hover:bg-surface-2 sm:px-2.5"
                 aria-label="User menu"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar text-[11px] font-semibold text-sidebar-foreground">
-                  {user?.initials ?? "—"}
-                </div>
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="h-8 w-8 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar text-[11px] font-semibold text-sidebar-foreground shrink-0">
+                    {user?.initials ?? "—"}
+                  </div>
+                )}
                 <div className="hidden lg:block">
                   <div className="text-[12px] font-medium leading-tight text-text-primary">
                     {user?.name ?? "Guest"}
@@ -134,17 +143,14 @@ export function RetrodOneHeader() {
             <DropdownMenuContent align="end" className="w-56 border-border bg-surface">
               <DropdownMenuLabel>Signed in as {firstName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer gap-2">
+              <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => navigate({ to: "/settings" })}>
                 <User className="h-4 w-4" />
                 My Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer gap-2">
+              <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => navigate({ to: user?.role === "super_admin" ? "/superadmin/settings" : "/settings" })}>
                 <Settings className="h-4 w-4" />
                 Preferences
               </DropdownMenuItem>
-              <DropdownMenuSubMenu properties={properties} current={user?.property} onSelect={(p) => {
-                if (user) updateUser(user.id, { property: p });
-              }} />
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer gap-2 text-error focus:text-error"

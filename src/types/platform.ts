@@ -10,7 +10,8 @@ export type PlatformAppKey =
   | "reports"
   | "channelManager"
   | "bookingEngine"
-  | "aiHub";
+  | "aiHub"
+  | "superadmin";
 
 export type PlatformAppStatus = "active" | "coming_soon";
 

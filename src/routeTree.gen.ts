@@ -66,6 +66,15 @@ import { Route as AddOnsRouteImport } from './routes/add-ons'
 import { Route as ActivityTimelineRouteImport } from './routes/activity-timeline'
 import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SuperadminUsersRouteImport } from './routes/superadmin.users'
+import { Route as SuperadminTenantsRouteImport } from './routes/superadmin.tenants'
+import { Route as SuperadminSubscriptionsRouteImport } from './routes/superadmin.subscriptions'
+import { Route as SuperadminSettingsRouteImport } from './routes/superadmin.settings'
+import { Route as SuperadminRolesRouteImport } from './routes/superadmin.roles'
+import { Route as SuperadminPropertiesRouteImport } from './routes/superadmin.properties'
+import { Route as SuperadminProductsRouteImport } from './routes/superadmin.products'
+import { Route as SuperadminManualRouteImport } from './routes/superadmin.manual'
+import { Route as SuperadminDashboardRouteImport } from './routes/superadmin.dashboard'
 import { Route as RevenueAiDashboardRouteImport } from './routes/revenue.ai-dashboard'
 import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
 import { Route as PosMenuRouteImport } from './routes/pos.menu'
@@ -91,6 +100,7 @@ import { Route as ChannelManagerConnectionsRouteImport } from './routes/channel-
 import { Route as ChannelManagerAvailabilityRouteImport } from './routes/channel-manager.availability'
 import { Route as ChannelManagerAnalyticsRouteImport } from './routes/channel-manager.analytics'
 import { Route as AnalyticsExecutiveRouteImport } from './routes/analytics.executive'
+import { Route as SuperadminTenantsNewRouteImport } from './routes/superadmin.tenants.new'
 
 const WebsiteBuilderRoute = WebsiteBuilderRouteImport.update({
   id: '/website-builder',
@@ -377,6 +387,51 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminUsersRoute = SuperadminUsersRouteImport.update({
+  id: '/superadmin/users',
+  path: '/superadmin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminTenantsRoute = SuperadminTenantsRouteImport.update({
+  id: '/superadmin/tenants',
+  path: '/superadmin/tenants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminSubscriptionsRoute = SuperadminSubscriptionsRouteImport.update({
+  id: '/superadmin/subscriptions',
+  path: '/superadmin/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminSettingsRoute = SuperadminSettingsRouteImport.update({
+  id: '/superadmin/settings',
+  path: '/superadmin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminRolesRoute = SuperadminRolesRouteImport.update({
+  id: '/superadmin/roles',
+  path: '/superadmin/roles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminPropertiesRoute = SuperadminPropertiesRouteImport.update({
+  id: '/superadmin/properties',
+  path: '/superadmin/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminProductsRoute = SuperadminProductsRouteImport.update({
+  id: '/superadmin/products',
+  path: '/superadmin/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminManualRoute = SuperadminManualRouteImport.update({
+  id: '/superadmin/manual',
+  path: '/superadmin/manual',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminDashboardRoute = SuperadminDashboardRouteImport.update({
+  id: '/superadmin/dashboard',
+  path: '/superadmin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevenueAiDashboardRoute = RevenueAiDashboardRouteImport.update({
   id: '/ai-dashboard',
   path: '/ai-dashboard',
@@ -510,6 +565,11 @@ const AnalyticsExecutiveRoute = AnalyticsExecutiveRouteImport.update({
   path: '/analytics/executive',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminTenantsNewRoute = SuperadminTenantsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => SuperadminTenantsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -594,6 +654,16 @@ export interface FileRoutesByFullPath {
   '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
+  '/superadmin/manual': typeof SuperadminManualRoute
+  '/superadmin/products': typeof SuperadminProductsRoute
+  '/superadmin/properties': typeof SuperadminPropertiesRoute
+  '/superadmin/roles': typeof SuperadminRolesRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/subscriptions': typeof SuperadminSubscriptionsRoute
+  '/superadmin/tenants': typeof SuperadminTenantsRouteWithChildren
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/superadmin/tenants/new': typeof SuperadminTenantsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -678,6 +748,16 @@ export interface FileRoutesByTo {
   '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
+  '/superadmin/manual': typeof SuperadminManualRoute
+  '/superadmin/products': typeof SuperadminProductsRoute
+  '/superadmin/properties': typeof SuperadminPropertiesRoute
+  '/superadmin/roles': typeof SuperadminRolesRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/subscriptions': typeof SuperadminSubscriptionsRoute
+  '/superadmin/tenants': typeof SuperadminTenantsRouteWithChildren
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/superadmin/tenants/new': typeof SuperadminTenantsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -763,6 +843,16 @@ export interface FileRoutesById {
   '/pos/menu': typeof PosMenuRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
+  '/superadmin/manual': typeof SuperadminManualRoute
+  '/superadmin/products': typeof SuperadminProductsRoute
+  '/superadmin/properties': typeof SuperadminPropertiesRoute
+  '/superadmin/roles': typeof SuperadminRolesRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/subscriptions': typeof SuperadminSubscriptionsRoute
+  '/superadmin/tenants': typeof SuperadminTenantsRouteWithChildren
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/superadmin/tenants/new': typeof SuperadminTenantsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -849,6 +939,16 @@ export interface FileRouteTypes {
     | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
+    | '/superadmin/dashboard'
+    | '/superadmin/manual'
+    | '/superadmin/products'
+    | '/superadmin/properties'
+    | '/superadmin/roles'
+    | '/superadmin/settings'
+    | '/superadmin/subscriptions'
+    | '/superadmin/tenants'
+    | '/superadmin/users'
+    | '/superadmin/tenants/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -933,6 +1033,16 @@ export interface FileRouteTypes {
     | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
+    | '/superadmin/dashboard'
+    | '/superadmin/manual'
+    | '/superadmin/products'
+    | '/superadmin/properties'
+    | '/superadmin/roles'
+    | '/superadmin/settings'
+    | '/superadmin/subscriptions'
+    | '/superadmin/tenants'
+    | '/superadmin/users'
+    | '/superadmin/tenants/new'
   id:
     | '__root__'
     | '/'
@@ -1017,6 +1127,16 @@ export interface FileRouteTypes {
     | '/pos/menu'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
+    | '/superadmin/dashboard'
+    | '/superadmin/manual'
+    | '/superadmin/products'
+    | '/superadmin/properties'
+    | '/superadmin/roles'
+    | '/superadmin/settings'
+    | '/superadmin/subscriptions'
+    | '/superadmin/tenants'
+    | '/superadmin/users'
+    | '/superadmin/tenants/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1079,6 +1199,15 @@ export interface RootRouteChildren {
   WebsiteBuilderRoute: typeof WebsiteBuilderRoute
   AnalyticsExecutiveRoute: typeof AnalyticsExecutiveRoute
   DashboardMultiPropertyRoute: typeof DashboardMultiPropertyRoute
+  SuperadminDashboardRoute: typeof SuperadminDashboardRoute
+  SuperadminManualRoute: typeof SuperadminManualRoute
+  SuperadminProductsRoute: typeof SuperadminProductsRoute
+  SuperadminPropertiesRoute: typeof SuperadminPropertiesRoute
+  SuperadminRolesRoute: typeof SuperadminRolesRoute
+  SuperadminSettingsRoute: typeof SuperadminSettingsRoute
+  SuperadminSubscriptionsRoute: typeof SuperadminSubscriptionsRoute
+  SuperadminTenantsRoute: typeof SuperadminTenantsRouteWithChildren
+  SuperadminUsersRoute: typeof SuperadminUsersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1482,6 +1611,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin/users': {
+      id: '/superadmin/users'
+      path: '/superadmin/users'
+      fullPath: '/superadmin/users'
+      preLoaderRoute: typeof SuperadminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/tenants': {
+      id: '/superadmin/tenants'
+      path: '/superadmin/tenants'
+      fullPath: '/superadmin/tenants'
+      preLoaderRoute: typeof SuperadminTenantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/subscriptions': {
+      id: '/superadmin/subscriptions'
+      path: '/superadmin/subscriptions'
+      fullPath: '/superadmin/subscriptions'
+      preLoaderRoute: typeof SuperadminSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/settings': {
+      id: '/superadmin/settings'
+      path: '/superadmin/settings'
+      fullPath: '/superadmin/settings'
+      preLoaderRoute: typeof SuperadminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/roles': {
+      id: '/superadmin/roles'
+      path: '/superadmin/roles'
+      fullPath: '/superadmin/roles'
+      preLoaderRoute: typeof SuperadminRolesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/properties': {
+      id: '/superadmin/properties'
+      path: '/superadmin/properties'
+      fullPath: '/superadmin/properties'
+      preLoaderRoute: typeof SuperadminPropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/products': {
+      id: '/superadmin/products'
+      path: '/superadmin/products'
+      fullPath: '/superadmin/products'
+      preLoaderRoute: typeof SuperadminProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/manual': {
+      id: '/superadmin/manual'
+      path: '/superadmin/manual'
+      fullPath: '/superadmin/manual'
+      preLoaderRoute: typeof SuperadminManualRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/dashboard': {
+      id: '/superadmin/dashboard'
+      path: '/superadmin/dashboard'
+      fullPath: '/superadmin/dashboard'
+      preLoaderRoute: typeof SuperadminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/revenue/ai-dashboard': {
       id: '/revenue/ai-dashboard'
       path: '/ai-dashboard'
@@ -1657,6 +1849,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnalyticsExecutiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin/tenants/new': {
+      id: '/superadmin/tenants/new'
+      path: '/new'
+      fullPath: '/superadmin/tenants/new'
+      preLoaderRoute: typeof SuperadminTenantsNewRouteImport
+      parentRoute: typeof SuperadminTenantsRoute
+    }
   }
 }
 
@@ -1753,6 +1952,17 @@ const RevenueRouteChildren: RevenueRouteChildren = {
 const RevenueRouteWithChildren =
   RevenueRoute._addFileChildren(RevenueRouteChildren)
 
+interface SuperadminTenantsRouteChildren {
+  SuperadminTenantsNewRoute: typeof SuperadminTenantsNewRoute
+}
+
+const SuperadminTenantsRouteChildren: SuperadminTenantsRouteChildren = {
+  SuperadminTenantsNewRoute: SuperadminTenantsNewRoute,
+}
+
+const SuperadminTenantsRouteWithChildren =
+  SuperadminTenantsRoute._addFileChildren(SuperadminTenantsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivitiesRoute: ActivitiesRoute,
@@ -1813,6 +2023,15 @@ const rootRouteChildren: RootRouteChildren = {
   WebsiteBuilderRoute: WebsiteBuilderRoute,
   AnalyticsExecutiveRoute: AnalyticsExecutiveRoute,
   DashboardMultiPropertyRoute: DashboardMultiPropertyRoute,
+  SuperadminDashboardRoute: SuperadminDashboardRoute,
+  SuperadminManualRoute: SuperadminManualRoute,
+  SuperadminProductsRoute: SuperadminProductsRoute,
+  SuperadminPropertiesRoute: SuperadminPropertiesRoute,
+  SuperadminRolesRoute: SuperadminRolesRoute,
+  SuperadminSettingsRoute: SuperadminSettingsRoute,
+  SuperadminSubscriptionsRoute: SuperadminSubscriptionsRoute,
+  SuperadminTenantsRoute: SuperadminTenantsRouteWithChildren,
+  SuperadminUsersRoute: SuperadminUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

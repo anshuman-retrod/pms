@@ -90,6 +90,14 @@ export class AuthApiClient {
     return this.handleResponse(res);
   }
 
+  async checkConfirmationStatus(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/auth/check-confirmation-status/?id=${id}`, {
+      method: "GET",
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse(res);
+  }
+
   async refreshToken(): Promise<string | null> {
     const refresh = localStorage.getItem(LS_REFRESH_TOKEN);
     if (!refresh) return null;
@@ -120,18 +128,19 @@ export class AuthApiClient {
 
   async logout(): Promise<void> {
     const refresh = localStorage.getItem(LS_REFRESH_TOKEN);
+    const headers = this.getHeaders(true);
+    this.clearTokens();
     if (refresh) {
       try {
         await fetch(`${BASE_URL}/api/auth/logout/`, {
           method: "POST",
-          headers: this.getHeaders(true),
+          headers,
           body: JSON.stringify({ refresh }),
         });
       } catch (err) {
         console.error("Logout request failed:", err);
       }
     }
-    this.clearTokens();
   }
 
   async getCurrentUser(): Promise<any> {
@@ -149,6 +158,58 @@ export class AuthApiClient {
         });
       }
     }
+    return this.handleResponse(res);
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/auth/forgot-password/`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify({ email, reset_method: "otp" }),
+    });
+    return this.handleResponse(res);
+  }
+
+  async resetPassword(payload: Record<string, string>): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/auth/reset-password/`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+    return this.handleResponse(res);
+  }
+
+  async changePassword(payload: Record<string, string>): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/auth/change-password/`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    return this.handleResponse(res);
+  }
+
+  async getSessions(): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/security/sessions/`, {
+      method: "GET",
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(res);
+  }
+
+  async revokeSession(sessionId: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/security/sessions/revoke/`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+    return this.handleResponse(res);
+  }
+
+  async logoutAllSessions(): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/security/sessions/logout-all/`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+    });
     return this.handleResponse(res);
   }
 

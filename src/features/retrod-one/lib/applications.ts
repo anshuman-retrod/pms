@@ -111,4 +111,16 @@ export const PLATFORM_APPLICATIONS: PlatformAppDefinition[] = [
     anyPermissions: ["ai.view", "revenue.aiDashboard"],
     feature: "revenueAi",
   },
+  {
+    key: "superadmin",
+    title: "Superadmin Console",
+    description: "Manage tenants, subscriptions, features, and platform-wide settings.",
+    icon: Users, // Can reuse Users icon for now or Shield
+    features: ["Tenant Management", "Subscription Plans", "Platform Settings"],
+    route: "/superadmin/dashboard",
+    openLabel: "Open Console",
+    status: "active",
+    accentClass: "from-primary/20 to-primary/5 border-primary/30",
+    roles: ["super_admin"],
+  },
 ];

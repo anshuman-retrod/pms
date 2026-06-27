@@ -18,6 +18,7 @@ export const DEFAULT_PLATFORM_APPS: PlatformApps = {
   channelManager: true,
   bookingEngine: true,
   aiHub: true,
+  superadmin: true,
 };
 
 export interface PropertyEntitlements {

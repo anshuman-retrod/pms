@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus, Mail, ShieldOff, ShieldCheck, Trash2 } from "lucide-react";
+import { Plus, Mail, ShieldOff, ShieldCheck, Trash2, Key } from "lucide-react";
 import { PageHeader, Card, CardHeader, StatusBadge, Button } from "@/components/ui/Primitives";
 import {
   AlertDialog,
@@ -36,8 +36,26 @@ export function UsersFeature() {
     name: "",
     email: "",
     role: "front_desk_agent" as Role,
-    property: "The Grand Palace",
+    property: "",
+    password: "",
   });
+  const [passwordEditUser, setPasswordEditUser] = useState<AppUser | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+
+  useEffect(() => {
+    if (currentUser?.properties && currentUser.properties.length > 0) {
+      setDraft((d) => ({
+        ...d,
+        property: d.property || currentUser.properties[0].name,
+      }));
+    }
+  }, [currentUser]);
+
+  const filteredUsersList = useMemo(() => {
+    if (!currentUser) return [];
+    const currentDomain = currentUser.email.split("@")[1]?.toLowerCase();
+    return users.filter((u) => u.email.split("@")[1]?.toLowerCase() === currentDomain);
+  }, [users, currentUser]);
 
   const canManage = can("users.manage");
   const draftRoleDescription = useMemo(() => ROLE_DESCRIPTION[draft.role], [draft.role]);
@@ -110,7 +128,7 @@ export function UsersFeature() {
                 </Link>
               }
             />
-            <div className="grid grid-cols-1 gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-5">
               <input
                 className={inputCls}
                 placeholder="Full name"
@@ -123,6 +141,13 @@ export function UsersFeature() {
                 value={draft.email}
                 onChange={(e) => setDraft({ ...draft, email: e.target.value })}
               />
+              <input
+                type="password"
+                className={inputCls}
+                placeholder="Password (optional)"
+                value={draft.password}
+                onChange={(e) => setDraft({ ...draft, password: e.target.value })}
+              />
               <select
                 className={selectCls}
                 value={draft.role}
@@ -133,6 +158,21 @@ export function UsersFeature() {
                     {ROLE_LABEL[r]}
                   </option>
                 ))}
+              </select>
+              <select
+                className={selectCls}
+                value={draft.property}
+                onChange={(e) => setDraft({ ...draft, property: e.target.value })}
+              >
+                {currentUser?.properties && currentUser.properties.length > 0 ? (
+                  currentUser.properties.map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="The Grand Palace">The Grand Palace</option>
+                )}
               </select>
               <div className="rounded-md border border-border-subtle bg-surface-2/30 px-3 py-2 text-[11px] text-text-secondary md:col-span-2 xl:col-span-1">
                 <div className="font-medium text-text-primary">{ROLE_LABEL[draft.role]}</div>
@@ -145,13 +185,15 @@ export function UsersFeature() {
                     toast.error("Please enter name and email before sending invite.");
                     return;
                   }
-                  inviteUser(draft);
-                  toast.success(`Invite sent to ${draft.name} as ${ROLE_LABEL[draft.role]}.`);
+                  const finalProperty = draft.property || currentUser?.properties?.[0]?.name || "";
+                  inviteUser({ ...draft, property: finalProperty });
+                  toast.success(`Invite sent to ${draft.name} as ${ROLE_LABEL[draft.role]} for ${finalProperty}.`);
                   setDraft({
                     name: "",
                     email: "",
                     role: "front_desk_agent",
-                    property: "The Grand Palace",
+                    property: currentUser?.properties?.[0]?.name || "",
+                    password: "",
                   });
                   setInviteOpen(false);
                 }}
@@ -164,9 +206,9 @@ export function UsersFeature() {
         )}
 
         <Card>
-          <CardHeader title="All users" hint={`${users.length} accounts`} />
+          <CardHeader title="All users" hint={`${filteredUsersList.length} accounts`} />
           <div className="space-y-2 p-3 md:hidden">
-            {users.map((u: AppUser) => (
+            {filteredUsersList.map((u: AppUser) => (
               <div key={u.id} className="rounded-md border border-border-subtle bg-surface p-3">
                 <div className="mb-1 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
@@ -214,6 +256,16 @@ export function UsersFeature() {
                     <div className="col-span-2 flex items-center justify-end gap-2 pt-1">
                       <button
                         className="rounded p-1.5 text-text-secondary transition hover:bg-surface-2 hover:text-text-primary"
+                        title="Set password"
+                        onClick={() => {
+                          setPasswordEditUser(u);
+                          setNewPassword(u.password || "");
+                        }}
+                      >
+                        <Key className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        className="rounded p-1.5 text-text-secondary transition hover:bg-surface-2 hover:text-text-primary"
                         title={u.active ? "Disable" : "Enable"}
                         onClick={() => openStatusConfirm(u)}
                       >
@@ -252,7 +304,7 @@ export function UsersFeature() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u: AppUser) => (
+              {filteredUsersList.map((u: AppUser) => (
                 <tr key={u.id} className="border-b border-border-subtle hover:bg-surface-2/50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
@@ -329,6 +381,16 @@ export function UsersFeature() {
                       <div className="flex justify-end gap-1">
                         <button
                           className="rounded p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary transition"
+                          title="Set password"
+                          onClick={() => {
+                            setPasswordEditUser(u);
+                            setNewPassword(u.password || "");
+                          }}
+                        >
+                          <Key className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          className="rounded p-1.5 text-text-secondary hover:bg-surface-2 hover:text-text-primary transition"
                           title={u.active ? "Disable" : "Enable"}
                           onClick={() => openStatusConfirm(u)}
                         >
@@ -374,6 +436,40 @@ export function UsersFeature() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={runConfirmedAction}>
               {confirmDialog?.type === "delete" ? "Remove user" : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={!!passwordEditUser} onOpenChange={(open) => !open && setPasswordEditUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Set password for {passwordEditUser?.name}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter a password to assign to this user. They can use this password to sign in immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-3">
+            <input
+              type="password"
+              className="h-10 w-full rounded-md border border-border bg-surface px-3 text-[13px] text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (passwordEditUser) {
+                  updateUser(passwordEditUser.id, { password: newPassword });
+                  toast.success(`Password updated for ${passwordEditUser.name}.`);
+                  setPasswordEditUser(null);
+                  setNewPassword("");
+                }
+              }}
+            >
+              Save password
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

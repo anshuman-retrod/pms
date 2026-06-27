@@ -31,6 +31,7 @@ import { publishOnboardingToAvailability } from "@/features/availability/lib/onb
 import { publishOnboardingToTaxes } from "@/features/taxes-fees/lib/onboarding-publish";
 import { dataKeys } from "@/services/mock/data-layer";
 import type { FeatureFlags } from "@/types/entitlements";
+import { propertyApi } from "@/services/api/property";
 
 import { ProfileStep } from "./ProfileStep";
 import { RoomsStep } from "./RoomsStep";
@@ -83,6 +84,39 @@ export function OnboardingFeature() {
   const progress = computeOnboardingProgress(withDerivedOnboarding(state));
 
   const finish = async () => {
+    try {
+      // Map frontend type to valid backend choice
+      const mapPropertyType = (type: string): string => {
+        const t = type.toLowerCase();
+        if (t === "villa" || t === "homestay") return "VILLA";
+        if (t === "serviced_apartment" || t === "apartment") return "APARTMENT";
+        if (t === "hostel") return "HOSTEL";
+        return "HOTEL";
+      };
+
+      // Create property in backend database
+      await propertyApi.createProperty({
+        name: state.profile.propertyName || "My Hotel",
+        property_type: mapPropertyType(state.profile.propertyType),
+        address_line_1: state.profile.addressLine1 || "No Address Provided",
+        address_line_2: state.profile.addressLine2 || "",
+        city: state.profile.city || "New Delhi",
+        state: state.profile.state || "Delhi",
+        country: state.profile.country || "India",
+        postal_code: "110001",
+        contact_email: state.profile.contactEmail || "admin@retrod.in",
+        contact_phone: state.profile.contactPhone || "+91 99999 88888",
+        currency: state.profile.currency || "INR",
+        timezone: state.profile.timezone || "Asia/Kolkata",
+      });
+
+      toast.success("Property created in database.");
+    } catch (err: any) {
+      console.error("Failed to create property in database:", err);
+      toast.error("Failed to save property to database: " + (err.message || "Unknown error"));
+      return;
+    }
+
     state.users.forEach((s) => {
       inviteUser({
         name: s.name,

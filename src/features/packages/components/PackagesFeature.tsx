@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import {
   PageHeader,
@@ -12,32 +13,123 @@ import {
   useHotelPackagesQuery,
   usePackageItemsQuery,
 } from "@/services/mock/queries";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function PackagesFeature() {
   const { data: packageProducts = [] } = usePackageProductsQuery();
   const { data: hotelPackages = [] } = useHotelPackagesQuery();
   const { data: packageItems = [] } = usePackageItemsQuery();
 
-  const revenue = packageProducts.reduce((a, p) => a + p.price * p.bookingsMtd, 0);
+  const [localPackages, setLocalPackages] = useState<any[]>([]);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [currentPackage, setCurrentPackage] = useState<any>({ name: "", price: "", inclusions: "", status: "Active" });
+
+  const displayPackages = [
+    ...localPackages,
+    ...packageProducts.filter((p: any) => !localPackages.some(lp => lp.id === p.id))
+  ];
+  const revenue = displayPackages.reduce((a, p) => a + Number(p.price) * (p.bookingsMtd || 0), 0);
+  const activeCount = displayPackages.filter((p) => p.status === "Active").length;
+
+  const handleSavePackage = () => {
+    if (!currentPackage.name || !currentPackage.price) return;
+    
+    if (currentPackage.id) {
+      setLocalPackages([currentPackage, ...localPackages.filter(p => p.id !== currentPackage.id)]);
+    } else {
+      const id = `PKG-${Math.floor(1000 + Math.random() * 9000)}`;
+      setLocalPackages([{ ...currentPackage, id, bookingsMtd: 0 }, ...localPackages]);
+    }
+    
+    setCurrentPackage({ name: "", price: "", inclusions: "", status: "Active" });
+    setIsSheetOpen(false);
+  };
+
+  const handleCreateNew = () => {
+    setCurrentPackage({ name: "", price: "", inclusions: "", status: "Active" });
+    setIsSheetOpen(true);
+  };
+
+  const handleEdit = (pkg: any) => {
+    setCurrentPackage({ ...pkg });
+    setIsSheetOpen(true);
+  };
 
   return (
     <div>
       <PageHeader
-        eyebrow="Commercial"
-        title="Package Management"
-        description="Bundled rates across room, F&B, and experiences."
+        eyebrow="Packages"
+        title="Packages"
+        description="Hospitality package setup"
         actions={
-          <Button size="sm">
+          <Button size="sm" onClick={handleCreateNew}>
             <Plus className="h-3.5 w-3.5" />
             Create package
           </Button>
         }
       />
+
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent side="right" className="w-[400px] sm:max-w-[400px]">
+          <SheetHeader>
+            <SheetTitle>{currentPackage.id ? "Edit Package" : "Create New Package"}</SheetTitle>
+          </SheetHeader>
+          <div className="grid gap-5 py-6">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Package Name</Label>
+              <Input
+                id="name"
+                value={currentPackage.name}
+                onChange={(e) => setCurrentPackage({ ...currentPackage, name: e.target.value })}
+                placeholder="e.g. Honeymoon Special"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="price">Price</Label>
+              <Input
+                id="price"
+                type="number"
+                value={currentPackage.price}
+                onChange={(e) => setCurrentPackage({ ...currentPackage, price: e.target.value })}
+                placeholder="e.g. 15000"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="inclusions">Inclusions</Label>
+              <Input
+                id="inclusions"
+                value={currentPackage.inclusions}
+                onChange={(e) => setCurrentPackage({ ...currentPackage, inclusions: e.target.value })}
+                placeholder="e.g. Room, Breakfast, Spa"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                value={currentPackage.status}
+                onChange={(e) => setCurrentPackage({ ...currentPackage, status: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="Active">Active</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
+          <SheetFooter className="mt-4">
+            <Button variant="outline" onClick={() => setIsSheetOpen(false)}>Cancel</Button>
+            <Button onClick={handleSavePackage}>Save Package</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
       <div className="space-y-6 p-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <KpiCard
             label="Active packages"
-            value={String(packageProducts.filter((p) => p.status === "Active").length)}
+            value={String(activeCount)}
             accent="brand"
           />
           <KpiCard label="Bookings · MTD" value="25" accent="info" />
@@ -64,10 +156,10 @@ export function PackagesFeature() {
               </tr>
             </thead>
             <tbody>
-              {packageProducts.map((p) => (
+              {displayPackages.map((p) => (
                 <tr key={p.id} className="border-b border-border-subtle hover:bg-surface-2/50">
                   <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3 font-mono">₹{p.price.toLocaleString()}</td>
+                  <td className="px-4 py-3 font-mono">₹{Number(p.price).toLocaleString()}</td>
                   <td className="px-4 py-3 text-text-secondary">{p.inclusions}</td>
                   <td className="px-4 py-3 font-mono">{p.bookingsMtd}</td>
                   <td className="px-4 py-3">
@@ -76,7 +168,7 @@ export function PackagesFeature() {
                     </StatusBadge>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button type="button" className="text-[12px] font-medium text-primary">
+                    <button type="button" className="text-[12px] font-medium text-primary" onClick={() => handleEdit(p)}>
                       Edit
                     </button>
                   </td>

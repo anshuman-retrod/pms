@@ -1,8 +1,22 @@
 import { Card, CardHeader, StatusBadge, Button } from "@/components/ui/Primitives";
 import { type WaitlistEntry } from "@/types/pms";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Link } from "@tanstack/react-router";
 
 export function WaitlistView({ entries }: { entries: WaitlistEntry[] }) {
-  if (entries.length === 0) {
+  const [localEntries, setLocalEntries] = useState(entries);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+
+  const handleConvert = () => {
+    if (!convertingId) return;
+    setLocalEntries(localEntries.filter((e) => e.id !== convertingId));
+    toast.success("Waitlist entry successfully converted to reservation!");
+    setConvertingId(null);
+  };
+
+  if (localEntries.length === 0) {
     return (
       <Card className="flex flex-col items-center justify-center px-6 py-16 text-center">
         <p className="text-[14px] font-medium text-text-primary">No waitlist entries</p>
@@ -18,7 +32,7 @@ export function WaitlistView({ entries }: { entries: WaitlistEntry[] }) {
 
   return (
     <Card>
-      <CardHeader title="Waitlist" hint={`${entries.length} guests waiting`} />
+      <CardHeader title="Waitlist" hint={`${localEntries.length} guests waiting`} />
       <div className="overflow-x-auto">
         <table className="w-full text-[13px]">
           <thead>
@@ -34,10 +48,14 @@ export function WaitlistView({ entries }: { entries: WaitlistEntry[] }) {
             </tr>
           </thead>
           <tbody>
-            {entries.map((e) => (
+            {localEntries.map((e) => (
               <tr key={e.id} className="border-b border-border-subtle hover:bg-surface-2/50">
-                <td className="px-4 py-3 font-mono text-[12px]">{e.id}</td>
-                <td className="px-4 py-3 font-medium text-text-primary">{e.guest}</td>
+                <td className="px-4 py-3 font-mono text-[12px]">
+                  <Link to={`/reservations/${e.id}`} className="hover:text-primary hover:underline">{e.id}</Link>
+                </td>
+                <td className="px-4 py-3 font-medium text-text-primary">
+                  <Link to={`/reservations/${e.id}`} className="hover:text-primary hover:underline">{e.guest}</Link>
+                </td>
                 <td className="px-4 py-3 text-text-secondary">{e.dates}</td>
                 <td className="px-4 py-3 text-text-secondary">{e.roomType}</td>
                 <td className="px-4 py-3">
@@ -49,6 +67,7 @@ export function WaitlistView({ entries }: { entries: WaitlistEntry[] }) {
                 <td className="px-4 py-3 text-right">
                   <button
                     type="button"
+                    onClick={() => setConvertingId(e.id)}
                     className="text-[12px] font-medium text-primary hover:underline"
                   >
                     Convert
@@ -59,6 +78,21 @@ export function WaitlistView({ entries }: { entries: WaitlistEntry[] }) {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={!!convertingId} onOpenChange={(open) => !open && setConvertingId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Convert to Reservation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to convert this waitlist entry into an active reservation? This will remove it from the waitlist and allocate inventory.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setConvertingId(null)}>Cancel</Button>
+            <Button onClick={handleConvert}>Confirm Convert</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

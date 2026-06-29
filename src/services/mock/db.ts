@@ -614,7 +614,20 @@ export const groupBlocks: GroupBlock[] = [
     blocked: 24,
     pickedUp: 18,
     cutOff: "12 May",
-    status: "Open",
+    status: "Definite",
+    groupCode: "TS2026",
+    salesManager: "Alice Smith",
+    cutOffType: "FixedDate",
+    masterAccountId: "MA-1029",
+    routingInstruction: "Room & Tax to Master",
+    contactName: "John Doe",
+    contactEmail: "jdoe@techsummit.org",
+    roomMatrix: [
+      { roomType: "Deluxe King", date: "18 May", blocked: 10, pickedUp: 8, rate: 15000 },
+      { roomType: "Deluxe King", date: "19 May", blocked: 10, pickedUp: 8, rate: 15000 },
+      { roomType: "Executive Suite", date: "18 May", blocked: 2, pickedUp: 1, rate: 25000 },
+      { roomType: "Executive Suite", date: "19 May", blocked: 2, pickedUp: 1, rate: 25000 },
+    ]
   },
   {
     id: "BLK-45",
@@ -623,7 +636,13 @@ export const groupBlocks: GroupBlock[] = [
     blocked: 12,
     pickedUp: 12,
     cutOff: "10 May",
-    status: "Closed",
+    status: "Actualized",
+    groupCode: "MEHTA26",
+    salesManager: "Bob Jones",
+    cutOffType: "FixedDate",
+    routingInstruction: "Individual Pays All",
+    contactName: "Rohan Mehta",
+    contactPhone: "+91 98765 43210"
   },
   {
     id: "BLK-46",
@@ -632,7 +651,14 @@ export const groupBlocks: GroupBlock[] = [
     blocked: 8,
     pickedUp: 3,
     cutOff: "20 May",
-    status: "Open",
+    status: "Tentative",
+    groupCode: "AIRCREW",
+    salesManager: "Charlie Davis",
+    cutOffType: "RollingDays",
+    cutOffRollingDays: 3,
+    masterAccountId: "MA-8822",
+    routingInstruction: "All to Master",
+    contactName: "Crew Logistics"
   },
 ];
 
@@ -1374,6 +1400,19 @@ export const corporateAccounts: CorporateAccount[] = [
     revenueMtd: 624000,
     openInvoices: 1,
     contact: "R. Menon",
+    taxId: "GST-29AAAAI1234A1Z5",
+    address: "Electronic City, Bangalore",
+    contactEmail: "rmenon@infosys.com",
+    contactPhone: "+91 98765 00001",
+    annualRoomNightTarget: 500,
+    ytdRoomNights: 210,
+    ytdRevenue: 2850000,
+    creditLimit: 1000000,
+    currentBalance: 450000,
+    arAging: { current: 300000, thirtyDays: 150000, sixtyDays: 0, ninetyPlusDays: 0 },
+    contracts: [
+      { rateCode: "INF-CORP-24", roomType: "Deluxe King", discountType: "Fixed", discountValue: 8500, isLRA: true, blackoutDates: ["2026-12-31"] }
+    ]
   },
   {
     id: "CORP-102",
@@ -1383,6 +1422,19 @@ export const corporateAccounts: CorporateAccount[] = [
     revenueMtd: 416000,
     openInvoices: 0,
     contact: "A. Pillai",
+    taxId: "GST-27AAAAT1234A1Z5",
+    address: "Bandra Kurla Complex, Mumbai",
+    contactEmail: "apillai@tcs.com",
+    contactPhone: "+91 98765 00002",
+    annualRoomNightTarget: 300,
+    ytdRoomNights: 120,
+    ytdRevenue: 1550000,
+    creditLimit: 500000,
+    currentBalance: 0,
+    arAging: { current: 0, thirtyDays: 0, sixtyDays: 0, ninetyPlusDays: 0 },
+    contracts: [
+      { rateCode: "TCS-NEG-25", roomType: "Any", discountType: "Percentage", discountValue: 15, isLRA: false, blackoutDates: [] }
+    ]
   },
   {
     id: "CORP-103",
@@ -1392,6 +1444,19 @@ export const corporateAccounts: CorporateAccount[] = [
     revenueMtd: 234000,
     openInvoices: 2,
     contact: "S. Khanna",
+    taxId: "GST-07AAAAD1234A1Z5",
+    address: "Cyber City, Gurugram",
+    contactEmail: "skhanna@deloitte.com",
+    contactPhone: "+91 98765 00003",
+    annualRoomNightTarget: 150,
+    ytdRoomNights: 80,
+    ytdRevenue: 1050000,
+    creditLimit: 300000,
+    currentBalance: 310000,
+    arAging: { current: 100000, thirtyDays: 100000, sixtyDays: 110000, ninetyPlusDays: 0 },
+    contracts: [
+      { rateCode: "DLT-STD", roomType: "Executive Suite", discountType: "Fixed", discountValue: 12000, isLRA: true, blackoutDates: ["2026-10-01", "2026-10-02"] }
+    ]
   },
 ];
 
@@ -1540,6 +1605,9 @@ export const lostFoundItems: LostFoundItem[] = [
   {
     id: "LF-301",
     description: "Gold bracelet",
+    itemDetail: "18k gold chain with a small heart pendant. Engraved 'S.L.' on the clasp.",
+    roomDetail: "Found on the nightstand next to the bed in Spa locker 12.",
+    imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=600&auto=format&fit=crop",
     location: "Spa locker",
     foundAt: "14 May",
     status: "Matched",
@@ -1548,6 +1616,9 @@ export const lostFoundItems: LostFoundItem[] = [
   {
     id: "LF-302",
     description: "iPhone charger",
+    itemDetail: "Original Apple 20W USB-C Power Adapter and 1m cable. Slightly scuffed.",
+    roomDetail: "Found plugged into the wall outlet near the desk in Room 204.",
+    imageUrl: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=600&auto=format&fit=crop",
     location: "Room 204",
     foundAt: "15 May",
     status: "Open",
@@ -1555,6 +1626,9 @@ export const lostFoundItems: LostFoundItem[] = [
   {
     id: "LF-303",
     description: "Passport cover",
+    itemDetail: "Black leather passport cover, contains no passport but has a boarding pass stub.",
+    roomDetail: "Found resting on a chair in the main Lobby seating area.",
+    imageUrl: "https://images.unsplash.com/photo-1553531087-b25a0b9a68ab?q=80&w=600&auto=format&fit=crop",
     location: "Lobby",
     foundAt: "13 May",
     status: "Released",

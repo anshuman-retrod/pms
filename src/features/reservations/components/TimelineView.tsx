@@ -1,6 +1,8 @@
 import { Card, CardHeader } from "@/components/ui/Primitives";
+import { Link } from "@tanstack/react-router";
 
 interface Bar {
+  id: string;
   room: string;
   start: number;
   span: number;
@@ -23,7 +25,7 @@ interface TimelineViewProps {
 export function TimelineView({ days, rooms, bars, sourceColor }: TimelineViewProps) {
   return (
     <Card>
-      <CardHeader title="7-day timeline" hint="14 May → 20 May 2026" />
+      <CardHeader title="14-day timeline" hint={`${days[0]} → ${days[days.length - 1]} 2026`} />
       <div className="p-3 sm:p-4">
         <div className="space-y-2 md:hidden">
           {rooms.map((r) => {
@@ -40,17 +42,18 @@ export function TimelineView({ days, rooms, bars, sourceColor }: TimelineViewPro
                 <div className="space-y-1.5">
                   {rowBars.length ? (
                     rowBars.map((b, i) => (
-                      <div
+                      <Link
                         key={`${r.num}-${i}`}
-                        className="rounded px-2 py-1.5 text-[11px] font-medium text-white"
+                        to={"/reservations/" + b.id}
+                        className="block rounded px-2 py-1.5 text-[11px] font-medium text-white transition-opacity hover:opacity-90"
                         style={{ background: sourceColor[b.source] }}
                       >
                         <div className="truncate">{b.label}</div>
                         <div className="text-[10px] opacity-80">
-                          {days[b.start]} to {days[Math.min(days.length - 1, b.start + b.span - 1)]}{" "}
+                          {days[Math.max(0, b.start)]} to {days[Math.min(days.length - 1, b.start + b.span - 1)]}{" "}
                           · {b.source}
                         </div>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <div className="text-[11px] text-text-disabled">
@@ -96,18 +99,19 @@ export function TimelineView({ days, rooms, bars, sourceColor }: TimelineViewPro
                     <div key={i} className="border-l border-border-subtle" />
                   ))}
                   {rowBars.map((b, i) => (
-                    <div
-                      key={i}
-                      className="absolute top-3 h-9 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-white shadow-e1"
-                      style={{
-                        left: `calc(200px + (100% - 200px) * ${b.start / days.length})`,
-                        width: `calc((100% - 200px) * ${b.span / days.length} - 4px)`,
-                        background: sourceColor[b.source],
-                      }}
-                    >
-                      <div className="truncate">{b.label}</div>
-                      <div className="truncate text-[10px] opacity-80">{b.source}</div>
-                    </div>
+                      <Link
+                        key={i}
+                        to={"/reservations/" + b.id}
+                        className="absolute z-10 top-1/2 flex h-8 -translate-y-1/2 items-center gap-2 truncate rounded-md px-2 text-[11px] text-white shadow-sm transition-opacity hover:opacity-90"
+                        style={{
+                          left: `calc(200px + (100% - 200px) * ${b.start / days.length})`,
+                          width: `calc((100% - 200px) * ${b.span / days.length} - 4px)`,
+                          background: sourceColor[b.source],
+                        }}
+                      >
+                        <span className="truncate text-[11px] font-medium leading-tight">{b.label}</span>
+                        <span className="truncate text-[10px] leading-tight opacity-80">{b.source}</span>
+                      </Link>
                   ))}
                 </div>
               );

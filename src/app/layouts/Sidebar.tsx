@@ -53,20 +53,37 @@ import {
   ArrowUp,
   ArrowDown,
   X,
+  Check,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROLE_LABEL } from "@/features/auth/lib/rbac";
 import { APP_NAV_GROUPS } from "@/app/navigation/nav-config";
 import type { NavItem } from "@/app/navigation/nav-config";
 import { getAllNavRouteNodes } from "@/app/navigation/nav-utils";
 import {
-  addRecentNavNodeId,
-  clearRecentNavNodeIds,
   movePinnedNavNode,
   readExpandedNavGroupIds,
   readPinnedNavNodeIds,
-  readRecentNavNodeIds,
   toggleExpandedNavGroupId,
   togglePinnedNavNodeId,
 } from "@/app/navigation/nav-personalization";
@@ -130,8 +147,36 @@ const ICONS_BY_ROUTE: Record<string, IconType> = {
   "/anomaly-monitor": ShieldCheck,
 };
 
+const INITIAL_HOTELS = [
+  { id: "1", name: "The Grand Palace", location: "New Delhi", rating: 5, properties: 4 },
+  { id: "2", name: "Oceanview Resort", location: "Goa", rating: 4.5, properties: 2 },
+  { id: "3", name: "Mountain Retreat", location: "Manali", rating: 4, properties: 1 },
+];
+
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [hotels, setHotels] = useState(INITIAL_HOTELS);
+  const [activeHotelId, setActiveHotelId] = useState(hotels[0].id);
+  const activeHotel = hotels.find((h) => h.id === activeHotelId) || hotels[0];
+  const [isAddHotelOpen, setIsAddHotelOpen] = useState(false);
+  const [newHotelName, setNewHotelName] = useState("");
+  const [newHotelLocation, setNewHotelLocation] = useState("");
+
+  const handleAddHotel = () => {
+    if (!newHotelName || !newHotelLocation) return;
+    const newHotel = {
+      id: Math.random().toString(36).substring(7),
+      name: newHotelName,
+      location: newHotelLocation,
+      rating: 0,
+      properties: 1,
+    };
+    setHotels([...hotels, newHotel]);
+    setActiveHotelId(newHotel.id);
+    setIsAddHotelOpen(false);
+    setNewHotelName("");
+    setNewHotelLocation("");
+  };
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
   const isNodeActive = (item: NavItem): boolean => {
     if (item.to && isActive(item.to)) return true;
@@ -141,7 +186,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocusIndex, setSearchFocusIndex] = useState(0);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => readPinnedNavNodeIds());
-  const [recentIds, setRecentIds] = useState<string[]>(() => readRecentNavNodeIds());
   const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>(() =>
     readExpandedNavGroupIds(),
   );
@@ -175,11 +219,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     .map((id) => allRouteNodes.find((node) => node.id === id))
     .filter((node): node is NonNullable<typeof node> => !!node);
 
-  const recentNodes = recentIds
-    .map((id) => allRouteNodes.find((node) => node.id === id))
-    .filter((node): node is NonNullable<typeof node> => !!node)
-    .filter((node) => !pinnedIds.includes(node.id));
-
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const searchedNodes = normalizedQuery
     ? allRouteNodes.filter((node) => {
@@ -197,16 +236,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     setPinnedIds(togglePinnedNavNodeId(nodeId));
   };
 
-  const trackRecent = (nodeId: string) => {
-    setRecentIds(addRecentNavNodeId(nodeId));
-  };
-
   const movePinned = (fromIndex: number, toIndex: number) => {
     setPinnedIds(movePinnedNavNode(fromIndex, toIndex));
-  };
-
-  const clearRecent = () => {
-    setRecentIds(clearRecentNavNodeIds());
   };
 
   const toggleGroupExpanded = (groupId: string) => {
@@ -278,7 +309,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         <div className="group relative">
           <Link
             to={item.to}
-            onClick={() => trackRecent(item.id)}
             className={cn(
               "relative flex items-center gap-3 rounded-md px-3 py-2 pr-8 text-[13px] font-normal transition-colors",
               "text-sidebar-foreground/75 hover:bg-sidebar-hover hover:text-sidebar-foreground",
@@ -360,35 +390,59 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         )}
       </div>
 
-      {!collapsed && (
-        <Link
-          to="/one"
-          className="mx-3 mt-2 flex items-center gap-2 rounded-md border border-sidebar-border/80 bg-sidebar-hover/30 px-3 py-2 text-[12px] font-medium text-sidebar-foreground transition hover:bg-sidebar-hover"
-        >
-          <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
-          Retrod One
-        </Link>
-      )}
-
       {/* Property switcher */}
       {!collapsed && (
-        <button className="mx-3 mt-3 flex items-center justify-between rounded-md border border-sidebar-border bg-sidebar-hover/40 px-3 py-2 text-left transition hover:bg-sidebar-hover">
-          <div className="min-w-0">
-            <div className="truncate text-[13px] font-medium text-sidebar-foreground">
-              The Grand Palace
-            </div>
-            <div className="flex items-center gap-1 text-[11px] text-sidebar-muted">
-              <span>New Delhi</span>
-              <span className="opacity-50">·</span>
-              <span className="flex items-center gap-0.5">
-                <Star className="h-2.5 w-2.5 fill-[var(--color-gold)] text-[var(--color-gold)]" />5
-              </span>
-              <span className="opacity-50">·</span>
-              <span>4 properties</span>
-            </div>
-          </div>
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-sidebar-muted" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="mx-3 mt-3 flex items-center justify-between rounded-md border border-sidebar-border bg-sidebar-hover/40 px-3 py-2 text-left transition hover:bg-sidebar-hover outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <div className="min-w-0">
+                <div className="truncate text-[13px] font-medium text-sidebar-foreground">
+                  {activeHotel.name}
+                </div>
+                <div className="flex items-center gap-1 text-[11px] text-sidebar-muted">
+                  <span>{activeHotel.location}</span>
+                  <span className="opacity-50">·</span>
+                  <span className="flex items-center gap-0.5">
+                    <Star className="h-2.5 w-2.5 fill-[var(--color-gold)] text-[var(--color-gold)]" />{activeHotel.rating}
+                  </span>
+                  <span className="opacity-50">·</span>
+                  <span>{activeHotel.properties} properties</span>
+                </div>
+              </div>
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-sidebar-muted" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[214px] ml-3" align="start">
+            <DropdownMenuLabel className="text-xs text-sidebar-muted">Select Property</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              {hotels.map((hotel) => (
+                <DropdownMenuItem 
+                  key={hotel.id} 
+                  onClick={() => setActiveHotelId(hotel.id)}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-medium">{hotel.name}</span>
+                    <span className="text-[11px] text-muted-foreground">{hotel.location}</span>
+                  </div>
+                  {activeHotelId === hotel.id && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              className="cursor-pointer text-sidebar-muted focus:text-sidebar-foreground"
+              onSelect={(e) => {
+                e.preventDefault();
+                setIsAddHotelOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="text-[13px] font-medium">Add Hotel</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
 
       {/* Nav */}
@@ -411,7 +465,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                   } else if (e.key === "Enter") {
                     const target = searchedNodes[searchFocusIndex];
                     if (target) {
-                      trackRecent(target.id);
                       window.location.assign(target.to);
                     }
                   }
@@ -433,7 +486,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                 <li key={`search-${node.id}`}>
                   <Link
                     to={node.to}
-                    onClick={() => trackRecent(node.id)}
                     className={cn(
                       "block rounded-md px-3 py-2 text-[12px] text-sidebar-foreground/80 hover:bg-sidebar-hover",
                       searchedNodes[searchFocusIndex]?.id === node.id && "bg-sidebar-hover",
@@ -459,7 +511,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                   <div className="group flex items-center gap-1">
                     <Link
                       to={node.to}
-                      onClick={() => trackRecent(node.id)}
                       className={cn(
                         "flex-1 rounded-md px-3 py-2 text-[12px] transition",
                         isActive(node.to)
@@ -498,38 +549,6 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                       </button>
                     </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {!collapsed && normalizedQuery.length === 0 && recentNodes.length > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between px-3 pb-1.5">
-              <div className="text-[10px] font-medium uppercase tracking-[0.08em] text-sidebar-muted">
-                Recent
-              </div>
-              <button
-                type="button"
-                onClick={clearRecent}
-                className="rounded p-1 text-sidebar-muted hover:bg-sidebar-hover hover:text-sidebar-foreground"
-                aria-label="Clear recent"
-                title="Clear recent"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-            <ul className="space-y-0.5">
-              {recentNodes.slice(0, 6).map((node) => (
-                <li key={`recent-${node.id}`}>
-                  <Link
-                    to={node.to}
-                    onClick={() => trackRecent(node.id)}
-                    className="block rounded-md px-3 py-2 text-[12px] text-sidebar-foreground/75 hover:bg-sidebar-hover"
-                  >
-                    {node.label}
-                  </Link>
                 </li>
               ))}
             </ul>
@@ -639,6 +658,38 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           )}
         </button>
       </div>
+
+      <Dialog open={isAddHotelOpen} onOpenChange={setIsAddHotelOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Hotel</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label htmlFor="name" className="text-sm font-medium">Hotel Name</label>
+              <Input 
+                id="name" 
+                value={newHotelName} 
+                onChange={(e) => setNewHotelName(e.target.value)} 
+                placeholder="e.g. Oceanview Resort" 
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="location" className="text-sm font-medium">Location</label>
+              <Input 
+                id="location" 
+                value={newHotelLocation} 
+                onChange={(e) => setNewHotelLocation(e.target.value)} 
+                placeholder="e.g. Goa" 
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddHotelOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddHotel}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }

@@ -16,6 +16,7 @@ import {
   useRatePlansQuery,
   useHotelPackagesQuery,
   useAddOnProductsQuery,
+  useHousekeepingRoomsQuery,
 } from "@/services/mock/queries";
 import { KpiCard } from "@/components/ui/Primitives";
 import { WaitlistView } from "./WaitlistView";
@@ -26,26 +27,7 @@ import { AvailabilityView } from "./AvailabilityView";
 import { RateView } from "./RateView";
 import { RestrictionsView } from "./RestrictionsView";
 
-const days = ["14 May", "15 May", "16 May", "17 May", "18 May", "19 May", "20 May"];
-const rooms = [
-  { num: "204", type: "Deluxe King" },
-  { num: "108", type: "Executive" },
-  { num: "215", type: "Deluxe Twin" },
-  { num: "302", type: "Premier Suite" },
-  { num: "312", type: "Premier Suite" },
-  { num: "401", type: "Heritage Suite" },
-  { num: "405", type: "Heritage Suite" },
-];
 
-const bars = [
-  { room: "204", start: 1, span: 3, label: "John Mathews", source: "Booking.com" },
-  { room: "108", start: 1, span: 5, label: "H. Tanaka", source: "Expedia" },
-  { room: "215", start: 0, span: 1, label: "M. Weber", source: "Agoda" },
-  { room: "302", start: 1, span: 1, label: "A. Khan", source: "Booking.com" },
-  { room: "312", start: 1, span: 2, label: "P. Sharma", source: "Direct" },
-  { room: "401", start: 2, span: 3, label: "E. Rodriguez", source: "Direct" },
-  { room: "405", start: 2, span: 5, label: "S. Laurent", source: "Direct" },
-];
 
 const sourceColor: Record<string, string> = {
   "Booking.com": "var(--color-info)",
@@ -84,10 +66,53 @@ export function ReservationsFeature() {
   const { data: hotelPackages = [] } = useHotelPackagesQuery();
   const { data: addOnProducts = [] } = useAddOnProductsQuery();
 
+  const { data: housekeepingRooms = [] } = useHousekeepingRoomsQuery();
+
   const [view, setView] = useState<View>("timeline");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [timelineStartDate, setTimelineStartDate] = useState<string>(new Date().toISOString().split("T")[0]);
 
-  const filtered =
+  // Dynamic Timeline Logic
+  const timelineDays = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date(timelineStartDate);
+    d.setDate(d.getDate() + i);
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  });
+
+  const timelineRooms = housekeepingRooms.map(r => ({ num: r.num, type: r.type }));
+
+  const timelineBars = reservations
+    .filter(r => r.status !== "Cancelled" && r.status !== "No-Show")
+    .map(r => {
+      const startObj = new Date(timelineStartDate);
+      startObj.setHours(0,0,0,0);
+      const ciObj = new Date(r.ci);
+      ciObj.setHours(0,0,0,0);
+      
+      const dayDiff = Math.round((ciObj.getTime() - startObj.getTime()) / (1000 * 60 * 60 * 24));
+      
+      return {
+        id: r.id,
+        room: r.room,
+        start: dayDiff,
+        span: r.nights,
+        label: r.guest,
+        source: r.source,
+      };
+    })
+    .filter(b => b.start < 14 && b.start + b.span > 0 && b.room !== "Unassigned");
+
+  const dummyBars = [
+    { id: "dummy-1", room: "204", start: 1, span: 3, label: "John Mathews", source: "Booking.com" },
+    { id: "dummy-2", room: "108", start: 1, span: 5, label: "H. Tanaka", source: "Expedia" },
+    { id: "dummy-3", room: "215", start: 0, span: 1, label: "M. Weber", source: "Agoda" },
+    { id: "dummy-4", room: "302", start: 1, span: 1, label: "A. Khan", source: "Booking.com" },
+    { id: "dummy-5", room: "312", start: 1, span: 2, label: "P. Sharma", source: "Direct" },
+    { id: "dummy-6", room: "401", start: 2, span: 3, label: "E. Rodriguez", source: "Direct" },
+    { id: "dummy-7", room: "405", start: 2, span: 5, label: "S. Laurent", source: "Direct" },
+  ];
+
+  const allTimelineBars = [...timelineBars, ...dummyBars];  const filtered =
     statusFilter === "All" ? reservations : reservations.filter((r) => r.status === statusFilter);
   const totalRooms = occupancyByType.reduce((a, b) => a + b.total, 0);
   const occupied = occupancyByType.reduce((a, b) => a + b.occupied, 0);
@@ -219,6 +244,17 @@ export function ReservationsFeature() {
             </select>
           )}
           <div className="flex w-full flex-wrap items-center gap-2 text-[11px] text-text-secondary sm:ml-auto sm:w-auto">
+            {view === "timeline" && (
+              <div className="flex items-center gap-2 mr-4">
+                <span className="font-medium text-text-primary">Start Date:</span>
+                <input
+                  type="date"
+                  className="h-8 rounded-md border border-border bg-surface px-2 text-[12px] focus:border-primary focus:outline-none"
+                  value={timelineStartDate}
+                  onChange={(e) => setTimelineStartDate(e.target.value)}
+                />
+              </div>
+            )}
             {Object.entries(sourceColor).map(([k, v]) => (
               <span key={k} className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-sm" style={{ background: v }} />
@@ -229,7 +265,7 @@ export function ReservationsFeature() {
         </div>
 
         {view === "timeline" && (
-          <TimelineView days={days} rooms={rooms} bars={bars} sourceColor={sourceColor} />
+          <TimelineView days={timelineDays} rooms={timelineRooms} bars={allTimelineBars} sourceColor={sourceColor} />
         )}
 
         {view === "table" && (

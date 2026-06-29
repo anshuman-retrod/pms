@@ -1,5 +1,6 @@
 import { Card, CardHeader, StatusBadge } from "@/components/ui/Primitives";
 import { type Reservation } from "@/types/pms";
+import { Link } from "@tanstack/react-router";
 
 interface TableViewProps {
   filtered: Reservation[];
@@ -17,10 +18,10 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
         {filtered.map((r) => (
           <div key={r.id} className="rounded-md border border-border-subtle bg-surface p-3">
             <div className="mb-1 flex items-center justify-between gap-2">
-              <div className="font-mono text-[11px] text-text-secondary">{r.id}</div>
+              <Link to={"/reservations/" + r.id} className="font-mono text-[11px] text-text-secondary hover:text-primary hover:underline">{r.id}</Link>
               <StatusBadge tone={statusTone(r.status)}>{r.status}</StatusBadge>
             </div>
-            <div className="text-[13px] font-semibold text-text-primary">{r.guest}</div>
+            <Link to={"/reservations/" + r.id} className="text-[13px] font-semibold text-text-primary hover:text-primary">{r.guest}</Link>
             <div className="text-[11px] text-text-secondary">
               {r.room} · {r.type}
             </div>
@@ -52,10 +53,6 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
                 />
                 {r.source}
               </span>
-              <div className="flex gap-2 text-[11px]">
-                <button className="text-primary hover:underline">Modify</button>
-                <button className="text-[var(--color-error)] hover:underline">Cancel</button>
-              </div>
             </div>
           </div>
         ))}
@@ -74,7 +71,6 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
                 "Amount",
                 "Balance",
                 "Status",
-                "",
               ].map((h) => (
                 <th
                   key={h}
@@ -88,8 +84,12 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
           <tbody>
             {filtered.map((r) => (
               <tr key={r.id} className="border-b border-border-subtle hover:bg-surface-2/50">
-                <td className="px-4 py-3 font-mono text-[12px] text-text-primary">{r.id}</td>
-                <td className="px-4 py-3 font-medium text-text-primary">{r.guest}</td>
+                <td className="px-4 py-3 font-mono text-[12px] text-text-primary">
+                  <Link to={"/reservations/" + r.id} className="hover:text-primary hover:underline">{r.id}</Link>
+                </td>
+                <td className="px-4 py-3 font-medium text-text-primary">
+                  <Link to={"/reservations/" + r.id} className="hover:text-primary">{r.guest}</Link>
+                </td>
                 <td className="px-4 py-3 text-text-secondary">
                   {r.room} · <span className="text-text-disabled">{r.type}</span>
                 </td>
@@ -116,15 +116,6 @@ export function TableView({ filtered, sourceColor, statusTone }: TableViewProps)
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge tone={statusTone(r.status)}>{r.status}</StatusBadge>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button className="text-[11px] text-primary hover:underline">Modify</button>
-                    <span className="text-text-disabled">·</span>
-                    <button className="text-[11px] text-[var(--color-error)] hover:underline">
-                      Cancel
-                    </button>
-                  </div>
                 </td>
               </tr>
             ))}

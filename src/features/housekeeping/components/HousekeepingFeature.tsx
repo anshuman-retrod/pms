@@ -39,8 +39,10 @@ export function HousekeepingFeature() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
-  const [staffName, setStaffName] = useState("Priya");
+  const [staffName, setStaffName] = useState("");
+  const [newStatus, setNewStatus] = useState("");
   const [staffOverrides, setStaffOverrides] = useState<Record<string, string>>({});
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, string>>({});
   const [selectedRoomNums, setSelectedRoomNums] = useState<string[]>([]);
 
   const effectiveRooms = useMemo(
@@ -48,8 +50,9 @@ export function HousekeepingFeature() {
       housekeepingRooms.map((room) => ({
         ...room,
         staff: staffOverrides[room.num] ?? room.staff,
+        status: statusOverrides[room.num] ?? room.status,
       })),
-    [housekeepingRooms, staffOverrides],
+    [housekeepingRooms, staffOverrides, statusOverrides],
   );
 
   const stats = useMemo(() => {
@@ -93,17 +96,38 @@ export function HousekeepingFeature() {
 
   const handleAssignSave = () => {
     if (!selectedRoomNums.length) {
-      toast.error("Select at least one room to assign.");
+      toast.error("Select at least one room to update.");
       return;
     }
-    setStaffOverrides((prev) => {
-      const next = { ...prev };
-      selectedRoomNums.forEach((num) => {
-        next[num] = staffName;
+    if (staffName) {
+      setStaffOverrides((prev) => {
+        const next = { ...prev };
+        selectedRoomNums.forEach((num) => {
+          next[num] = staffName;
+        });
+        return next;
       });
-      return next;
-    });
-    toast.success(`${staffName} assigned to ${selectedRoomNums.length} room(s).`);
+    }
+    if (newStatus) {
+      setStatusOverrides((prev) => {
+        const next = { ...prev };
+        selectedRoomNums.forEach((num) => {
+          next[num] = newStatus;
+        });
+        return next;
+      });
+    }
+
+    if (staffName && newStatus) {
+      toast.success(`Assigned ${staffName} and set status to ${newStatus} for ${selectedRoomNums.length} room(s).`);
+    } else if (staffName) {
+      toast.success(`${staffName} assigned to ${selectedRoomNums.length} room(s).`);
+    } else if (newStatus) {
+      toast.success(`Set status to ${newStatus} for ${selectedRoomNums.length} room(s).`);
+    } else {
+      toast.info("No changes made.");
+    }
+    
     setIsAssignOpen(false);
   };
 
@@ -208,7 +232,7 @@ export function HousekeepingFeature() {
         </div>
 
         {view === "board" && (
-          <RoomCardGrid housekeepingRooms={filtered} tone={tone} cardBg={cardBg} />
+          <RoomCardGrid housekeepingRooms={filtered} tone={tone} cardBg={cardBg} onUpdateRoom={handleQuickRoomUpdate} />
         )}
         {view === "list" && (
           <HousekeepingListView rooms={filtered} tone={tone} onUpdateRoom={handleQuickRoomUpdate} />
@@ -217,61 +241,88 @@ export function HousekeepingFeature() {
       </div>
 
       {isAssignOpen ? (
-        <div className="fixed inset-0 z-40 bg-black/30 p-3 sm:p-8">
-          <div className="mx-auto h-full max-w-2xl overflow-auto rounded-lg border border-border bg-surface shadow-e3 sm:h-auto">
-            <div className="border-b border-border-subtle px-5 py-4">
-              <div className="text-[16px] font-semibold text-text-primary">Assign staff</div>
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] transition-opacity" 
+            onClick={() => setIsAssignOpen(false)} 
+          />
+          <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-hidden border-l border-border bg-surface shadow-e3 animate-in slide-in-from-right duration-200">
+            <div className="shrink-0 border-b border-border-subtle px-5 py-4">
+              <div className="text-[16px] font-semibold text-text-primary">Update rooms</div>
               <div className="text-[12px] text-text-secondary">
-                Select rooms and assign an attendant.
+                Select rooms and update their status or assigned staff.
               </div>
             </div>
-            <div className="space-y-4 p-5">
-              <label className="block">
-                <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-text-secondary">
-                  Staff member
-                </div>
-                <select
-                  className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
-                  value={staffName}
-                  onChange={(e) => setStaffName(e.target.value)}
-                >
-                  {["Priya", "Lakshmi", "Anjali", "Sunil", "Rakesh"].map((staff) => (
-                    <option key={staff}>{staff}</option>
-                  ))}
-                </select>
-              </label>
+            <div className="flex-1 space-y-6 overflow-y-auto p-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-text-secondary">
+                    Staff member
+                  </div>
+                  <select
+                    className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
+                    value={staffName}
+                    onChange={(e) => setStaffName(e.target.value)}
+                  >
+                    <option value="">No change</option>
+                    {["Priya", "Lakshmi", "Anjali", "Sunil", "Rakesh"].map((staff) => (
+                      <option key={staff} value={staff}>{staff}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-text-secondary">
+                    Room Status
+                  </div>
+                  <select
+                    className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value)}
+                  >
+                    <option value="">No change</option>
+                    {["Ready", "Dirty", "Cleaning", "Inspected", "OOO"].map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <div>
                 <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-text-secondary">
                   Rooms
                 </div>
-                <div className="grid max-h-52 grid-cols-2 gap-2 overflow-auto rounded-md border border-border p-2 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {filtered.map((room) => (
                     <label
                       key={room.num}
-                      className="flex items-center gap-2 rounded border border-border-subtle px-2 py-1.5 text-[12px]"
+                      className={`flex cursor-pointer items-center justify-between gap-1 rounded border px-2 py-2 text-[12px] transition ${
+                        selectedRoomNums.includes(room.num)
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border-subtle hover:border-primary/50 hover:bg-surface-2"
+                      }`}
                     >
                       <input
                         type="checkbox"
+                        className="hidden"
                         checked={selectedRoomNums.includes(room.num)}
                         onChange={() => toggleRoomSelection(room.num)}
                       />
-                      <span className="font-mono text-text-primary">{room.num}</span>
-                      <span className="text-text-secondary">{room.status}</span>
+                      <span className={`font-mono ${selectedRoomNums.includes(room.num) ? "font-semibold text-primary" : "text-text-primary"}`}>{room.num}</span>
+                      <span className="text-[10px] text-text-secondary truncate">{room.status}</span>
                     </label>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-border-subtle px-5 py-3">
+            <div className="shrink-0 flex justify-end gap-2 border-t border-border-subtle bg-surface-2/50 px-5 py-4">
               <Button variant="outline" size="sm" onClick={() => setIsAssignOpen(false)}>
                 Cancel
               </Button>
               <Button size="sm" onClick={handleAssignSave}>
-                Save assignment
+                Save changes
               </Button>
             </div>
           </div>
-        </div>
+        </>
       ) : null}
     </div>
   );

@@ -1,15 +1,32 @@
-import { Link } from "@tanstack/react-router";
-import { useRouterState } from "@tanstack/react-router";
-import { Bell, Menu, Plus, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Bell, Menu, Plus, Search, Wallet } from "lucide-react";
 import { getPosRouteMeta } from "@/app/navigation/pos-nav-config";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROLE_LABEL } from "@/features/auth/lib/rbac";
 import { Button } from "@/components/ui/Primitives";
+import { ShiftManagementModal } from "@/features/pos/components/ShiftManagementModal";
+
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="hidden text-[13px] font-mono font-medium text-text-secondary sm:block px-2">
+      {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </div>
+  );
+}
 
 export function PosTopBar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { label, linkTo } = getPosRouteMeta(pathname);
   const { user } = useAuth();
+  const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-surface px-3 sm:gap-3 sm:px-4">
@@ -42,10 +59,21 @@ export function PosTopBar({ onOpenMobileNav }: { onOpenMobileNav?: () => void })
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
-        <Button size="sm" className="hidden sm:inline-flex">
-          <Plus className="h-3.5 w-3.5" />
-          New order
-        </Button>
+        <LiveClock />
+        <Link to="/pos/new" className="hidden sm:inline-flex">
+          <Button size="sm">
+            <Plus className="h-3.5 w-3.5" />
+            New order
+          </Button>
+        </Link>
+        <button
+          type="button"
+          title="Shift Management"
+          onClick={() => setIsShiftModalOpen(true)}
+          className="relative rounded-md p-2 text-text-secondary hover:bg-surface-2"
+        >
+          <Wallet className="h-4 w-4" />
+        </button>
         <button
           type="button"
           aria-label="Notifications"
@@ -66,6 +94,8 @@ export function PosTopBar({ onOpenMobileNav }: { onOpenMobileNav?: () => void })
           </div>
         </div>
       </div>
+
+      {isShiftModalOpen && <ShiftManagementModal onClose={() => setIsShiftModalOpen(false)} />}
     </header>
   );
 }

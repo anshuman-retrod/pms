@@ -13,6 +13,7 @@ const AVAILABILITY_CELLS_KEY = "retrod:availability-cells:v1";
 const WB_WORKSPACE_KEY = "retrod:website-builder:workspace:v1";
 const WB_APPROVALS_KEY = "retrod:website-builder:approvals:v1";
 const WB_PUBLISH_KEY = "retrod:website-builder:publish-history:v1";
+const GROUP_BLOCKS_KEY = "retrod:group-blocks:v1";
 
 export const dataKeys = {
   reservations: ["data", "reservations"] as const,
@@ -76,6 +77,27 @@ export const dataKeys = {
 export async function fetchReservations() {
   await delay();
   return db.reservations;
+}
+
+export async function fetchReservation(id: string) {
+  await delay();
+  const found = db.reservations.find(r => r.id === id);
+  if (found) return found;
+
+  // Fallback dummy for timeline UI testing
+  return {
+    id,
+    guest: "John Mathews",
+    room: "204",
+    type: "Deluxe King",
+    ci: new Date().toISOString().slice(0, 10),
+    co: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+    nights: 3,
+    amount: 36000,
+    status: "Confirmed",
+    source: "Booking.com",
+    balance: 36000,
+  };
 }
 export async function fetchArrivalsToday() {
   await delay();
@@ -143,10 +165,30 @@ export async function fetchWaitlist() {
 }
 export async function fetchGroupBlocks() {
   await delay();
-  return db.groupBlocks;
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  return readStoredArray(GROUP_BLOCKS_KEY, db.groupBlocks);
+}
+
+export async function saveGroupBlock(block: typeof db.groupBlocks[0]) {
+  await delay(40);
+  const existing = await fetchGroupBlocks();
+  const next = [block, ...existing];
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  writeStoredArray(GROUP_BLOCKS_KEY, next);
+  return next;
 }
 export async function fetchWorkOrders() {
   await delay();
+  return db.workOrders;
+}
+export async function saveWorkOrder(workOrder: any) {
+  await delay();
+  db.workOrders = [workOrder, ...db.workOrders];
+  return db.workOrders;
+}
+export async function updateWorkOrderStatus(id: string, status: string) {
+  await delay();
+  db.workOrders = db.workOrders.map((wo) => (wo.id === id ? { ...wo, status: status as any } : wo));
   return db.workOrders;
 }
 export async function fetchOpsTasks() {
@@ -160,6 +202,20 @@ export async function fetchOpsTasks() {
   } catch {
     return db.opsTasks;
   }
+}
+export async function saveOpsTasks(tasks: typeof db.opsTasks) {
+  await delay(100);
+  writeStoredArray(OPS_TASKS_KEY, tasks);
+  db.opsTasks = tasks;
+  return tasks;
+}
+export async function updateOpsTask(id: string, updates: any) {
+  await delay(100);
+  const tasks = await fetchOpsTasks();
+  const updatedTasks = tasks.map((task) => (task.id === id ? { ...task, ...updates } : task));
+  writeStoredArray(OPS_TASKS_KEY, updatedTasks);
+  db.opsTasks = updatedTasks;
+  return updatedTasks;
 }
 export async function fetchGuestServiceRequests() {
   await delay();
@@ -199,6 +255,11 @@ export async function fetchRegistrationCards() {
 }
 export async function fetchLostFoundItems() {
   await delay();
+  return db.lostFoundItems;
+}
+export async function saveLostFoundItem(item: any) {
+  await delay();
+  db.lostFoundItems = [item, ...db.lostFoundItems];
   return db.lostFoundItems;
 }
 export async function fetchFeedbackEntries() {
@@ -406,13 +467,6 @@ export async function saveWebsiteBuilderWorkspace(workspace: unknown) {
   return workspace;
 }
 
-export async function saveOpsTasks(tasks: unknown) {
-  await delay(40);
-  if (typeof window !== "undefined") {
-    localStorage.setItem(OPS_TASKS_KEY, JSON.stringify(tasks));
-  }
-  return tasks;
-}
 
 export async function fetchWebsiteBuilderApprovals() {
   await delay();

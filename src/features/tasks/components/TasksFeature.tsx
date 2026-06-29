@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import {
   PageHeader,
@@ -8,7 +9,7 @@ import {
   CardHeader,
   StatusBadge,
 } from "@/components/ui/Primitives";
-import { useOpsTasksQuery, useSaveOpsTasksMutation } from "@/services/mock/queries";
+import { useOpsTasksQuery, useSaveOpsTasksMutation, useUpdateOpsTaskMutation } from "@/services/mock/queries";
 import type { OpsTask } from "@/types/pms";
 
 type View = "list" | "board";
@@ -182,15 +183,7 @@ export function TasksFeature() {
                   {opsTasks
                     .filter((t) => t.status === col)
                     .map((t) => (
-                      <Card key={t.id} className="p-3">
-                        <div className="font-medium text-[13px]">{t.title}</div>
-                        <div className="mt-1 text-[11px] text-text-secondary">
-                          {t.department} · {t.assignee}
-                        </div>
-                        <StatusBadge tone={t.priority === "High" ? "warning" : "neutral"}>
-                          {t.priority}
-                        </StatusBadge>
-                      </Card>
+                      <TaskBoardCard key={t.id} t={t} />
                     ))}
                 </div>
               </div>
@@ -215,17 +208,7 @@ export function TasksFeature() {
                 </thead>
                 <tbody>
                   {opsTasks.map((t) => (
-                    <tr key={t.id} className="border-b border-border-subtle hover:bg-surface-2/50">
-                      <td className="px-4 py-3 font-medium">{t.title}</td>
-                      <td className="px-4 py-3">{t.department}</td>
-                      <td className="px-4 py-3">{t.assignee}</td>
-                      <td className="px-4 py-3">{t.due}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge tone={t.status === "Done" ? "success" : "info"}>
-                          {t.status}
-                        </StatusBadge>
-                      </td>
-                    </tr>
+                    <TaskListRow key={t.id} t={t} />
                   ))}
                 </tbody>
               </table>
@@ -247,6 +230,103 @@ export function TasksFeature() {
         />
       ) : null}
     </div>
+  );
+}
+
+function TaskBoardCard({ t }: { t: OpsTask }) {
+  const updateMutation = useUpdateOpsTaskMutation();
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateMutation.mutate({ id: t.id, updates: { status: e.target.value } });
+    toast.success("Task status updated.");
+  };
+
+  const handleAssigneeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateMutation.mutate({ id: t.id, updates: { assignee: e.target.value } });
+    toast.success("Task assigned successfully.");
+  };
+
+  return (
+    <Card className="p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="font-medium text-[13px]">{t.title}</div>
+        <StatusBadge tone={t.priority === "High" ? "warning" : "neutral"}>
+          {t.priority}
+        </StatusBadge>
+      </div>
+      <div className="mt-2 flex flex-col gap-2 border-t border-border-subtle pt-2 text-[11px] text-text-secondary">
+        <div className="flex items-center justify-between">
+          <span>Dept: {t.department}</span>
+          <span>Due: {t.due}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <select
+            value={t.assignee}
+            onChange={handleAssigneeChange}
+            className="h-6 flex-1 rounded border border-border-subtle bg-surface-2 px-1 text-[11px] outline-none"
+          >
+            <option value="Unassigned">Unassigned</option>
+            <option value="John Doe">John Doe</option>
+            <option value="Sarah J.">Sarah J.</option>
+            <option value="Mike K.">Mike K.</option>
+          </select>
+          <select
+            value={t.status}
+            onChange={handleStatusChange}
+            className="h-6 flex-1 rounded border border-border-subtle bg-surface-2 px-1 text-[11px] outline-none"
+          >
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function TaskListRow({ t }: { t: OpsTask }) {
+  const updateMutation = useUpdateOpsTaskMutation();
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateMutation.mutate({ id: t.id, updates: { status: e.target.value } });
+    toast.success("Task status updated.");
+  };
+
+  const handleAssigneeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateMutation.mutate({ id: t.id, updates: { assignee: e.target.value } });
+    toast.success("Task assigned successfully.");
+  };
+
+  return (
+    <tr className="border-b border-border-subtle hover:bg-surface-2/50">
+      <td className="px-4 py-3 font-medium">{t.title}</td>
+      <td className="px-4 py-3">{t.department}</td>
+      <td className="px-4 py-3">
+        <select
+          value={t.assignee}
+          onChange={handleAssigneeChange}
+          className="h-7 rounded border border-border-subtle bg-surface-2 px-2 text-[12px] outline-none"
+        >
+          <option value="Unassigned">Unassigned</option>
+          <option value="John Doe">John Doe</option>
+          <option value="Sarah J.">Sarah J.</option>
+          <option value="Mike K.">Mike K.</option>
+        </select>
+      </td>
+      <td className="px-4 py-3">{t.due}</td>
+      <td className="px-4 py-3">
+        <select
+          value={t.status}
+          onChange={handleStatusChange}
+          className="h-7 rounded border border-border-subtle bg-surface-2 px-2 text-[12px] outline-none"
+        >
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+      </td>
+    </tr>
   );
 }
 
@@ -272,20 +352,29 @@ function TaskModal({
   onSubmit: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-sidebar/55 p-0 backdrop-blur-[1px] sm:items-center sm:p-4">
-      <div className="flex h-[100dvh] w-full flex-col border border-border bg-card shadow-e3 sm:h-auto sm:max-h-[85vh] sm:w-[80vw] sm:rounded-2xl lg:max-w-2xl">
-        <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 sm:px-5">
-          <div className="text-[14px] font-semibold text-text-primary">Create Task</div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-border-subtle px-2 py-1 text-[12px] text-text-secondary transition hover:bg-surface-2/70"
-          >
-            Close
-          </button>
+    <>
+      <div 
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] transition-opacity" 
+        onClick={onClose} 
+      />
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[400px] flex-col overflow-hidden border-l border-border bg-surface shadow-e3 animate-in slide-in-from-right duration-200">
+        <div className="shrink-0 border-b border-border-subtle px-5 py-4">
+          <div className="flex items-center justify-between">
+            <div className="text-[16px] font-semibold text-text-primary">Create Task</div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-border-subtle px-2 py-1 text-[12px] text-text-secondary transition hover:bg-surface-2/70"
+            >
+              Close
+            </button>
+          </div>
+          <div className="mt-1 text-[12px] text-text-secondary">
+            Cross-department tasks and follow-ups.
+          </div>
         </div>
-        <div className="flex-1 overflow-auto p-4 sm:flex-none sm:p-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex-1 overflow-auto p-5">
+          <div className="grid grid-cols-1 gap-4">
             <TaskField label="Task title" error={errors.title} required>
               <input
                 className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[13px]"
@@ -354,7 +443,7 @@ function TaskModal({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle px-4 py-3 sm:px-5">
+        <div className="shrink-0 flex justify-end gap-2 border-t border-border-subtle bg-surface-2/50 px-5 py-4">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
@@ -363,7 +452,7 @@ function TaskModal({
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -12,7 +12,7 @@ export type ReservationTypeForRates =
 export type RatePlanEligibilityInput = {
   checkIn?: string;
   checkOut?: string;
-  roomTypeName?: string;
+  roomTypeNames?: string[];
   reservationType: ReservationTypeForRates;
   corporateCompany?: string;
 };
@@ -67,9 +67,11 @@ export function isRatePlanEligible(plan: RatePlan, input: RatePlanEligibilityInp
     if (!matchesCorporateAccount(plan, input.corporateCompany ?? "")) return false;
   }
 
-  if (input.roomTypeName && plan.roomTypeIds.length > 0) {
-    const room = ROOM_TYPE_OPTIONS.find((item) => item.name === input.roomTypeName);
-    if (room && !plan.roomTypeIds.includes(room.id)) return false;
+  if (input.roomTypeNames && input.roomTypeNames.length > 0 && plan.roomTypeIds.length > 0) {
+    const selectedRoomIds = input.roomTypeNames
+      .map((name) => ROOM_TYPE_OPTIONS.find((item) => item.name === name)?.id)
+      .filter(Boolean);
+    if (!selectedRoomIds.some((id) => plan.roomTypeIds.includes(id as string))) return false;
   }
 
   return true;

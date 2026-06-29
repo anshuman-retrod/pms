@@ -6,9 +6,10 @@ interface RoomCardGridProps {
   housekeepingRooms: HousekeepingRoom[];
   tone: (status: string) => "success" | "warning" | "error" | "info" | "neutral" | "brand" | "dark";
   cardBg: (status: string) => string;
+  onUpdateRoom?: (room: HousekeepingRoom) => void;
 }
 
-export function RoomCardGrid({ housekeepingRooms, tone, cardBg }: RoomCardGridProps) {
+export function RoomCardGrid({ housekeepingRooms, tone, cardBg, onUpdateRoom }: RoomCardGridProps) {
   const [selectedFloor, setSelectedFloor] = useState<string>("Floor 1");
 
   return (
@@ -37,7 +38,8 @@ export function RoomCardGrid({ housekeepingRooms, tone, cardBg }: RoomCardGridPr
         {housekeepingRooms.map((r) => (
           <div
             key={r.num}
-            className={`rounded-md border border-l-[3px] border-border bg-surface p-3 shadow-e1 transition hover:scale-[1.03] ${cardBg(
+            onClick={() => onUpdateRoom?.(r)}
+            className={`cursor-pointer rounded-md border border-l-[3px] border-border bg-surface p-3 shadow-e1 transition hover:scale-[1.03] ${cardBg(
               r.status,
             )}`}
           >

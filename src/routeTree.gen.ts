@@ -68,11 +68,14 @@ import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RevenueAiDashboardRouteImport } from './routes/revenue.ai-dashboard'
 import { Route as ReservationsNewRouteImport } from './routes/reservations.new'
+import { Route as ReservationsReservationIdRouteImport } from './routes/reservations.$reservationId'
+import { Route as PosNewRouteImport } from './routes/pos.new'
 import { Route as PosMenuRouteImport } from './routes/pos.menu'
 import { Route as PosKotRouteImport } from './routes/pos.kot'
 import { Route as PosInventoryRouteImport } from './routes/pos.inventory'
 import { Route as PosBillingRouteImport } from './routes/pos.billing'
 import { Route as HousekeepingMobileRouteImport } from './routes/housekeeping.mobile'
+import { Route as HotelsNewRouteImport } from './routes/hotels.new'
 import { Route as DashboardMultiPropertyRouteImport } from './routes/dashboard.multi-property'
 import { Route as ChannelManagerSyncLogsRouteImport } from './routes/channel-manager.sync-logs'
 import { Route as ChannelManagerRoomMappingRouteImport } from './routes/channel-manager.room-mapping'
@@ -387,6 +390,17 @@ const ReservationsNewRoute = ReservationsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => ReservationsRoute,
 } as any)
+const ReservationsReservationIdRoute =
+  ReservationsReservationIdRouteImport.update({
+    id: '/$reservationId',
+    path: '/$reservationId',
+    getParentRoute: () => ReservationsRoute,
+  } as any)
+const PosNewRoute = PosNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => PosRoute,
+} as any)
 const PosMenuRoute = PosMenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -411,6 +425,11 @@ const HousekeepingMobileRoute = HousekeepingMobileRouteImport.update({
   id: '/mobile',
   path: '/mobile',
   getParentRoute: () => HousekeepingRoute,
+} as any)
+const HotelsNewRoute = HotelsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => HotelsRoute,
 } as any)
 const DashboardMultiPropertyRoute = DashboardMultiPropertyRouteImport.update({
   id: '/dashboard/multi-property',
@@ -533,7 +552,7 @@ export interface FileRoutesByFullPath {
   '/groups': typeof GroupsRoute
   '/guest-requests': typeof GuestRequestsRoute
   '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
   '/housekeeping': typeof HousekeepingRouteWithChildren
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -587,11 +606,14 @@ export interface FileRoutesByFullPath {
   '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
+  '/hotels/new': typeof HotelsNewRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
   '/pos/billing': typeof PosBillingRoute
   '/pos/inventory': typeof PosInventoryRoute
   '/pos/kot': typeof PosKotRoute
   '/pos/menu': typeof PosMenuRoute
+  '/pos/new': typeof PosNewRoute
+  '/reservations/$reservationId': typeof ReservationsReservationIdRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -617,7 +639,7 @@ export interface FileRoutesByTo {
   '/groups': typeof GroupsRoute
   '/guest-requests': typeof GuestRequestsRoute
   '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
   '/housekeeping': typeof HousekeepingRouteWithChildren
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -671,11 +693,14 @@ export interface FileRoutesByTo {
   '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
+  '/hotels/new': typeof HotelsNewRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
   '/pos/billing': typeof PosBillingRoute
   '/pos/inventory': typeof PosInventoryRoute
   '/pos/kot': typeof PosKotRoute
   '/pos/menu': typeof PosMenuRoute
+  '/pos/new': typeof PosNewRoute
+  '/reservations/$reservationId': typeof ReservationsReservationIdRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -702,7 +727,7 @@ export interface FileRoutesById {
   '/groups': typeof GroupsRoute
   '/guest-requests': typeof GuestRequestsRoute
   '/guests': typeof GuestsRoute
-  '/hotels': typeof HotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
   '/housekeeping': typeof HousekeepingRouteWithChildren
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -756,11 +781,14 @@ export interface FileRoutesById {
   '/channel-manager/room-mapping': typeof ChannelManagerRoomMappingRoute
   '/channel-manager/sync-logs': typeof ChannelManagerSyncLogsRoute
   '/dashboard/multi-property': typeof DashboardMultiPropertyRoute
+  '/hotels/new': typeof HotelsNewRoute
   '/housekeeping/mobile': typeof HousekeepingMobileRoute
   '/pos/billing': typeof PosBillingRoute
   '/pos/inventory': typeof PosInventoryRoute
   '/pos/kot': typeof PosKotRoute
   '/pos/menu': typeof PosMenuRoute
+  '/pos/new': typeof PosNewRoute
+  '/reservations/$reservationId': typeof ReservationsReservationIdRoute
   '/reservations/new': typeof ReservationsNewRoute
   '/revenue/ai-dashboard': typeof RevenueAiDashboardRoute
 }
@@ -842,11 +870,14 @@ export interface FileRouteTypes {
     | '/channel-manager/room-mapping'
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
+    | '/hotels/new'
     | '/housekeeping/mobile'
     | '/pos/billing'
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/menu'
+    | '/pos/new'
+    | '/reservations/$reservationId'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   fileRoutesByTo: FileRoutesByTo
@@ -926,11 +957,14 @@ export interface FileRouteTypes {
     | '/channel-manager/room-mapping'
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
+    | '/hotels/new'
     | '/housekeeping/mobile'
     | '/pos/billing'
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/menu'
+    | '/pos/new'
+    | '/reservations/$reservationId'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   id:
@@ -1010,11 +1044,14 @@ export interface FileRouteTypes {
     | '/channel-manager/room-mapping'
     | '/channel-manager/sync-logs'
     | '/dashboard/multi-property'
+    | '/hotels/new'
     | '/housekeeping/mobile'
     | '/pos/billing'
     | '/pos/inventory'
     | '/pos/kot'
     | '/pos/menu'
+    | '/pos/new'
+    | '/reservations/$reservationId'
     | '/reservations/new'
     | '/revenue/ai-dashboard'
   fileRoutesById: FileRoutesById
@@ -1041,7 +1078,7 @@ export interface RootRouteChildren {
   GroupsRoute: typeof GroupsRoute
   GuestRequestsRoute: typeof GuestRequestsRoute
   GuestsRoute: typeof GuestsRoute
-  HotelsRoute: typeof HotelsRoute
+  HotelsRoute: typeof HotelsRouteWithChildren
   HousekeepingRoute: typeof HousekeepingRouteWithChildren
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
@@ -1496,6 +1533,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReservationsNewRouteImport
       parentRoute: typeof ReservationsRoute
     }
+    '/reservations/$reservationId': {
+      id: '/reservations/$reservationId'
+      path: '/$reservationId'
+      fullPath: '/reservations/$reservationId'
+      preLoaderRoute: typeof ReservationsReservationIdRouteImport
+      parentRoute: typeof ReservationsRoute
+    }
+    '/pos/new': {
+      id: '/pos/new'
+      path: '/new'
+      fullPath: '/pos/new'
+      preLoaderRoute: typeof PosNewRouteImport
+      parentRoute: typeof PosRoute
+    }
     '/pos/menu': {
       id: '/pos/menu'
       path: '/menu'
@@ -1530,6 +1581,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/housekeeping/mobile'
       preLoaderRoute: typeof HousekeepingMobileRouteImport
       parentRoute: typeof HousekeepingRoute
+    }
+    '/hotels/new': {
+      id: '/hotels/new'
+      path: '/new'
+      fullPath: '/hotels/new'
+      preLoaderRoute: typeof HotelsNewRouteImport
+      parentRoute: typeof HotelsRoute
     }
     '/dashboard/multi-property': {
       id: '/dashboard/multi-property'
@@ -1702,6 +1760,17 @@ const ChannelManagerRouteWithChildren = ChannelManagerRoute._addFileChildren(
   ChannelManagerRouteChildren,
 )
 
+interface HotelsRouteChildren {
+  HotelsNewRoute: typeof HotelsNewRoute
+}
+
+const HotelsRouteChildren: HotelsRouteChildren = {
+  HotelsNewRoute: HotelsNewRoute,
+}
+
+const HotelsRouteWithChildren =
+  HotelsRoute._addFileChildren(HotelsRouteChildren)
+
 interface HousekeepingRouteChildren {
   HousekeepingMobileRoute: typeof HousekeepingMobileRoute
 }
@@ -1719,6 +1788,7 @@ interface PosRouteChildren {
   PosInventoryRoute: typeof PosInventoryRoute
   PosKotRoute: typeof PosKotRoute
   PosMenuRoute: typeof PosMenuRoute
+  PosNewRoute: typeof PosNewRoute
 }
 
 const PosRouteChildren: PosRouteChildren = {
@@ -1726,15 +1796,18 @@ const PosRouteChildren: PosRouteChildren = {
   PosInventoryRoute: PosInventoryRoute,
   PosKotRoute: PosKotRoute,
   PosMenuRoute: PosMenuRoute,
+  PosNewRoute: PosNewRoute,
 }
 
 const PosRouteWithChildren = PosRoute._addFileChildren(PosRouteChildren)
 
 interface ReservationsRouteChildren {
+  ReservationsReservationIdRoute: typeof ReservationsReservationIdRoute
   ReservationsNewRoute: typeof ReservationsNewRoute
 }
 
 const ReservationsRouteChildren: ReservationsRouteChildren = {
+  ReservationsReservationIdRoute: ReservationsReservationIdRoute,
   ReservationsNewRoute: ReservationsNewRoute,
 }
 
@@ -1775,7 +1848,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsRoute: GroupsRoute,
   GuestRequestsRoute: GuestRequestsRoute,
   GuestsRoute: GuestsRoute,
-  HotelsRoute: HotelsRoute,
+  HotelsRoute: HotelsRouteWithChildren,
   HousekeepingRoute: HousekeepingRouteWithChildren,
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,

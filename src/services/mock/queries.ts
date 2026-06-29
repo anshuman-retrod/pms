@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   dataKeys,
   fetchReservations,
+  fetchReservation,
   fetchArrivalsToday,
   fetchDeparturesToday,
   fetchHousekeepingRooms,
@@ -19,9 +20,13 @@ import {
   fetchGuests,
   fetchWaitlist,
   fetchGroupBlocks,
+  saveGroupBlock,
   fetchWorkOrders,
+  saveWorkOrder,
+  updateWorkOrderStatus,
   fetchOpsTasks,
   saveOpsTasks,
+  updateOpsTask,
   fetchGuestServiceRequests,
   fetchOtaMappings,
   fetchOtaSyncLogs,
@@ -32,6 +37,7 @@ import {
   fetchLoyaltyMembers,
   fetchRegistrationCards,
   fetchLostFoundItems,
+  saveLostFoundItem,
   fetchFeedbackEntries,
   fetchBookingPromos,
   fetchPackageProducts,
@@ -71,6 +77,8 @@ import {
 
 export const useReservationsQuery = () =>
   useQuery({ queryKey: dataKeys.reservations, queryFn: fetchReservations });
+export const useReservationQuery = (id: string) =>
+  useQuery({ queryKey: ["data", "reservation", id], queryFn: () => fetchReservation(id) });
 export const useArrivalsTodayQuery = () =>
   useQuery({ queryKey: dataKeys.arrivalsToday, queryFn: fetchArrivalsToday });
 export const useDeparturesTodayQuery = () =>
@@ -104,8 +112,39 @@ export const useWaitlistQuery = () =>
   useQuery({ queryKey: dataKeys.waitlist, queryFn: fetchWaitlist });
 export const useGroupBlocksQuery = () =>
   useQuery({ queryKey: dataKeys.groupBlocks, queryFn: fetchGroupBlocks });
+
+export const useSaveGroupBlockMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveGroupBlock,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.groupBlocks, data);
+    },
+  });
+};
 export const useWorkOrdersQuery = () =>
   useQuery({ queryKey: dataKeys.workOrders, queryFn: fetchWorkOrders });
+
+export const useSaveWorkOrderMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveWorkOrder,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.workOrders, data);
+    },
+  });
+};
+
+export const useUpdateWorkOrderStatusMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateWorkOrderStatus(id, status),
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.workOrders, data);
+    },
+  });
+};
+
 export const useOpsTasksQuery = () =>
   useQuery({ queryKey: dataKeys.opsTasks, queryFn: fetchOpsTasks });
 export const useGuestServiceRequestsQuery = () =>
@@ -128,6 +167,16 @@ export const useRegistrationCardsQuery = () =>
   useQuery({ queryKey: dataKeys.registrationCards, queryFn: fetchRegistrationCards });
 export const useLostFoundItemsQuery = () =>
   useQuery({ queryKey: dataKeys.lostFoundItems, queryFn: fetchLostFoundItems });
+
+export const useSaveLostFoundItemMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveLostFoundItem,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.lostFoundItems, data);
+    },
+  });
+};
 export const useFeedbackEntriesQuery = () =>
   useQuery({ queryKey: dataKeys.feedbackEntries, queryFn: fetchFeedbackEntries });
 export const useBookingPromosQuery = () =>
@@ -289,6 +338,16 @@ export const useSaveOpsTasksMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: saveOpsTasks,
+    onSuccess: (data) => {
+      queryClient.setQueryData(dataKeys.opsTasks, data);
+    },
+  });
+};
+
+export const useUpdateOpsTaskMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => updateOpsTask(id, updates),
     onSuccess: (data) => {
       queryClient.setQueryData(dataKeys.opsTasks, data);
     },

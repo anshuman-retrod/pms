@@ -227,6 +227,17 @@ export interface WaitlistEntry {
   requestedAt: string;
 }
 
+export type GroupBlockStatus = "Prospect" | "Tentative" | "Definite" | "Cancelled" | "Actualized" | "Open" | "Closed" | "Released";
+export type GroupRoutingType = "All to Master" | "Room & Tax to Master" | "Incidentals to Master" | "Individual Pays All";
+
+export interface GroupBlockRoomMatrix {
+  roomType: string;
+  date: string;
+  blocked: number;
+  pickedUp: number;
+  rate: number;
+}
+
 export interface GroupBlock {
   id: string;
   name: string;
@@ -234,7 +245,25 @@ export interface GroupBlock {
   blocked: number;
   pickedUp: number;
   cutOff: string;
-  status: "Open" | "Closed" | "Released";
+  status: GroupBlockStatus;
+  
+  // Extended fields
+  groupCode?: string;
+  salesManager?: string;
+  cutOffType?: "FixedDate" | "RollingDays";
+  cutOffRollingDays?: number;
+  
+  // Billing
+  masterAccountId?: string;
+  routingInstruction?: GroupRoutingType;
+  
+  // Room Allocation Grid
+  roomMatrix?: GroupBlockRoomMatrix[];
+  
+  // Contacts
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
 }
 
 export type WorkOrderStatus = "Reported" | "In Progress" | "Waiting Parts" | "Resolved";
@@ -451,6 +480,17 @@ export interface ReservationPricingBreakdown {
   lines: PricingBreakdownLine[];
 }
 
+export type RateDiscountType = "Fixed" | "Percentage";
+
+export interface CorporateRateContract {
+  rateCode: string;
+  roomType: string;
+  discountType: RateDiscountType;
+  discountValue: number;
+  isLRA: boolean;
+  blackoutDates: string[];
+}
+
 export interface CorporateAccount {
   id: string;
   company: string;
@@ -459,6 +499,30 @@ export interface CorporateAccount {
   revenueMtd: number;
   openInvoices: number;
   contact: string;
+
+  // Extended fields
+  taxId?: string;
+  address?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  
+  // Production
+  annualRoomNightTarget?: number;
+  ytdRoomNights?: number;
+  ytdRevenue?: number;
+  
+  // Contracts
+  contracts?: CorporateRateContract[];
+  
+  // Direct Billing (AR)
+  creditLimit?: number;
+  currentBalance?: number;
+  arAging?: {
+    current: number;
+    thirtyDays: number;
+    sixtyDays: number;
+    ninetyPlusDays: number;
+  };
 }
 
 export interface OnlineCheckIn {
@@ -505,6 +569,9 @@ export interface RegistrationCard {
 export interface LostFoundItem {
   id: string;
   description: string;
+  itemDetail?: string;
+  roomDetail?: string;
+  imageUrl?: string;
   location: string;
   foundAt: string;
   status: "Open" | "Matched" | "Released" | "Disposed";
